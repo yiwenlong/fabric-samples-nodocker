@@ -17,7 +17,7 @@ function logError {
 }
 
 function logSuccess {
-   TAG=$1
+    TAG=$1
     MESSAGE=$2
     echo -e "\033[$SUCCESS_COLOR$TAG\033[0m $MESSAGE"
 }
