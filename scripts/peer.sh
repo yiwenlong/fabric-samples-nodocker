@@ -72,15 +72,30 @@ function configNode {
     # 5. 生成 supervisor 启动节点的配置文件
     supervisor_process_name=fabric-$org_name-$node_name
     supervisor_conf_file=$node_home/$supervisor_process_name.ini
-    echo "[program:$supervisor_process_name]
-command=$COMMAND_PEER node start
-directory=${node_home}
-redirect_stderr=true
-stdout_logfile=${node_home}/peer.log
-stdout_logfile_maxbytes=20MB
-stdout_logfile_backups=2 " > $supervisor_conf_file
+    echo "[program:$supervisor_process_name]" > $supervisor_conf_file
+    echo "command=$COMMAND_PEER node start" >> $supervisor_conf_file
+    echo "directory=${node_home}" >> $supervisor_conf_file
+    echo "redirect_stderr=true" >> $supervisor_conf_file
+    echo "stdout_logfile=${node_home}/peer.log" >> $supervisor_conf_file
+    echo "stdout_logfile_maxbytes=20MB" >> $supervisor_conf_file
+    echo "stdout_logfile_backups=2" >> $supervisor_conf_file
     logInfo "$node_name 节点 supervisor 配置文件已生成:" $supervisor_conf_file
     logSuccess "节点配置完成:" $node_name
+
+    # 6. 生成启动脚本
+    boot_script_file=$node_home/boot.sh
+    echo '#!/bin/bash' > $boot_script_file
+    echo 'export BCP_FABRIC_BIN=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)' >> $boot_script_file
+    echo 'if [ -f /usr/local/etc/supervisor.d/'$supervisor_conf_file' ]; then' >> $boot_script_file
+    echo '  rm /usr/local/etc/supervisor.d/'$supervisor_conf_file'' >> $boot_script_file
+    echo 'fi' >> $boot_script_file
+    echo 'ln '$supervisor_conf_file' /usr/local/etc/supervisor.d/' >> $boot_script_file
+    echo 'supervisorctl update' >> $boot_script_file
+    echo 'echo 正在启动节点: '$node_name'' >> $boot_script_file
+    echo 'sleep 1' >> $boot_script_file
+    echo 'supervisorctl status' >> $boot_script_file
+    chmod u+x $boot_script_file
+    logSuccess "启动脚本已生成: " $boot_script_file
 }
 
 # 根据配置文件生成一个 Peer 组织
@@ -165,7 +180,6 @@ fi
 shift
 
 ORG_NAME=
-NODE_NAME=
 CONF_FILE=
 
 while getopts f:o:n: opt
@@ -173,7 +187,6 @@ do
     case $opt in 
         f) CONF_FILE=$WORK_HOME/$OPTARG;;
         o) ORG_NAME=$OPTARG;;
-        n) NODE_NAME=$OPTARG;;
         *) usage; exit 1;;
     esac 
 done 
@@ -188,7 +201,27 @@ case $COMMAND in
         config 
         ;;
     startorg)
+        if [ $ORG_NAME ]; then 
+            if [ -d $WORK_HOME/$ORG_NAME ]; then 
+                cd $WORK_HOME/$ORG_NAME 
+            else 
+                logError "组织不存在: " $ORG_NAME
+                exit 1
+            fi  
+        fi 
+        for node_name in $(ls . | grep peer); do
+            sh ./$node_name/boot.sh 
+            if [ $? -eq 0 ]; then 
+                logSuccess "节点已启动: " $node_name
+            fi 
+        done 
         ;;
     startnode)
+        if [ -f $WORK_HOME/boot.sh ]; then
+            sh $WORK_HOME/boot.sh 
+            if [ $? -eq 0]; then 
+                logSuccess "节点已启动: " $node_name
+            fi 
+        fi 
         ;;
 esac 
