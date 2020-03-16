@@ -71,7 +71,8 @@ function configNode {
 
     # 5. 生成 supervisor 启动节点的配置文件
     supervisor_process_name=fabric-$org_name-$node_name
-    supervisor_conf_file=$node_home/$supervisor_process_name.ini
+    supervisor_conf_file_name=$supervisor_process_name.ini
+    supervisor_conf_file=$node_home/$supervisor_conf_file_name
     echo "[program:$supervisor_process_name]" > $supervisor_conf_file
     echo "command=$COMMAND_PEER node start" >> $supervisor_conf_file
     echo "directory=${node_home}" >> $supervisor_conf_file
@@ -85,9 +86,9 @@ function configNode {
     # 6. 生成启动脚本
     boot_script_file=$node_home/boot.sh
     echo '#!/bin/bash' > $boot_script_file
-    echo 'export BCP_FABRIC_BIN=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)' >> $boot_script_file
-    echo 'if [ -f /usr/local/etc/supervisor.d/'$supervisor_conf_file' ]; then' >> $boot_script_file
-    echo '  rm /usr/local/etc/supervisor.d/'$supervisor_conf_file'' >> $boot_script_file
+    echo 'export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)' >> $boot_script_file
+    echo 'if [ -f /usr/local/etc/supervisor.d/'$supervisor_conf_file_name' ]; then' >> $boot_script_file
+    echo '  rm /usr/local/etc/supervisor.d/'$supervisor_conf_file_name'' >> $boot_script_file
     echo 'fi' >> $boot_script_file
     echo 'ln '$supervisor_conf_file' /usr/local/etc/supervisor.d/' >> $boot_script_file
     echo 'supervisorctl update' >> $boot_script_file
@@ -96,6 +97,14 @@ function configNode {
     echo 'supervisorctl status' >> $boot_script_file
     chmod u+x $boot_script_file
     logSuccess "启动脚本已生成: " $boot_script_file
+
+    # 7. 生成停止节点进程脚本
+    stop_script_file=$node_home/stop.sh
+    echo '#!/bin/bash' > $stop_script_file
+    echo 'supervisorctl stop '$supervisor_process_name >> $stop_script_file
+    echo 'rm /usr/local/etc/supervisor.d/'$supervisor_conf_file_name >> $stop_script_file
+    echo 'supervisorctl remove '$supervisor_process_name >> $stop_script_file
+    logSuccess "停止脚本已生成: " $boot_script_file
 }
 
 # 根据配置文件生成一个 Peer 组织
@@ -215,12 +224,38 @@ case $COMMAND in
                 logSuccess "节点已启动: " $node_name
             fi 
         done 
+        logSuccess "组织节点启动: " $ORG_NAME
         ;;
     startnode)
         if [ -f $WORK_HOME/boot.sh ]; then
             sh $WORK_HOME/boot.sh 
             if [ $? -eq 0]; then 
                 logSuccess "节点已启动: " $node_name
+            fi 
+        fi 
+        ;;
+    stoporg)
+        if [ $ORG_NAME ]; then 
+            if [ -d $WORK_HOME/$ORG_NAME ]; then 
+                cd $WORK_HOME/$ORG_NAME 
+            else 
+                logError "组织不存在: " $ORG_NAME
+                exit 1
+            fi  
+        fi 
+        for node_name in $(ls . | grep peer); do
+            sh ./$node_name/stop.sh 
+            if [ $? -eq 0 ]; then 
+                logSuccess "节点已停止: " $node_name
+            fi 
+        done 
+        logSuccess "组织节点停止: " $ORG_NAME
+        ;;
+    stopnode)
+        if [ -f $WORK_HOME/stop.sh ]; then
+            sh $WORK_HOME/stop.sh 
+            if [ $? -eq 0]; then 
+                logSuccess "节点已停止: " $node_name
             fi 
         fi 
         ;;
