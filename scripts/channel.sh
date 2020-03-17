@@ -1,0 +1,220 @@
+#!/bin/bash
+#
+# Copyright 2020 Yiwenlong(wlong.yi#gmail.com)
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#    http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
+WORK_HOME=$(pwd)
+
+CONFIGTX_COMMON_TEMPLATE_FILE=$DIR/template/configtx-common.yaml
+
+COMMAND_PEER=$FABRIC_BIN/peer
+COMMAND_CONFIGTXGEN=$FABRIC_BIN/configtxgen
+
+. $DIR/utils/log-utils.sh
+. $DIR/utils/conf-utils.sh
+
+function readValue {
+    echo $(readConfValue $CONF_FILE $1)
+}
+
+function readNodeValue {
+    echo $(readConfValue $CONF_FILE $1 $2)
+}
+
+#
+# Config channel setup files with a conf config file.
+# See simpleconfigs/channel.conf for more.
+#
+# 1. Read params about the channel from config file.
+# 2. Generate a directory for the channel to store files.
+# 3. Generate configtx.yaml.
+# 4. Generate transaction file for create channel.
+# 5. Generate transaction files for update anchor peer.
+# 6. Generate tool scripts for every peer node.
+# 
+function config {
+
+    # 1. Read params about the channel from config file.
+    channel_name=$(readValue 'channel.name')
+    channel_profile=$(readValue 'channel.profile')
+    channel_orgs=$(readValue 'channel.orgs')
+    channel_orderer=$(readValue 'channel.orderer')
+    
+    logInfo "Start config channel:" $channel_name
+
+    # 2. Generate a directory for the channel to store files.
+    channel_home=$WORK_HOME/$channel_name
+    if [ -d $channel_home ]; then 
+        rm -fr $channel_home
+    fi 
+    mkdir -p $channel_home
+    cd $channel_home
+    logInfo "Channel Home dir:" $channel_home
+
+    # 3. Generate configtx.yaml.
+    configtx_file=$channel_home/configtx.yaml
+    echo "Organizations:" > $configtx_file
+    # 3.1. Write Orderer org information.
+    orderer_configtx_file=$WORK_HOME/$(readNodeValue $channel_orderer 'org.configtx')
+    if [ ! -f $orderer_configtx_file ]; then
+        logError "File not found:" $orderer_configtx_file
+        exit 1
+    fi 
+    cat $orderer_configtx_file >> $configtx_file
+    # 3.2. Write Peer orgs information.
+    peerorgs=(${channel_orgs//,/ })
+    for org_name in ${peerorgs[@]}; do
+        org_configtx_file=$WORK_HOME/$(readNodeValue $org_name 'org.configtx')
+        if [ ! -f $org_configtx_file ]; then
+            logError "File not found:" $org_configtx_file
+            exit 1
+        fi 
+        cat $org_configtx_file >> $configtx_file
+    done 
+    # 3.3. Wirte common code. 
+    cat $CONFIGTX_COMMON_TEMPLATE_FILE >> $configtx_file
+    # 3.4. Wirte Orderer node address
+    orderer_address=$(readNodeValue $channel_orderer 'org.address')
+    echo "        - ${orderer_address}" >> $configtx_file
+    # 3.5. Write channel profile
+    echo 'Profiles:
+    ChannelProfile:
+        Consortium: SampleConsortium
+        <<: *ChannelDefaults
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:' >> $configtx_file
+    for org_name in ${peerorgs[@]}; do
+        echo "                - *${org_name}" >> $configtx_file
+    done 
+    echo '            Capabilities:
+                <<: *ApplicationCapabilities' >> $configtx_file
+    logInfo "Channel tx config file has been generated: $configtx_file"
+
+    # 4. Generate transaction file for create channel.
+    channel_tx_file=$channel_home/$channel_name.tx
+    $COMMAND_CONFIGTXGEN \
+        -profile $channel_profile \
+        -outputCreateChannelTx $channel_tx_file \
+        -channelID $channel_name \
+        -configPath $channel_home
+    if [ ! $? == 0 ]; then
+        logError "Transaction Generate Error:" $channel_tx_file
+        exit 1
+    fi
+    logInfo "Channel transaction file has been generated:" $channel_tx_file
+    
+    # 5. Generate transaction files for update anchor peer.
+    for org_name in ${peerorgs[@]}; do
+        anchor_tx_file=$channel_name/${org_name}Panchors.tx
+        $COMMAND_CONFIGTXGEN \
+            -profile $channel_profile \
+            -outputAnchorPeersUpdate $anchor_tx_file \
+            -channelID $channel_name \
+            -asOrg ${org_name} \
+            -configPath $channel_home
+        if [ ! $? == 0 ]; then
+            logError "Transaction Generate Error:" $anchor_tx_file
+            exit 1
+        fi
+        logInfo "Anchor peer transaction file for $org_name has been generated:" $anchor_tx_file
+    done 
+
+    # 6. Generate tool scripts for every peer node.
+    orderer_tls_ca_file=$WORK_HOME/$(readNodeValue $channel_orderer 'org.tls.ca')
+    if [ ! -f $orderer_tls_ca_file ]; then
+        logError "File not found:" $orderer_tls_ca_file
+        exit 1
+    fi 
+    for org_name in ${peerorgs[@]}; do
+        org_node_list=$(readNodeValue $org_name 'org.node.list')
+        org_admin_msp_dir=$WORK_HOME/$(readNodeValue $org_name 'org.admin.msp.dir')
+        org_msp_id=$(readNodeValue $org_name 'org.admin.mspid')
+        org_domain=$(readNodeValue $org_name 'org.domain')
+        org_tls_ca_file=$WORK_HOME/$(readNodeValue $org_name 'org.tls.ca')
+        if [ ! -d $org_admin_msp_dir ]; then 
+            logError "MSP Directory not found:" $org_admin_msp_dir
+            exit 1
+        fi 
+        if [ ! -f $org_tls_ca_file ]; then 
+            logError "TLS CA file not found:" $org_tls_ca_file
+            exit 1
+        fi 
+        peers=(${org_node_list//,/ })
+        for node_name in ${peers[@]}; do
+            channel_node_conf_home=$channel_home/$org_name-$node_name-$channel_name-conf
+            mkdir -p $channel_node_conf_home
+
+            channel_node_conf_file=$channel_node_conf_home/channel.conf
+
+            cp $org_tls_ca_file $CONF_HOME/peer-tls-ca.pem
+            cp $orderer_tls_ca_file $channel_node_conf_home/orderer-tls-ca.pem
+            cp $channel_home/$channel_name.tx $channel_node_conf_home
+            cp $channel_home/${org_name}Panchors.tx $channel_node_conf_home
+            cp -r $org_admin_msp_dir $channel_node_conf_home/adminmsp
+
+            node_domain=$node_name.org_domain
+            node_port=$(readNodeValue $org_name.$node_name 'node.port')
+
+            echo "channel.name=$channel_name" > $channel_node_conf_file
+            echo "channel.create.tx.file.name=$channel_name.tx" >> $channel_node_conf_file
+            echo "orderer.address=$orderer_address" >> $channel_node_conf_file
+            echo "orderer.tls.ca=orderer-tls-ca.pem" >> $channel_node_conf_file
+            echo "org.anchorfile=${org_name}Panchors.tx" >> $channel_node_conf_file
+            echo "org.name=$org_name" >> $channel_node_conf_file
+            echo "org.mspid=$org_mspid" >> $channel_node_conf_file
+            echo "org.adminmsp=adminmsp" >> $channel_node_conf_file
+            echo "org.peer.address=$node_domain:$node_port" >> $channel_node_conf_file
+            echo "org.tls.ca=peer-tls-ca.pem" >> $channel_node_conf_file
+
+            logInfo "Channel config home for org: $org_name node: $node_name has been generated:" $channel_node_conf_home
+        done 
+    done 
+
+    logSuccess "Channel config success:" $channel_name
+}
+
+function usage {
+    exit 0
+}
+
+COMMAND=$1
+if [ ! $COMMAND ]; then 
+    usage
+    exit 1
+fi 
+shift
+
+CONF_FILE=
+
+while getopts f:o:n: opt
+do 
+    case $opt in 
+        f) CONF_FILE=$WORK_HOME/$OPTARG;;
+        *) usage; exit 1;;
+    esac 
+done
+
+case $COMMAND in 
+    configchannel)
+        if [ ! -f $CONF_FILE ]
+        then
+            logError "Missing config file:" "channel.conf" 
+            exit 1
+        fi 
+        config ;;
+    *)
+        usage; exit 1;;
+esac 
