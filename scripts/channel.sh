@@ -187,7 +187,11 @@ function config {
 }
 
 function usage {
-    exit 0
+    function usage {
+    echo "USAGE:"
+    echo "  channel.sh <commadn> -f configfile"
+    echo "      command: [ configchannel | usage ]"
+}
 }
 
 COMMAND=$1

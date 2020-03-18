@@ -187,7 +187,9 @@ function config {
 }
 
 function usage {
-    exit 0
+    echo "USAGE:"
+    echo "  peer.sh <command> [ -f configfile | -o orgName ]"
+    echo "      command: [ configorg | startorg | stoporg | startnode | stropnode | usage]"
 }
 
 if [ ! $FABRIC_BIN ]; then 
