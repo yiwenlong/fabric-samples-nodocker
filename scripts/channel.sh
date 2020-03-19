@@ -141,7 +141,7 @@ function config {
     for org_name in ${peerorgs[@]}; do
         org_node_list=$(readNodeValue $org_name 'org.node.list')
         org_admin_msp_dir=$WORK_HOME/$(readNodeValue $org_name 'org.admin.msp.dir')
-        org_msp_id=$(readNodeValue $org_name 'org.admin.mspid')
+        org_msp_id=$(readNodeValue $org_name 'org.mspid')
         org_domain=$(readNodeValue $org_name 'org.domain')
         org_tls_ca_file=$WORK_HOME/$(readNodeValue $org_name 'org.tls.ca')
         if [ ! -d $org_admin_msp_dir ]; then 
@@ -165,7 +165,7 @@ function config {
             cp $channel_home/${org_name}Panchors.tx $channel_node_conf_home
             cp -r $org_admin_msp_dir $channel_node_conf_home/adminmsp
 
-            node_domain=$node_name.org_domain
+            node_domain=$node_name.$org_domain
             node_port=$(readNodeValue $org_name.$node_name 'node.port')
 
             echo "channel.name=$channel_name" > $channel_node_conf_file
@@ -223,17 +223,53 @@ function create {
     export CORE_PEER_ADDRESS=$peer_address
     export CORE_PEER_TLS_ROOTCERT_FILE=$org_tls_file
 
-    $COMMAND_PEER channel update \
+    block_file=$CONF_DIR/$channel_name.block
+
+    $COMMAND_PEER channel create \
         -o $orderer_address -c $channel_name -f $tx_file \
-        --tls --cafile $orderer_tls_file
+        --tls --cafile $orderer_tls_file --outputBlock $block_file
 }
 
+function join { 
+    
+    admin_msp_dir=$CONF_DIR/$(readValue "org.adminmsp")
+    org_mspid=$(readValue "org.mspid")
+    peer_address=$(readValue "org.peer.address")
+    org_tls_file=$CONF_DIR/$(readValue "org.tls.ca")
+
+    channel_name=$(readValue "channel.name")
+
+    checkdirexit $admin_msp_dir
+    checkfielexit $org_tls_file
+
+    export CORE_PEER_TLS_ENABLED=true
+    export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
+    export CORE_PEER_LOCALMSPID=$org_mspid
+    export CORE_PEER_ADDRESS=$peer_address
+    export CORE_PEER_TLS_ROOTCERT_FILE=$org_tls_file
+
+    block_file=$CONF_DIR/$channel_name.block
+
+    if [ ! -f $block_file ]; then
+        orderer_address=$(readValue "orderer.address")
+        orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
+        checkfielexit $orderer_tls_file
+        
+        $COMMAND_PEER channel fetch newest $block_file \
+            -o $orderer_address \
+            -c $channel_name \
+            --tls \
+            --cafile $orderer_tls_file
+    fi
+
+    $COMMAND_PEER channel join -b $block_file
+}
+
+
 function usage {
-    function usage {
     echo "USAGE:"
     echo "  channel.sh <commadn> -f configfile"
     echo "      command: [ configchannel | usage ]"
-}
 }
 
 COMMAND=$1
@@ -263,7 +299,7 @@ case $COMMAND in
             exit 1
         fi 
         config ;;
-    create)
+    create | join | fetch )
         if [ ! -d $CONF_DIR ]
         then 
             logError "Missing config directory:" "Org-peer-channel-conf"
@@ -275,6 +311,6 @@ case $COMMAND in
             logError "Missing config file:" $CONF_FILE
             exit 1
         fi 
-        create;;
+        $COMMAND ;;
     *) usage; exit 1;;
 esac 
