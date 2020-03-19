@@ -118,7 +118,7 @@ function config {
     
     # 5. Generate transaction files for update anchor peer.
     for org_name in ${peerorgs[@]}; do
-        anchor_tx_file=$channel_name/${org_name}Panchors.tx
+        anchor_tx_file=$channel_home/${org_name}Panchors.tx
         $COMMAND_CONFIGTXGEN \
             -profile $channel_profile \
             -outputAnchorPeersUpdate $anchor_tx_file \
@@ -159,7 +159,7 @@ function config {
 
             channel_node_conf_file=$channel_node_conf_home/channel.conf
 
-            cp $org_tls_ca_file $CONF_HOME/peer-tls-ca.pem
+            cp $org_tls_ca_file $channel_node_conf_home/peer-tls-ca.pem
             cp $orderer_tls_ca_file $channel_node_conf_home/orderer-tls-ca.pem
             cp $channel_home/$channel_name.tx $channel_node_conf_home
             cp $channel_home/${org_name}Panchors.tx $channel_node_conf_home
@@ -179,7 +179,7 @@ function config {
             echo "org.peer.address=$node_domain:$node_port" >> $channel_node_conf_file
             echo "org.tls.ca=peer-tls-ca.pem" >> $channel_node_conf_file
 
-            logInfo "Channel config home for org: $org_name node: $node_name has been generated:" $channel_node_conf_home
+            logSuccess "Channel config home for org: $org_name node: $node_name has been generated:" $channel_node_conf_home
         done 
     done 
 
@@ -212,7 +212,7 @@ do
 done
 
 case $COMMAND in 
-    configchannel)
+    config)
         if [ ! -f $CONF_FILE ]
         then
             logError "Missing config file:" "channel.conf" 
