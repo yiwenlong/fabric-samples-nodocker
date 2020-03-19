@@ -265,6 +265,36 @@ function join {
     $COMMAND_PEER channel join -b $block_file
 }
 
+function updateAnchorPeer {
+
+    admin_msp_dir=$CONF_DIR/$(readValue "org.adminmsp")
+    org_mspid=$(readValue "org.mspid")
+    peer_address=$(readValue "org.peer.address")
+    org_tls_file=$CONF_DIR/$(readValue "org.tls.ca")
+
+    channel_name=$(readValue "channel.name")
+
+    checkdirexit $admin_msp_dir
+    checkfielexit $org_tls_file
+
+    export CORE_PEER_TLS_ENABLED=true
+    export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
+    export CORE_PEER_LOCALMSPID=$org_mspid
+    export CORE_PEER_ADDRESS=$peer_address
+    export CORE_PEER_TLS_ROOTCERT_FILE=$org_tls_file
+
+    orderer_address=$(readValue "orderer.address")
+    orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
+    anchor_tx_file=$CONF_DIR/$(readValue "org.anchorfile")
+
+    checkfielexit $orderer_tls_file
+
+    checkfielexit $anchor_tx_file
+
+    $COMMAND_PEER channel update \
+        -o $orderer_address -c $channel_name -f $anchor_tx_file \
+        --tls --cafile $orderer_tls_file
+}
 
 function usage {
     echo "USAGE:"
@@ -299,7 +329,7 @@ case $COMMAND in
             exit 1
         fi 
         config ;;
-    create | join | fetch )
+    create | join | updateAnchorPeer )
         if [ ! -d $CONF_DIR ]
         then 
             logError "Missing config directory:" "Org-peer-channel-conf"
