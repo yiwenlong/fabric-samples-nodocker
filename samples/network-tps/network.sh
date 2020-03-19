@@ -24,6 +24,11 @@ function networksetup() {
     ../../scripts/orderer.sh configorg -f Orderer.conf 
     echo "开始启动组织: Orderer"
     ../../scripts/orderer.sh startorg -o Orderer
+    echo "开始配置 channel: mychannel"
+    ../../scripts/channel.sh config -f mychannel.conf
+    echo "开始创建 channel: mychannel"
+    export FABRIC_CFG_PATH=$(cd Org1/peer0 && pwd)
+    ../../scripts/channel.sh create -d $(cd mychannel/Org1-peer0-mychannel-conf && pwd)
 }
 
 function networkdown() {

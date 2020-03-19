@@ -174,7 +174,7 @@ function config {
             echo "orderer.tls.ca=orderer-tls-ca.pem" >> $channel_node_conf_file
             echo "org.anchorfile=${org_name}Panchors.tx" >> $channel_node_conf_file
             echo "org.name=$org_name" >> $channel_node_conf_file
-            echo "org.mspid=$org_mspid" >> $channel_node_conf_file
+            echo "org.mspid=$org_msp_id" >> $channel_node_conf_file
             echo "org.adminmsp=adminmsp" >> $channel_node_conf_file
             echo "org.peer.address=$node_domain:$node_port" >> $channel_node_conf_file
             echo "org.tls.ca=peer-tls-ca.pem" >> $channel_node_conf_file
@@ -184,6 +184,48 @@ function config {
     done 
 
     logSuccess "Channel config success:" $channel_name
+}
+
+function checkfielexit {
+    if [ ! -f $1 ]; then
+        logError "File not found:" $1
+        exit 1
+    fi
+}
+
+function checkdirexit {
+    if [ ! -d $1 ]; then
+        logError "Directory not found:" $1
+        exit 1
+    fi
+}
+
+function create {
+
+    tx_file=$CONF_DIR/$(readValue "channel.create.tx.file.name")
+    orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
+    org_tls_file=$CONF_DIR/$(readValue "org.tls.ca")
+    admin_msp_dir=$CONF_DIR/$(readValue "org.adminmsp")
+
+    peer_address=$(readValue "org.peer.address")
+    orderer_address=$(readValue "orderer.address")
+    org_mspid=$(readValue "org.mspid")
+    channel_name=$(readValue "channel.name")
+
+    checkfielexit $tx_file
+    checkfielexit $orderer_tls_file
+    checkfielexit $org_tls_file
+    checkdirexit $admin_msp_dir
+
+    export CORE_PEER_TLS_ENABLED=true
+    export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
+    export CORE_PEER_LOCALMSPID=$org_mspid
+    export CORE_PEER_ADDRESS=$peer_address
+    export CORE_PEER_TLS_ROOTCERT_FILE=$org_tls_file
+
+    $COMMAND_PEER channel update \
+        -o $orderer_address -c $channel_name -f $tx_file \
+        --tls --cafile $orderer_tls_file
 }
 
 function usage {
@@ -202,11 +244,13 @@ fi
 shift
 
 CONF_FILE=
+CONF_DIR=
 
-while getopts f:o:n: opt
+while getopts f:d: opt
 do 
     case $opt in 
         f) CONF_FILE=$WORK_HOME/$OPTARG;;
+        d) CONF_DIR=$OPTARG;;
         *) usage; exit 1;;
     esac 
 done
@@ -219,6 +263,18 @@ case $COMMAND in
             exit 1
         fi 
         config ;;
-    *)
-        usage; exit 1;;
+    create)
+        if [ ! -d $CONF_DIR ]
+        then 
+            logError "Missing config directory:" "Org-peer-channel-conf"
+            exit 1
+        fi 
+        CONF_FILE=$CONF_DIR/channel.conf 
+        if [ ! -f $CONF_FILE ]
+        then
+            logError "Missing config file:" $CONF_FILE
+            exit 1
+        fi 
+        create;;
+    *) usage; exit 1;;
 esac 
