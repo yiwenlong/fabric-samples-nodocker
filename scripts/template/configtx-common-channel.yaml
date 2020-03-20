@@ -38,26 +38,10 @@ Channel: &ChannelDefaults
             Rule: "MAJORITY Admins"
     Capabilities:
         <<: *ChannelCapabilities
-Orderer: &OrdererDefaults
-    OrdererType: etcdraft
-    BatchTimeout: 2s
-    BatchSize:
-        MaxMessageCount: 10
-        AbsoluteMaxBytes: 99 MB
-        PreferredMaxBytes: 512 KB
-    Organizations:
-    Policies:
-        Readers:
-            Type: ImplicitMeta
-            Rule: "ANY Readers"
-        Writers:
-            Type: ImplicitMeta
-            Rule: "ANY Writers"
-        Admins:
-            Type: ImplicitMeta
-            Rule: "MAJORITY Admins"
-        BlockValidation:
-            Type: ImplicitMeta
-            Rule: "ANY Writers"
-    EtcdRaft:
-        Consenters:
+Profiles:
+    ChannelProfile:
+        Consortium: SampleConsortium
+        <<: *ChannelDefaults
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:

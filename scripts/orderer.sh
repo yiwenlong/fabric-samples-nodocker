@@ -168,9 +168,13 @@ function config {
     # 6.4. 写入 Orderer 节点的地址信息
     for (( i = 0; i < $org_node_count ; ++i)); do
         node_name=orderer${i}
+        node_home=$org_home/$node_name
         node_address=$node_name.$org_domain
         node_port=$(readConfNodeValue $node_name node.port)
-        echo "        - ${node_address}:${node_port}" >> $genesis_configtx_file
+        echo '            - Host: '${node_address}'
+              Port: '${node_port}'
+              ClientTLSCert: '${node_home}'/tls/server.crt
+              ServerTLSCert: '${node_home}'/tls/server.crt' >> $genesis_configtx_file
     done
     # 6.5. 写入创建 genesis 的 profile
     echo 'Profiles:
@@ -180,27 +184,7 @@ function config {
             <<: *ChannelCapabilities
         Orderer:
             <<: *OrdererDefaults
-            OrdererType: etcdraft
-            EtcdRaft:
-                Consenters:' >> $genesis_configtx_file
-    for (( i = 0; i < $org_node_count ; ++i)); do
-        node_name=orderer${i}
-        node_home=$org_home/$node_name
-        node_address=$node_name.$org_domain
-        node_port=$(readConfNodeValue $node_name node.port)
-        echo '                - Host: '${node_address}'
-                  Port: '${node_port}'
-                  ClientTLSCert: '${node_home}'/tls/server.crt
-                  ServerTLSCert: '${node_home}'/tls/server.crt' >> $genesis_configtx_file
-    done
-    echo "            Addresses:" >> $genesis_configtx_file
-    for (( i = 0; i < $org_node_count ; ++i)); do
-        node_name=orderer${i}
-        node_address=$node_name.$org_domain
-        node_port=$(readConfNodeValue $node_name node.port)
-        echo "                - ${node_address}:${node_port}" >> $genesis_configtx_file
-    done
-    echo '            Organizations:
+            Organizations:
             - *'${org_name}'
             Capabilities:
                 <<: *OrdererCapabilities

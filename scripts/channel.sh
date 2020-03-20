@@ -17,7 +17,7 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
-CONFIGTX_COMMON_TEMPLATE_FILE=$DIR/template/configtx-common.yaml
+CONFIGTX_COMMON_TEMPLATE_FILE=$DIR/template/configtx-common-channel.yaml
 
 COMMAND_PEER=$FABRIC_BIN/peer
 COMMAND_CONFIGTXGEN=$FABRIC_BIN/configtxgen
@@ -66,14 +66,6 @@ function config {
     # 3. Generate configtx.yaml.
     configtx_file=$channel_home/configtx.yaml
     echo "Organizations:" > $configtx_file
-    # 3.1. Write Orderer org information.
-    orderer_configtx_file=$WORK_HOME/$(readNodeValue $channel_orderer 'org.configtx')
-    if [ ! -f $orderer_configtx_file ]; then
-        logError "File not found:" $orderer_configtx_file
-        exit 1
-    fi 
-    cat $orderer_configtx_file >> $configtx_file
-    # 3.2. Write Peer orgs information.
     peerorgs=(${channel_orgs//,/ })
     for org_name in ${peerorgs[@]}; do
         org_configtx_file=$WORK_HOME/$(readNodeValue $org_name 'org.configtx')
@@ -83,19 +75,9 @@ function config {
         fi 
         cat $org_configtx_file >> $configtx_file
     done 
-    # 3.3. Wirte common code. 
+    # 3.2. Wirte common code. 
     cat $CONFIGTX_COMMON_TEMPLATE_FILE >> $configtx_file
-    # 3.4. Wirte Orderer node address
-    orderer_address=$(readNodeValue $channel_orderer 'org.address')
-    echo "        - ${orderer_address}" >> $configtx_file
-    # 3.5. Write channel profile
-    echo 'Profiles:
-    ChannelProfile:
-        Consortium: SampleConsortium
-        <<: *ChannelDefaults
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:' >> $configtx_file
+    # 3.3. Write channel profile
     for org_name in ${peerorgs[@]}; do
         echo "                - *${org_name}" >> $configtx_file
     done 
@@ -134,6 +116,7 @@ function config {
 
     # 6. Generate tool scripts for every peer node.
     orderer_tls_ca_file=$WORK_HOME/$(readNodeValue $channel_orderer 'org.tls.ca')
+    orderer_address=$(readNodeValue $channel_orderer  "org.address")
     if [ ! -f $orderer_tls_ca_file ]; then
         logError "File not found:" $orderer_tls_ca_file
         exit 1
