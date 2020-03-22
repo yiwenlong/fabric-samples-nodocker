@@ -14,4 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# function checkFileEx
+
+. $DIR/utils/log-utils.sh
+
+function checkfielexit {
+    if [ ! -f $1 ]; then
+        logError "File not found:" $1
+        exit 1
+    fi
+}
+
+function checkdirexit {
+    if [ ! -d $1 ]; then
+        logError "Directory not found:" $1
+        exit 1
+    fi
+}

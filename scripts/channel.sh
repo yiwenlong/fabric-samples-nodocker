@@ -24,6 +24,7 @@ COMMAND_CONFIGTXGEN=$FABRIC_BIN/configtxgen
 
 . $DIR/utils/log-utils.sh
 . $DIR/utils/conf-utils.sh
+. $DIR/utils/file-utils.sh
 
 function readValue {
     echo $(readConfValue $CONF_FILE $1)
@@ -167,20 +168,6 @@ function config {
     done 
 
     logSuccess "Channel config success:" $channel_name
-}
-
-function checkfielexit {
-    if [ ! -f $1 ]; then
-        logError "File not found:" $1
-        exit 1
-    fi
-}
-
-function checkdirexit {
-    if [ ! -d $1 ]; then
-        logError "Directory not found:" $1
-        exit 1
-    fi
 }
 
 function create {
