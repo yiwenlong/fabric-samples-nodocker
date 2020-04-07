@@ -17,21 +17,21 @@
 
 . $DIR/utils/log-utils.sh
 
-function checkfielexit {
+function checkfielexist {
     if [ ! -f $1 ]; then
         logError "File not found:" $1
         exit 1
     fi
 }
 
-function checkdirexit {
+function checkdirexist {
     if [ ! -d $1 ]; then
         logError "Directory not found:" $1
         exit 1
     fi
 }
 
-function absoluteFile() {
+function absolutefile() {
     file=$1
     relative_dir=$2
     if [ "${file:0:1}" = "/" ]; then
