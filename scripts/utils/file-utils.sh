@@ -30,3 +30,17 @@ function checkdirexit {
         exit 1
     fi
 }
+
+function absoluteFile() {
+    file=$1
+    relative_dir=$2
+    if [ "${file:0:1}" = "/" ]; then
+        echo "$file"
+    else 
+        if [[ $relative_dir =~ /$ ]]; then 
+            echo "$relative_dir$file"
+        else 
+            echo "$relative_dir/$file"
+        fi 
+    fi 
+}
