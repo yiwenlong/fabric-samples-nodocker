@@ -240,6 +240,7 @@ case $COMMAND in
                 logSuccess "节点已启动: " $node_name
             fi 
         done 
+        sleep 3
         logSuccess "组织节点启动: " $ORG_NAME
         ;;
     startnode)
