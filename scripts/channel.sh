@@ -196,8 +196,9 @@ function create {
     block_file=$CONF_DIR/$channel_name.block
 
     $COMMAND_PEER channel create \
-        -o $orderer_address -c $channel_name -f $tx_file \
-        --tls --cafile $orderer_tls_file --outputBlock $block_file
+        -c $channel_name -f $tx_file \
+        -o $orderer_address --tls --cafile $orderer_tls_file \
+        --outputBlock $block_file
 }
 
 function join { 
@@ -220,19 +221,26 @@ function join {
 
     block_file=$CONF_DIR/$channel_name.block
 
+    orderer_address=$(readValue "orderer.address")
+    orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
+    checkfielexit $orderer_tls_file
+
     if [ ! -f $block_file ]; then
-        orderer_address=$(readValue "orderer.address")
-        orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
-        checkfielexit $orderer_tls_file
-        
         $COMMAND_PEER channel fetch newest $block_file \
             -o $orderer_address \
             -c $channel_name \
-            --tls \
-            --cafile $orderer_tls_file
+            --tls --cafile $orderer_tls_file
     fi
 
-    $COMMAND_PEER channel join -b $block_file
+    $COMMAND_PEER channel fetch newest $block_file \
+            -o $orderer_address \
+            -c $channel_name \
+            --tls --cafile $orderer_tls_file
+
+    exit 1
+    $COMMAND_PEER channel join \
+        -b $block_file \
+        -o $orderer_address --tls --cafile $orderer_tls_file
 }
 
 function updateAnchorPeer {
@@ -262,14 +270,14 @@ function updateAnchorPeer {
     checkfielexit $anchor_tx_file
 
     $COMMAND_PEER channel update \
-        -o $orderer_address -c $channel_name -f $anchor_tx_file \
-        --tls --cafile $orderer_tls_file
+        -c $channel_name -f $anchor_tx_file \
+        -o $orderer_address --tls --cafile $orderer_tls_file
 }
 
 function usage {
     echo "USAGE:"
     echo "  channel.sh <commadn> -f configfile"
-    echo "      command: [ configchannel | usage ]"
+    echo "      command: [ config | create | join | updateAnchorPeer | usage ]"
 }
 
 COMMAND=$1
