@@ -201,17 +201,19 @@ function create {
         --outputBlock $block_file
 }
 
-function join { 
-    
+function join {
     admin_msp_dir=$CONF_DIR/$(readValue "org.adminmsp")
     org_mspid=$(readValue "org.mspid")
     peer_address=$(readValue "org.peer.address")
     org_tls_file=$CONF_DIR/$(readValue "org.tls.ca")
-
     channel_name=$(readValue "channel.name")
-
-    checkdirexist $admin_msp_dir
-    checkfielexist $org_tls_file
+    logInfo "Join channel:" "$channel_name"
+    logInfo "Organization admin msp directory:" "$admin_msp_dir"
+    logInfo "Organization mspid:" "$org_mspid"
+    logInfo "Organization node address:" "$peer_address"
+    logInfo "Organization TLS ca file:" "$org_tls_file"
+    checkdirexist "$admin_msp_dir"
+    checkfielexist "$org_tls_file"
 
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
@@ -223,24 +225,28 @@ function join {
 
     orderer_address=$(readValue "orderer.address")
     orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
-    checkfielexist $orderer_tls_file
+    logInfo "Orderer address:" "$orderer_address"
+    logInfo "Orderer TLS ca file:" "$orderer_tls_file"
+    checkfielexist "$orderer_tls_file"
 
-    if [ ! -f $block_file ]; then
-        $COMMAND_PEER channel fetch newest $block_file \
-            -o $orderer_address \
-            -c $channel_name \
-            --tls --cafile $orderer_tls_file
+    if [ ! -f "$block_file" ]; then
+        $COMMAND_PEER channel fetch newest "$block_file" \
+            -o "$orderer_address" \
+            -c "$channel_name" \
+            --tls --cafile "$orderer_tls_file"
     fi
 
-    $COMMAND_PEER channel fetch newest $block_file \
-            -o $orderer_address \
-            -c $channel_name \
-            --tls --cafile $orderer_tls_file
-
-    exit 1
     $COMMAND_PEER channel join \
-        -b $block_file \
-        -o $orderer_address --tls --cafile $orderer_tls_file
+        -b "$block_file" \
+        -o "$orderer_address" --tls --cafile "$orderer_tls_file"
+
+    if [ $? -eq 0 ]; then
+        logSuccess "Join channel success:" "$peer_address -> $channel_name"
+        $COMMAND_PEER channel list
+    else
+        logError "Join channel failed:" "$peer_address -> $channel_name"
+        exit 1
+    fi
 }
 
 function updateAnchorPeer {
