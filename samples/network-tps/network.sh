@@ -68,6 +68,8 @@ function upChaincode() {
   "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c mychannel/Org1-peer0-mychannel-conf
   logInfo "Install chaincode:" "tps -> org1.peer0"
   "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c mychannel/Org1-peer1-mychannel-conf
+  logInfo "Approve chaincode:" "tps"
+  "$SCRIPT_PATH"/chaincode.sh approve -h chaincode-home-cc-tps -c mychannel/Org1-peer0-mychannel-conf
 }
 
 function networkdown() {
@@ -98,6 +100,8 @@ case $COMMAND in
         networksetup ;;
     upchannel)
         upChannel;;
+    upchaincode)
+      upChaincode;;
     upnodes)
         startPeerOrg
         startOrdererOrg;;
