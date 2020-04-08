@@ -26,6 +26,7 @@ function networksetup() {
     startPeerOrg
     startOrdererOrg
     upChannel
+    upChaincode
 }
 
 function startPeerOrg() {
@@ -57,6 +58,16 @@ function upChannel() {
     logInfo "Update channel:" "Achor peer for mychannel -> peer0"
     "$SCRIPT_PATH"/channel.sh updateAnchorPeer -d $(cd "$DIR"/mychannel/Org1-peer0-mychannel-conf && pwd)
     logSuccess "Channel created:" mychannel
+}
+
+function upChaincode() {
+  export FABRIC_CFG_PATH=$(cd "$DIR"/Org1/peer0 && pwd)
+  logInfo "Package chaincode:" tps
+  "$SCRIPT_PATH"/chaincode.sh package -f cc-tps.conf
+  logInfo "Install chaincode:" "tps -> org1.peer0"
+  "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c mychannel/Org1-peer0-mychannel-conf
+  logInfo "Install chaincode:" "tps -> org1.peer0"
+  "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c mychannel/Org1-peer1-mychannel-conf
 }
 
 function networkdown() {
