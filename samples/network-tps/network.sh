@@ -26,7 +26,6 @@ function networksetup() {
     startPeerOrg
     startOrdererOrg
     upChannel
-    upChaincode
 }
 
 function startPeerOrg() {
@@ -60,18 +59,6 @@ function upChannel() {
     logSuccess "Channel created:" mychannel
 }
 
-function upChaincode() {
-  export FABRIC_CFG_PATH=$(cd "$DIR"/Org1/peer0 && pwd)
-  logInfo "Package chaincode:" tps
-  "$SCRIPT_PATH"/chaincode.sh package -f cc-tps.conf
-  logInfo "Install chaincode:" "tps -> org1.peer0"
-  "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c mychannel/Org1-peer0-mychannel-conf
-  logInfo "Install chaincode:" "tps -> org1.peer0"
-  "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c mychannel/Org1-peer1-mychannel-conf
-  logInfo "Approve chaincode:" "tps"
-  "$SCRIPT_PATH"/chaincode.sh approve -h chaincode-home-cc-tps -c mychannel/Org1-peer0-mychannel-conf
-}
-
 function networkdown() {
     logInfo "Down organization:" Org1
     "$SCRIPT_PATH"/peer.sh stoporg -o Org1
@@ -85,7 +72,7 @@ function networkdown() {
     rm -fr "$DIR"/mychannel
     supervisorctl reload > /dev/null
     logInfo "Clean chaincode:" tps
-    rm -fr "$DIR"/chaincode-home-cc-tps
+    rm -fr "$DIR"/chaincode-tps/chaincode-home-cc-tps
     logSuccess "Network stoped!"
 }
 
@@ -100,8 +87,6 @@ case $COMMAND in
         networksetup ;;
     upchannel)
         upChannel;;
-    upchaincode)
-      upChaincode;;
     upnodes)
         startPeerOrg
         startOrdererOrg;;
