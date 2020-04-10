@@ -29,7 +29,7 @@ function networksetup() {
 
 function startPeerOrg() {
   logInfo "Config organization:" Org1
-  "$SCRIPT_PATH"/peer.sh configorg -f Org1.conf
+  "$SCRIPT_PATH"/peer.sh configorg -f Org1.ini
   logInfo "Start organization nodes:" Org1
   "$SCRIPT_PATH"/peer.sh startorg -o"" Org1
   logSuccess "Organization started:" Org1
@@ -37,7 +37,7 @@ function startPeerOrg() {
 
 function startOrdererOrg() {
   logInfo "Config orderer:" Orderer
-  "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.conf
+  "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.ini
   echo "Start orderer:" Orderer
   "$SCRIPT_PATH"/orderer.sh startorg -o Orderer
   logSuccess "Orderer started:" Orderer
