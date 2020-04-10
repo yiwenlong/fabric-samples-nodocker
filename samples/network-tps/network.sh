@@ -23,73 +23,48 @@ export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 . "$SCRIPT_PATH"/utils/log-utils.sh
 
 function networksetup() {
-    startPeerOrg
-    startOrdererOrg
-    upChannel
+  startPeerOrg
+  startOrdererOrg
 }
 
 function startPeerOrg() {
-    logInfo "Config organization:" Org1
-    "$SCRIPT_PATH"/peer.sh configorg -f Org1.conf
-    logInfo "Start organization nodes:" Org1
-    "$SCRIPT_PATH"/peer.sh startorg -o"" Org1
-    logSuccess "Organization started:" Org1
+  logInfo "Config organization:" Org1
+  "$SCRIPT_PATH"/peer.sh configorg -f Org1.conf
+  logInfo "Start organization nodes:" Org1
+  "$SCRIPT_PATH"/peer.sh startorg -o"" Org1
+  logSuccess "Organization started:" Org1
 }
 
 function startOrdererOrg() {
-    logInfo "Config orderer:" Orderer
-    "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.conf
-    echo "Start orderer:" Orderer
-    "$SCRIPT_PATH"/orderer.sh startorg -o Orderer
-    logSuccess "Orderer started:" Orderer
-}
-
-function upChannel() {
-    export FABRIC_CFG_PATH=$(cd "$DIR"/Org1/peer0 && pwd)
-    logInfo "Config channel:" mychannel
-    "$SCRIPT_PATH"/channel.sh config -f mychannel.conf
-    logInfo "Create channel:" mychannel
-    "$SCRIPT_PATH"/channel.sh create -d $(cd "$DIR"/mychannel/Org1-peer0-mychannel-conf && pwd)
-    logInfo "Join channel:" "org1.peer0 -> mychannel"
-    "$SCRIPT_PATH"/channel.sh join -d $(cd "$DIR"/mychannel/Org1-peer0-mychannel-conf && pwd)
-    logInfo "Join channel:" "org1.peer1 -> mychannel"
-    "$SCRIPT_PATH"/channel.sh join -d $(cd "$DIR"/mychannel/Org1-peer1-mychannel-conf && pwd)
-    logInfo "Update channel:" "Achor peer for mychannel -> peer0"
-    "$SCRIPT_PATH"/channel.sh updateAnchorPeer -d $(cd "$DIR"/mychannel/Org1-peer0-mychannel-conf && pwd)
-    logSuccess "Channel created:" mychannel
+  logInfo "Config orderer:" Orderer
+  "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.conf
+  echo "Start orderer:" Orderer
+  "$SCRIPT_PATH"/orderer.sh startorg -o Orderer
+  logSuccess "Orderer started:" Orderer
 }
 
 function networkdown() {
-    logInfo "Down organization:" Org1
-    "$SCRIPT_PATH"/peer.sh stoporg -o Org1
-    logInfo "Clean organization:" Org1
-    rm -fr "$DIR"/Org1
-    logInfo "Down orderer:" Orderer
-    "$SCRIPT_PATH"/orderer.sh stoporg -o Orderer
-    logInfo "Clean orderer:" Orderer
-    rm -fr "$DIR"/Orderer
-    logInfo "Clean channel:" mychannel
-    rm -fr "$DIR"/mychannel
-    supervisorctl reload > /dev/null
-    logInfo "Clean chaincode:" tps
-    rm -fr "$DIR"/chaincode-tps/chaincode-home-cc-tps
-    logSuccess "Network stoped!"
+  logInfo "Down organization:" Org1
+  "$SCRIPT_PATH"/peer.sh stoporg -o Org1
+  logInfo "Clean organization:" Org1
+  rm -fr "$DIR"/Org1
+  logInfo "Down orderer:" Orderer
+  "$SCRIPT_PATH"/orderer.sh stoporg -o Orderer
+  logInfo "Clean orderer:" Orderer
+  rm -fr "$DIR"/Orderer
+  logSuccess "Network stoped!"
 }
 
 function usage() {
-    echo "USAGE"
-    exit 0
+  echo "USAGE"
+  exit 0
 }
 
 COMMAND=$1
 case $COMMAND in 
-    up) 
-        networksetup ;;
-    upchannel)
-        upChannel;;
-    upnodes)
-        startPeerOrg
-        startOrdererOrg;;
-    down) networkdown ;;
-    *) usage;;
+  up)
+    networksetup ;;
+  down)
+    networkdown ;;
+  *) usage;;
 esac
