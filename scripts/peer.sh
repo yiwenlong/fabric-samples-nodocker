@@ -142,6 +142,8 @@ function config {
   mkdir -p $org_home && cd $org_home
   logInfo "Orgnaization work home:" "$org_home"
 
+  cp "$CONF_FILE" "$org_home/conf.ini"
+
   msp_conf_file=$org_home/crypto-config.yaml
   sed -e "s/<org.name>/${org_name}/
   s/<org.domain>/${org_domain}/
@@ -192,16 +194,18 @@ if [ ! $COMMAND ]; then
 fi
 shift
 
-ORG_NAME=
 CONF_FILE=
+CONF_DIR=
 
-while getopts f:o:n: opt
+while getopts f:d: opt
 do 
   case $opt in
     f) CONF_FILE=$(absolutefile $OPTARG $WORK_HOME)
       checkfileexist "$CONF_FILE"
       ;;
-    o) ORG_NAME=$OPTARG;;
+    d) CONF_DIR=$(absolutefile $OPTARG $WORK_HOME)
+      checkdirexist "$CONF_DIR"
+      ;;
     *) usage; exit 1;;
   esac
 done 
@@ -216,54 +220,52 @@ case $COMMAND in
     config
     ;;
   startorg)
-      if [ $ORG_NAME ]; then
-          if [ -d $WORK_HOME/$ORG_NAME ]; then
-              cd $WORK_HOME/$ORG_NAME
-          else
-              logError "组织不存在: " $ORG_NAME
-              exit 1
-          fi
-      fi
-      for node_name in $(ls . | grep peer); do
-          sh ./$node_name/boot.sh
-          if [ $? -eq 0 ]; then
-              logSuccess "节点已启动: " $node_name
-          fi
-      done
-      sleep 3
-      logSuccess "组织节点启动: " $ORG_NAME
-      ;;
+    if [ ! "$CONF_DIR" ]; then
+        cd "$CONF_DIR"
+    fi
+    for node_name in $(ls . | grep peer); do
+        sh "$node_name"/boot.sh
+        if [ $? -eq 0 ]; then
+            logSuccess "Node started:" "$node_name"
+        fi
+    done
+    sleep 3
+    logSuccess "Orgnaization all node started:" $(pwd)
+    ;;
   startnode)
-      if [ -f $WORK_HOME/boot.sh ]; then
-          sh $WORK_HOME/boot.sh
-          if [ $? -eq 0]; then
-              logSuccess "节点已启动: " $node_name
-          fi
+    if [ ! "$CONF_DIR" ]; then
+      cd "$CONF_DIR"
+    fi
+    if [ -f boot.sh ]; then
+      sh boot.sh
+      if [ $? -eq 0 ]; then
+        logSuccess "Node started:" $(pwd)
       fi
-      ;;
+    else
+      logError "Script file not found:" boot.sh
+    fi
+    ;;
   stoporg)
-      if [ $ORG_NAME ]; then
-          if [ -d $WORK_HOME/$ORG_NAME ]; then
-              cd $WORK_HOME/$ORG_NAME
-          else
-              logError "组织不存在: " $ORG_NAME
-              exit 1
-          fi
+    if [ ! "$CONF_DIR" ]; then
+      cd "$CONF_DIR"
+    fi
+    for node_name in $(ls . | grep peer); do
+      sh "$node_name"/stop.sh
+      if [ $? -eq 0 ]; then
+        logSuccess "Node stoped:" "$node_name"
       fi
-      for node_name in $(ls . | grep peer); do
-          sh ./$node_name/stop.sh
-          if [ $? -eq 0 ]; then
-              logSuccess "节点已停止: " $node_name
-          fi
-      done
-      logSuccess "组织节点停止: " $ORG_NAME
-      ;;
+    done
+    logSuccess "Orgnaization all node stoped:" $(pwd)
+    ;;
   stopnode)
-      if [ -f $WORK_HOME/stop.sh ]; then
-          sh $WORK_HOME/stop.sh
-          if [ $? -eq 0]; then
-              logSuccess "节点已停止: " $node_name
-          fi
+    if [ ! "$CONF_DIR" ]; then
+      cd "$CONF_DIR"
+    fi
+    if [ -f stop.sh ]; then
+      sh stop.sh
+      if [ $? -eq 0 ]; then
+        logSuccess "Node stoped:" $(pwd)
       fi
-      ;;
+    fi
+    ;;
 esac 

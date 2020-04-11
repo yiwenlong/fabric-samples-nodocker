@@ -24,15 +24,15 @@ export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 
 function networksetup() {
   startPeerOrg
-  startOrdererOrg
+#  startOrdererOrg
 }
 
 function startPeerOrg() {
   logInfo "Config organization:" Org1
   "$SCRIPT_PATH"/peer.sh configorg -f Org1.ini
-  logInfo "Start organization nodes:" Org1
-  "$SCRIPT_PATH"/peer.sh startorg -o"" Org1
-  logSuccess "Organization started:" Org1
+#  logInfo "Start organization nodes:" Org1
+#  "$SCRIPT_PATH"/peer.sh startorg -d Org1
+#  logSuccess "Organization started:" Org1
 }
 
 function startOrdererOrg() {
@@ -45,7 +45,7 @@ function startOrdererOrg() {
 
 function networkdown() {
   logInfo "Down organization:" Org1
-  "$SCRIPT_PATH"/peer.sh stoporg -o Org1
+  "$SCRIPT_PATH"/peer.sh stoporg -d Org1
   logInfo "Clean organization:" Org1
   rm -fr "$DIR"/Org1
   logInfo "Down orderer:" Orderer
