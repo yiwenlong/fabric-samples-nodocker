@@ -22,25 +22,18 @@ export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 
 . "$SCRIPT_PATH"/utils/log-utils.sh
 
-function networksetup() {
-  startPeerOrg
-#  startOrdererOrg
-}
-
-function startPeerOrg() {
+function config() {
   logInfo "Config organization:" Org1
   "$SCRIPT_PATH"/peer.sh configorg -f Org1.ini
-#  logInfo "Start organization nodes:" Org1
-#  "$SCRIPT_PATH"/peer.sh startorg -d Org1
-#  logSuccess "Organization started:" Org1
+  logInfo "Config orderer organization:" Orderer
+  "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.ini
 }
 
-function startOrdererOrg() {
-  logInfo "Config orderer:" Orderer
-  "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.ini
-  echo "Start orderer:" Orderer
-  "$SCRIPT_PATH"/orderer.sh startorg -o Orderer
-  logSuccess "Orderer started:" Orderer
+function start() {
+  logInfo "Start organization nodes:" Org1
+  "$SCRIPT_PATH"/peer.sh startorg -d Org1
+  logInfo "Start orderer:" Orderer
+  "$SCRIPT_PATH"/orderer.sh startorg -d Orderer
 }
 
 function networkdown() {
@@ -49,7 +42,7 @@ function networkdown() {
   logInfo "Clean organization:" Org1
   rm -fr "$DIR"/Org1
   logInfo "Down orderer:" Orderer
-  "$SCRIPT_PATH"/orderer.sh stoporg -o Orderer
+  "$SCRIPT_PATH"/orderer.sh stoporg -d Orderer
   logInfo "Clean orderer:" Orderer
   rm -fr "$DIR"/Orderer
   logSuccess "Network stoped!"
@@ -63,7 +56,11 @@ function usage() {
 COMMAND=$1
 case $COMMAND in 
   up)
-    networksetup ;;
+    config && start ;;
+  config)
+    config ;;
+  start)
+    start ;;
   down)
     networkdown ;;
   *) usage;;
