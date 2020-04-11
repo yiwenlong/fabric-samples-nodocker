@@ -49,7 +49,7 @@ function package {
   logInfo "Chaincode Nmae:" "$cc_name"
   logInfo "Chaincode Address:" "$cc_address"
   logInfo "Chaincode Binary:" "$cc_binary"
-  checkfielexist "$cc_binary"
+  checkfileexist "$cc_binary"
 
   cc_home=$WORK_HOME/chaincode-home-$(basename -s .conf "$CONF_FILE")
   mkdir -p "$cc_home" && rm -fr "$cc_home"/* && cd "$cc_home"
@@ -80,8 +80,8 @@ function install() {
   logInfo "Chaincode name:" "$cc_name"
   logInfo "Chaincode binary file:" "$cc_binary"
   logInfo "Chaincode package file:" "$cc_package"
-  checkfielexist "$cc_binary"
-  checkfielexist "$cc_package"
+  checkfileexist "$cc_binary"
+  checkfileexist "$cc_package"
 
   ch_name=$(channelValue channel.name)
   org_name=$(channelValue org.name)
@@ -97,7 +97,7 @@ function install() {
   logInfo "Organization TLS ca file:" "$org_tls_ca"
   logInfo "Organization node_address:" "$node_address"
   checkdirexist "$org_admin_msp_dir"
-  checkfielexist "$org_tls_ca"
+  checkfileexist "$org_tls_ca"
 
   export CORE_PEER_MSPCONFIGPATH="$org_admin_msp_dir"
   export CORE_PEER_LOCALMSPID="$org_mspid"
@@ -134,7 +134,7 @@ function approve() {
   ch_orderer_tls_ca=$CHANNEL_HOME/$(channelValue orderer.tls.ca)
   logInfo "Orderer address:" "$ch_orderer_address"
   logInfo "Orderer TLS ca file:" "$ch_orderer_tls_ca"
-  checkfielexist "$ch_orderer_tls_ca"
+  checkfileexist "$ch_orderer_tls_ca"
 
   org_name=$(channelValue org.name)
   org_admin_msp_dir=$CHANNEL_HOME/$(channelValue org.adminmsp)
@@ -146,7 +146,7 @@ function approve() {
   logInfo "Organization msp id:" "$org_mspid"
   logInfo "Organization TLS ca file:" "$org_tls_ca"
   logInfo "Organization node address:" "$org_peer_address"
-  checkfielexist "$org_tls_ca"
+  checkfileexist "$org_tls_ca"
   checkdirexist "$org_admin_msp_dir"
 
   export CORE_PEER_MSPCONFIGPATH="$org_admin_msp_dir"
@@ -191,7 +191,7 @@ shift
 while getopts f:h:c:p:n:v:i opt
 do 
     case $opt in 
-        f) CONF_FILE=$(absolute "$OPTARG"); checkfielexist "$CONF_FILE";;
+        f) CONF_FILE=$(absolute "$OPTARG"); checkfileexist "$CONF_FILE";;
         h) CC_HOME=$(absolute "$OPTARG"); checkdirexist "$CC_HOME";;
         c) CHANNEL_HOME=$(absolute "$OPTARG"); checkdirexist "$CHANNEL_HOME";;
         p) PROC_NAME="$OPTARG";;
@@ -204,15 +204,15 @@ done
 
 case $command in 
     package) 
-        checkfielexist "$CONF_FILE"
+        checkfileexist "$CONF_FILE"
         $command ;;
     install | approve)
       checkdirexist "$CC_HOME"
       checkdirexist "$CHANNEL_HOME"
       CONF_FILE="$CC_HOME"/chaincode.conf
       CHANNEL_CONF_FILE="$CHANNEL_HOME"/channel.conf
-      checkfielexist "$CONF_FILE"
-      checkfielexist "$CHANNEL_CONF_FILE"
+      checkfileexist "$CONF_FILE"
+      checkfileexist "$CHANNEL_CONF_FILE"
       $command;;
     *) usage;;
 esac

@@ -182,9 +182,9 @@ function create {
     org_mspid=$(readValue "org.mspid")
     channel_name=$(readValue "channel.name")
 
-    checkfielexist $tx_file
-    checkfielexist $orderer_tls_file
-    checkfielexist $org_tls_file
+    checkfileexist $tx_file
+    checkfileexist $orderer_tls_file
+    checkfileexist $org_tls_file
     checkdirexist $admin_msp_dir
 
     export CORE_PEER_TLS_ENABLED=true
@@ -213,7 +213,7 @@ function join {
     logInfo "Organization node address:" "$peer_address"
     logInfo "Organization TLS ca file:" "$org_tls_file"
     checkdirexist "$admin_msp_dir"
-    checkfielexist "$org_tls_file"
+    checkfileexist "$org_tls_file"
 
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
@@ -227,7 +227,7 @@ function join {
     orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
     logInfo "Orderer address:" "$orderer_address"
     logInfo "Orderer TLS ca file:" "$orderer_tls_file"
-    checkfielexist "$orderer_tls_file"
+    checkfileexist "$orderer_tls_file"
 
     if [ ! -f "$block_file" ]; then
         $COMMAND_PEER channel fetch newest "$block_file" \
@@ -259,7 +259,7 @@ function updateAnchorPeer {
     channel_name=$(readValue "channel.name")
 
     checkdirexist $admin_msp_dir
-    checkfielexist $org_tls_file
+    checkfileexist $org_tls_file
 
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
@@ -271,9 +271,9 @@ function updateAnchorPeer {
     orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
     anchor_tx_file=$CONF_DIR/$(readValue "org.anchorfile")
 
-    checkfielexist $orderer_tls_file
+    checkfileexist $orderer_tls_file
 
-    checkfielexist $anchor_tx_file
+    checkfileexist $anchor_tx_file
 
     $COMMAND_PEER channel update \
         -c $channel_name -f $anchor_tx_file \

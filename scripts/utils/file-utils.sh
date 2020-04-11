@@ -17,7 +17,7 @@
 
 . $DIR/utils/log-utils.sh
 
-function checkfielexist {
+function checkfileexist {
     if [ ! -f $1 ]; then
         logError "File not found:" $1
         exit 1
