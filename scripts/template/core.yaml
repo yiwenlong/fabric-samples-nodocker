@@ -16,7 +16,7 @@ peer:
 
     # The networkId allows for logical separation of networks and is used when
     # naming docker resources.
-    networkId: bcp
+    networkId: fabric-nodocker
 
     # The Address at local network interface this Peer will listen on.
     # By default, it will listen on all network interfaces
