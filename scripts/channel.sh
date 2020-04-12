@@ -27,11 +27,11 @@ COMMAND_CONFIGTXGEN=$FABRIC_BIN/configtxgen
 . $DIR/utils/file-utils.sh
 
 function readValue {
-    echo $(readConfValue $CONF_FILE $1)
+  echo $(readConfValue $CONF_FILE $1)
 }
 
 function readNodeValue {
-    echo $(readConfValue $CONF_FILE $1 $2)
+  echo $(readConfValue $CONF_FILE $1 $2)
 }
 
 #
@@ -47,127 +47,115 @@ function readNodeValue {
 # 
 function config {
 
-    # 1. Read params about the channel from config file.
-    channel_name=$(readValue 'channel.name')
-    channel_profile=$(readValue 'channel.profile')
-    channel_orgs=$(readValue 'channel.orgs')
-    channel_orderer=$(readValue 'channel.orderer')
-    
-    logInfo "Start config channel:" $channel_name
+  # 1. Read params about the channel from config file.
+  ch_name=$(readValue channel.name)
+  ch_profile=$(readValue channel.profile)
+  ch_orgs=$(readValue channel.orgs)
+  ch_orderer=$(readValue channel.orderer)
+  logInfo "Start config channel:" "$ch_name"
+  LogInfo "Channel profile name:" "$ch_profile"
+  logInfo "Channel orgnaizations:" "$ch_orgs"
 
     # 2. Generate a directory for the channel to store files.
-    channel_home=$WORK_HOME/$channel_name
-    if [ -d $channel_home ]; then 
-        rm -fr $channel_home
+    ch_home="$WORK_HOME/$ch_name"
+    if [ -d "$ch_home" ]; then
+        rm -fr "$ch_home"
     fi 
-    mkdir -p $channel_home
-    cd $channel_home
-    logInfo "Channel Home dir:" $channel_home
+    mkdir -p "$ch_home" && cd "$ch_home"
+    logInfo "Channel Home dir:" "$ch_home"
 
     # 3. Generate configtx.yaml.
-    configtx_file=$channel_home/configtx.yaml
-    echo "Organizations:" > $configtx_file
-    peerorgs=(${channel_orgs//,/ })
+    ch_configtx_file="$ch_home/configtx.yaml"
+    echo "Organizations:" > "$ch_configtx_file"
+    peerorgs=(${ch_orgs//,/ })
     for org_name in ${peerorgs[@]}; do
-        org_configtx_file=$WORK_HOME/$(readNodeValue $org_name 'org.configtx')
-        if [ ! -f $org_configtx_file ]; then
-            logError "File not found:" $org_configtx_file
-            exit 1
-        fi 
-        cat $org_configtx_file >> $configtx_file
+        org_ch_configtx_file=$WORK_HOME/$(readNodeValue $org_name 'org.configtx')
+        checkfileexist "$org_ch_configtx_file"
+        cat "$org_ch_configtx_file" >> "$ch_configtx_file"
     done 
     # 3.2. Wirte common code. 
-    cat $CONFIGTX_COMMON_TEMPLATE_FILE >> $configtx_file
+    cat "$CONFIGTX_COMMON_TEMPLATE_FILE" >> "$ch_configtx_file"
     # 3.3. Write channel profile
     for org_name in ${peerorgs[@]}; do
-        echo "                - *${org_name}" >> $configtx_file
+        echo "                - *${org_name}" >> "$ch_configtx_file"
     done 
     echo '            Capabilities:
-                <<: *ApplicationCapabilities' >> $configtx_file
-    logInfo "Channel tx config file has been generated: $configtx_file"
+                <<: *ApplicationCapabilities' >> "$ch_configtx_file"
+    logInfo "Channel tx config file has been generated:" "$ch_configtx_file"
 
     # 4. Generate transaction file for create channel.
-    channel_tx_file=$channel_home/$channel_name.tx
+    ch_tx_file="$ch_home/$ch_name.tx"
     $COMMAND_CONFIGTXGEN \
-        -profile $channel_profile \
-        -outputCreateChannelTx $channel_tx_file \
-        -channelID $channel_name \
-        -configPath $channel_home
-    if [ ! $? == 0 ]; then
-        logError "Transaction Generate Error:" $channel_tx_file
+        -profile "$ch_profile" \
+        -outputCreateChannelTx "$ch_tx_file" \
+        -channelID "$ch_name" \
+        -configPath "$ch_home"
+    if [ ! $? -eq 0 ]; then
+        logError "Transaction Generate Error:" "$ch_tx_file"
         exit 1
     fi
-    logInfo "Channel transaction file has been generated:" $channel_tx_file
+    logInfo "Channel transaction file has been generated:" "$ch_tx_file"
     
     # 5. Generate transaction files for update anchor peer.
     for org_name in ${peerorgs[@]}; do
-        anchor_tx_file=$channel_home/${org_name}Panchors.tx
+        anchor_tx_file="$ch_home/${org_name}Panchors.tx"
         $COMMAND_CONFIGTXGEN \
-            -profile $channel_profile \
-            -outputAnchorPeersUpdate $anchor_tx_file \
-            -channelID $channel_name \
-            -asOrg ${org_name} \
-            -configPath $channel_home
-        if [ ! $? == 0 ]; then
-            logError "Transaction Generate Error:" $anchor_tx_file
+            -profile "$ch_profile" \
+            -outputAnchorPeersUpdate "$anchor_tx_file" \
+            -channelID "$ch_name" \
+            -asOrg "$org_name" \
+            -configPath "$ch_home"
+        if [ ! $? -eq 0 ]; then
+            logError "Transaction Generate Error:" "$anchor_tx_file"
             exit 1
         fi
-        logInfo "Anchor peer transaction file for $org_name has been generated:" $anchor_tx_file
+        logInfo "Anchor peer transaction file for $org_name has been generated:" "$anchor_tx_file"
     done 
 
     # 6. Generate tool scripts for every peer node.
-    orderer_tls_ca_file=$WORK_HOME/$(readNodeValue $channel_orderer 'org.tls.ca')
-    orderer_address=$(readNodeValue $channel_orderer  "org.address")
-    if [ ! -f $orderer_tls_ca_file ]; then
-        logError "File not found:" $orderer_tls_ca_file
-        exit 1
-    fi 
+    orderer_tls_ca_file=$WORK_HOME/$(readNodeValue "$ch_orderer" org.tls.ca)
+    orderer_address=$(readNodeValue "$ch_orderer" org.address)
+    checkfileexist "$orderer_tls_ca_file"
+
     for org_name in ${peerorgs[@]}; do
-        org_node_list=$(readNodeValue $org_name 'org.node.list')
-        org_admin_msp_dir=$WORK_HOME/$(readNodeValue $org_name 'org.admin.msp.dir')
-        org_msp_id=$(readNodeValue $org_name 'org.mspid')
-        org_domain=$(readNodeValue $org_name 'org.domain')
-        org_tls_ca_file=$WORK_HOME/$(readNodeValue $org_name 'org.tls.ca')
-        if [ ! -d $org_admin_msp_dir ]; then 
-            logError "MSP Directory not found:" $org_admin_msp_dir
-            exit 1
-        fi 
-        if [ ! -f $org_tls_ca_file ]; then 
-            logError "TLS CA file not found:" $org_tls_ca_file
-            exit 1
-        fi 
+        org_node_list=$(readNodeValue "$org_name" 'org.node.list')
+        org_admin_msp_dir=$WORK_HOME/$(readNodeValue "$org_name" 'org.admin.msp.dir')
+        org_msp_id=$(readNodeValue "$org_name" 'org.mspid')
+        org_domain=$(readNodeValue "$org_name" 'org.domain')
+        org_tls_ca_file=$WORK_HOME/$(readNodeValue "$org_name" 'org.tls.ca')
+        checkdirexist "$org_admin_msp_dir"
+        checkfileexist "$org_tls_ca_file"
+
         peers=(${org_node_list//,/ })
         for node_name in ${peers[@]}; do
-            channel_node_conf_home=$channel_home/$org_name-$node_name-$channel_name-conf
-            mkdir -p $channel_node_conf_home
+            ch_node_conf_home="$ch_home/$org_name-$node_name-$ch_name-conf"
+            mkdir -p "$ch_node_conf_home"
+            ch_node_conf_file="$ch_node_conf_home/channel.conf"
+            cp "$org_tls_ca_file" "$ch_node_conf_home/peer-tls-ca.pem"
+            cp "$orderer_tls_ca_file" "$ch_node_conf_home/orderer-tls-ca.pem"
+            cp "$ch_home/$ch_name.tx" "$ch_node_conf_home"
+            cp "$ch_home/${org_name}Panchors.tx" "$ch_node_conf_home"
+            cp -r "$org_admin_msp_dir" "$ch_node_conf_home/adminmsp"
 
-            channel_node_conf_file=$channel_node_conf_home/channel.conf
+            node_domain="$node_name.$org_domain"
+            node_port=$(readNodeValue "$org_name.$node_name" 'node.port')
 
-            cp $org_tls_ca_file $channel_node_conf_home/peer-tls-ca.pem
-            cp $orderer_tls_ca_file $channel_node_conf_home/orderer-tls-ca.pem
-            cp $channel_home/$channel_name.tx $channel_node_conf_home
-            cp $channel_home/${org_name}Panchors.tx $channel_node_conf_home
-            cp -r $org_admin_msp_dir $channel_node_conf_home/adminmsp
+            echo "channel.name=$ch_name" > "$ch_node_conf_file"
+            echo "channel.create.tx.file.name=$ch_name.tx" >> "$ch_node_conf_file"
+            echo "orderer.address=$orderer_address" >> "$ch_node_conf_file"
+            echo "orderer.tls.ca=orderer-tls-ca.pem" >> "$ch_node_conf_file"
+            echo "org.anchorfile=${org_name}Panchors.tx" >> "$ch_node_conf_file"
+            echo "org.name=$org_name" >> "$ch_node_conf_file"
+            echo "org.mspid=$org_msp_id" >> "$ch_node_conf_file"
+            echo "org.adminmsp=adminmsp" >> "$ch_node_conf_file"
+            echo "org.peer.address=$node_domain:$node_port" >> "$ch_node_conf_file"
+            echo "org.tls.ca=peer-tls-ca.pem" >> "$ch_node_conf_file"
 
-            node_domain=$node_name.$org_domain
-            node_port=$(readNodeValue $org_name.$node_name 'node.port')
-
-            echo "channel.name=$channel_name" > $channel_node_conf_file
-            echo "channel.create.tx.file.name=$channel_name.tx" >> $channel_node_conf_file
-            echo "orderer.address=$orderer_address" >> $channel_node_conf_file
-            echo "orderer.tls.ca=orderer-tls-ca.pem" >> $channel_node_conf_file
-            echo "org.anchorfile=${org_name}Panchors.tx" >> $channel_node_conf_file
-            echo "org.name=$org_name" >> $channel_node_conf_file
-            echo "org.mspid=$org_msp_id" >> $channel_node_conf_file
-            echo "org.adminmsp=adminmsp" >> $channel_node_conf_file
-            echo "org.peer.address=$node_domain:$node_port" >> $channel_node_conf_file
-            echo "org.tls.ca=peer-tls-ca.pem" >> $channel_node_conf_file
-
-            logSuccess "Channel config home for org: $org_name node: $node_name has been generated:" $channel_node_conf_home
+            logSuccess "Channel config home for org: $org_name node: $node_name has been generated:" "$ch_node_conf_home"
         done 
     done 
 
-    logSuccess "Channel config success:" $channel_name
+    logSuccess "Channel config success:" $ch_name
 }
 
 function create {
@@ -180,7 +168,7 @@ function create {
     peer_address=$(readValue "org.peer.address")
     orderer_address=$(readValue "orderer.address")
     org_mspid=$(readValue "org.mspid")
-    channel_name=$(readValue "channel.name")
+    ch_name=$(readValue "channel.name")
 
     checkfileexist $tx_file
     checkfileexist $orderer_tls_file
@@ -193,10 +181,10 @@ function create {
     export CORE_PEER_ADDRESS=$peer_address
     export CORE_PEER_TLS_ROOTCERT_FILE=$org_tls_file
 
-    block_file=$CONF_DIR/$channel_name.block
+    block_file=$CONF_DIR/$ch_name.block
 
     $COMMAND_PEER channel create \
-        -c $channel_name -f $tx_file \
+        -c $ch_name -f $tx_file \
         -o $orderer_address --tls --cafile $orderer_tls_file \
         --outputBlock $block_file
 }
@@ -206,8 +194,8 @@ function join {
     org_mspid=$(readValue "org.mspid")
     peer_address=$(readValue "org.peer.address")
     org_tls_file=$CONF_DIR/$(readValue "org.tls.ca")
-    channel_name=$(readValue "channel.name")
-    logInfo "Join channel:" "$channel_name"
+    ch_name=$(readValue "channel.name")
+    logInfo "Join channel:" "$ch_name"
     logInfo "Organization admin msp directory:" "$admin_msp_dir"
     logInfo "Organization mspid:" "$org_mspid"
     logInfo "Organization node address:" "$peer_address"
@@ -221,7 +209,7 @@ function join {
     export CORE_PEER_ADDRESS=$peer_address
     export CORE_PEER_TLS_ROOTCERT_FILE=$org_tls_file
 
-    block_file=$CONF_DIR/$channel_name.block
+    block_file=$CONF_DIR/$ch_name.block
 
     orderer_address=$(readValue "orderer.address")
     orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
@@ -232,7 +220,7 @@ function join {
     if [ ! -f "$block_file" ]; then
         $COMMAND_PEER channel fetch newest "$block_file" \
             -o "$orderer_address" \
-            -c "$channel_name" \
+            -c "$ch_name" \
             --tls --cafile "$orderer_tls_file"
     fi
 
@@ -241,10 +229,10 @@ function join {
         -o "$orderer_address" --tls --cafile "$orderer_tls_file"
 
     if [ $? -eq 0 ]; then
-        logSuccess "Join channel success:" "$peer_address -> $channel_name"
+        logSuccess "Join channel success:" "$peer_address -> $ch_name"
         $COMMAND_PEER channel list
     else
-        logError "Join channel failed:" "$peer_address -> $channel_name"
+        logError "Join channel failed:" "$peer_address -> $ch_name"
         exit 1
     fi
 }
@@ -256,7 +244,7 @@ function updateAnchorPeer {
     peer_address=$(readValue "org.peer.address")
     org_tls_file=$CONF_DIR/$(readValue "org.tls.ca")
 
-    channel_name=$(readValue "channel.name")
+    ch_name=$(readValue "channel.name")
 
     checkdirexist $admin_msp_dir
     checkfileexist $org_tls_file
@@ -276,7 +264,7 @@ function updateAnchorPeer {
     checkfileexist $anchor_tx_file
 
     $COMMAND_PEER channel update \
-        -c $channel_name -f $anchor_tx_file \
+        -c $ch_name -f $anchor_tx_file \
         -o $orderer_address --tls --cafile $orderer_tls_file
 }
 
