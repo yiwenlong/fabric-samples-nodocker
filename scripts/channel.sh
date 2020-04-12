@@ -299,32 +299,20 @@ CONF_DIR=
 while getopts f:d: opt
 do 
     case $opt in 
-        f) CONF_FILE=$WORK_HOME/$OPTARG;;
-        d) CONF_DIR=$OPTARG;;
+        f) CONF_FILE=$(absolutefile "$OPTARG" "$WORK_HOME");;
+        d) CONF_DIR=$(absolutefile "$OPTARG" "$WORK_HOME");;
         *) usage; exit 1;;
     esac 
 done
 
 case $COMMAND in 
-    config)
-        if [ ! -f $CONF_FILE ]
-        then
-            logError "Missing config file:" "channel.conf" 
-            exit 1
-        fi 
-        config ;;
-    create | join | updateAnchorPeer )
-        if [ ! -d $CONF_DIR ]
-        then 
-            logError "Missing config directory:" "Org-peer-channel-conf"
-            exit 1
-        fi 
-        CONF_FILE=$CONF_DIR/channel.conf 
-        if [ ! -f $CONF_FILE ]
-        then
-            logError "Missing config file:" $CONF_FILE
-            exit 1
-        fi 
-        $COMMAND ;;
-    *) usage; exit 1;;
+  config)
+    checkfileexist "$CONF_FILE"
+    config ;;
+  create | join | updateAnchorPeer )
+    checkdirexist "$CONF_DIR"
+    CONF_FILE=$CONF_DIR/channel.conf
+    checkfileexist "$CONF_FILE"
+    $COMMAND ;;
+  *) usage; exit 1;;
 esac 
