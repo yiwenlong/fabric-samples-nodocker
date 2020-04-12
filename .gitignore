@@ -1,4 +1,5 @@
 samples/*/Org1/
 samples/*/Orderer/
 samples/*/*/mychannel/
+samples/*/*/mychannel2/
 chaincode-home-*/
