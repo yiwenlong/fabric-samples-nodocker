@@ -89,7 +89,6 @@ function configNode {
   echo 'ln '$supervisor_conf_file' /usr/local/etc/supervisor.d/' >> "$boot_script_file"
   echo 'supervisorctl update' >> "$boot_script_file"
   echo 'echo Starting node: '$node_name'' >> "$boot_script_file"
-  echo 'sleep 1' >> "$boot_script_file"
   echo 'supervisorctl status' >> "$boot_script_file"
   chmod u+x "$boot_script_file"
   logInfo "Boot script generated: " "$boot_script_file"
