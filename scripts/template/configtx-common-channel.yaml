@@ -1,8 +1,6 @@
 Capabilities:
     Channel: &ChannelCapabilities
         V2_0: true
-    Orderer: &OrdererCapabilities
-        V2_0: true
     Application: &ApplicationCapabilities
         V2_0: true
 Application: &ApplicationDefaults
