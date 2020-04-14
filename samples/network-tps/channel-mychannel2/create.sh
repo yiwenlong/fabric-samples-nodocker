@@ -28,7 +28,6 @@ logInfo "Config channel:" mychannel2
 logInfo "Create channel:" mychannel2
 "$SCRIPT_PATH"/channel.sh create -d $(cd "$DIR"/mychannel2/Org1-peer0-mychannel2-conf && pwd)
 
-exit
 logInfo "Join channel:" "org1.peer0 -> mychannel2"
 "$SCRIPT_PATH"/channel.sh join -d $(cd "$DIR"/mychannel2/Org1-peer0-mychannel2-conf && pwd)
 logInfo "Join channel:" "org1.peer1 -> mychannel2"

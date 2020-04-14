@@ -33,15 +33,14 @@ function start() {
   logInfo "Start organization nodes:" Org1
   "$SCRIPT_PATH"/peer.sh startorg -d Org1
   logInfo "Start orderer:" Orderer
-#  "$SCRIPT_PATH"/orderer.sh startorg -d Orderer
-  "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer2
-  "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer1
   "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer0
+  "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer1
+  "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer2
   sleep 3
   supervisorctl status
 }
 
-function networkdown() {
+function down() {
   logInfo "Down organization:" Org1
   "$SCRIPT_PATH"/peer.sh stoporg -d Org1
   logInfo "Clean organization:" Org1
@@ -67,6 +66,6 @@ case $COMMAND in
   start)
     start ;;
   down)
-    networkdown ;;
+    down ;;
   *) usage;;
 esac

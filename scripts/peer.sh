@@ -256,7 +256,7 @@ case $COMMAND in
         logSuccess "Node stoped:" "$node_name"
       fi
     done
-    logSuccess "Orgnaization all node stoped:" $(pwd)
+    logSuccess "Organization all node stoped:" $(pwd)
     ;;
   stopnode)
     if [ "$CONF_DIR" ]; then
