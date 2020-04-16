@@ -119,22 +119,11 @@ function config {
   fi
   mkdir -p "$org_home" && cd "$org_home"
   logInfo "Organization work dir:" "$org_home"
-
-  msp_conf_file="$org_home/crypto-config.yaml"
-  echo 'OrdererOrgs:' > "$msp_conf_file"
-  echo "  - Name: ${org_name}" >> "$msp_conf_file"
-  echo "    Domain: ${org_domain}" >> "$msp_conf_file"
-  echo "    Specs: " >> "$msp_conf_file"
-  for (( i = 0; i < "$org_node_count" ; ++i)); do
-    echo "      - Hostname: orderer${i}" >> "$msp_conf_file"
-  done
-  logInfo "Organization MSP config file generated:" "$msp_conf_file"
-
-  $CMD_CRYPTOGEN generate --config="$msp_conf_file"
-  if [ $? -eq 0 ]; then
-    logSuccess "Organization MSP certificate files generated:" "$org_home/crypto-config"
-  else
-    logError "Organization MSP certificate file generate failed！！！"
+  cp "$CONF_FILE" "$org_home/conf.ini"
+  # generate msp config files.
+  "$DIR/msp.sh" -t orderer -d "$org_home" -f "$CONF_FILE"
+  if [ $? != 0 ]; then
+      exit 1
   fi
 
   org_msp_dir="$org_home/crypto-config/ordererOrganizations/$org_domain/msp"

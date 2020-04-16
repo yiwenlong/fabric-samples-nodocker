@@ -143,18 +143,9 @@ function config {
   logInfo "Orgnaization work home:" "$org_home"
 
   cp "$CONF_FILE" "$org_home/conf.ini"
-
-  msp_conf_file=$org_home/crypto-config.yaml
-  sed -e "s/<org.name>/${org_name}/
-  s/<org.domain>/${org_domain}/
-  s/<org.peer.count>/${org_node_count}/
-  s/<org.peer.user.count>/${org_user_count}/" $CRYPTO_CONFIG_TEMPLATE_FILE > "$msp_conf_file"
-  logSuccess "Orgnaization MSP config file generated: " "$msp_conf_file"
-  msg=$($COMMAND_CRYPTOGEN generate --config=$msp_conf_file)
-  if [ $? -eq 0 ]; then
-      logSuccess "Orgnaization MSP certificate file generated"
-  else
-      logError "Cryptogen error: " "$msg"
+  # generate org msp config files.
+  "$DIR/msp.sh" -t peer -d "$org_home" -f "$CONF_FILE"
+  if [ $? != 0 ]; then
       exit 1
   fi
 
