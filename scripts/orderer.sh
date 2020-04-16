@@ -17,13 +17,13 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
-ORG_CONFIGTX_TEMPLATE_FILE=$DIR/template/configtx-orderer.yaml
-CONFIGTX_COMMON_TEMPLATE_FILE=$DIR/template/configtx-common.yaml
-ORDERER_TEMPLATE_FILE=$DIR/template/orderer.yaml
+TMP_CONF_TX_ORDERER="$DIR/template/configtx-orderer.yaml"
+TMP_CONF_TX_COMMON="$DIR/template/configtx-common.yaml"
+TMP_ORDERER="$DIR/template/orderer.yaml"
 
-COMMAND_CRYPTOGEN=$FABRIC_BIN/cryptogen
-COMMAND_CONFIGTXGEN=$FABRIC_BIN/configtxgen
-COMMAND_ORDERER=$FABRIC_BIN/orderer
+CMD_CRYPTOGEN="$FABRIC_BIN/cryptogen"
+CMD_CONFIGTXGEN="$FABRIC_BIN/configtxgen"
+CMD_ORDERER="$FABRIC_BIN/orderer"
 
 . $DIR/utils/log-utils.sh
 . $DIR/utils/conf-utils.sh
@@ -65,14 +65,14 @@ function configNode {
   sed -e "s/<orderer.address>/${node_domain}/
   s/<orderer.port>/${node_port}/
   s/<org.mspid>/${org_mspid}/
-  s/<orderer.operations.port>/${node_operations_port}/" "$ORDERER_TEMPLATE_FILE" > "$orderer_config_file"
+  s/<orderer.operations.port>/${node_operations_port}/" "$TMP_ORDERER" > "$orderer_config_file"
   logInfo "Node config file generated:" "$orderer_config_file"
 
   supervisor_process_name="fabric-$org_name-$node_name"
   supervisor_conf_file_name="$supervisor_process_name.ini"
   supervisor_conf_file="$node_home/$supervisor_conf_file_name"
   echo "[program:$supervisor_process_name]" > "$supervisor_conf_file"
-  echo "command=$COMMAND_ORDERER" >> "$supervisor_conf_file"
+  echo "command=$CMD_ORDERER" >> "$supervisor_conf_file"
   echo "directory=${node_home}" >> "$supervisor_conf_file"
   echo "redirect_stderr=true" >> "$supervisor_conf_file"
   echo "stdout_logfile=${node_home}/orderer.log" >> "$supervisor_conf_file"
@@ -130,7 +130,7 @@ function config {
   done
   logInfo "Organization MSP config file generated:" "$msp_conf_file"
 
-  $COMMAND_CRYPTOGEN generate --config="$msp_conf_file"
+  $CMD_CRYPTOGEN generate --config="$msp_conf_file"
   if [ $? -eq 0 ]; then
     logSuccess "Organization MSP certificate files generated:" "$org_home/crypto-config"
   else
@@ -141,7 +141,7 @@ function config {
   org_configtx_file="$org_home/configtx-org.yaml"
   sed -e "s/<org.name>/${org_name}/
   s/<org.mspid>/${org_mspid}/
-  s:<org.msp.dir>:${org_msp_dir}:" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$org_configtx_file"
+  s:<org.msp.dir>:${org_msp_dir}:" "$TMP_CONF_TX_ORDERER" > "$org_configtx_file"
   logSuccess "Organization configtx file generated:" "$org_configtx_file"
 
   # config system channel genesis block
@@ -154,7 +154,7 @@ function config {
   do
     cat "$WORK_HOME/$peer_org_name/configtx-org.yaml" >> "$genesis_configtx_file"
   done
-  cat "$CONFIGTX_COMMON_TEMPLATE_FILE" >> "$genesis_configtx_file"
+  cat "$TMP_CONF_TX_COMMON" >> "$genesis_configtx_file"
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     node_name=orderer${i}
     node_home="$org_home/$node_name"
@@ -197,7 +197,7 @@ function config {
   logInfo "System channel name:" "$sys_channel_name"
   sys_channel_genesis_file="$org_home/genesis.block"
 
-  $COMMAND_CONFIGTXGEN \
+  $CMD_CONFIGTXGEN \
     -profile SampleMultiNodeEtcdRaft \
     -channelID "$sys_channel_name" \
     -outputBlock "$sys_channel_genesis_file" \
@@ -246,12 +246,12 @@ done
 case "$COMMAND" in
   configorg)
     checkfileexist "$CONF_FILE"
-    checkfileexist "$ORG_CONFIGTX_TEMPLATE_FILE"
-    checkfileexist "$CONFIGTX_COMMON_TEMPLATE_FILE"
-    checkfileexist "$ORDERER_TEMPLATE_FILE"
-    checkfileexist "$COMMAND_CRYPTOGEN"
-    checkfileexist "$COMMAND_CONFIGTXGEN"
-    checkfileexist "$COMMAND_ORDERER"
+    checkfileexist "$TMP_CONF_TX_ORDERER"
+    checkfileexist "$TMP_CONF_TX_COMMON"
+    checkfileexist "$TMP_ORDERER"
+    checkfileexist "$CMD_CRYPTOGEN"
+    checkfileexist "$CMD_CONFIGTXGEN"
+    checkfileexist "$CMD_ORDERER"
     config
     ;;
   startorg)
