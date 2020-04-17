@@ -33,11 +33,18 @@ COMMAND_PEER=$FABRIC_BIN/peer
 . $DIR/utils/file-utils.sh
 
 function readConfOrgValue() {
+    # shellcheck disable=SC2046
     echo $(readConfValue $CONF_FILE 'org' $1)
 }
 
 function readConfPeerValue() {
     echo $(readConfValue $CONF_FILE $1 $2)
+}
+
+function checkSuccess() {
+    if [[ $? != 0 ]]; then
+        exit $?
+    fi
 }
 
 function configNode {
@@ -46,10 +53,10 @@ function configNode {
   org_domain=$3
   org_mspid=$4
   logInfo "Start config node:" "$org_name.$node_name"
-  node_port=$(readConfPeerValue "$node_name" peer.port)
-  node_chaincode_port=$(readConfPeerValue "$node_name" peer.chaincode.port)
-  node_operations_port=$(readConfPeerValue "$node_name" peer.operations.port)
-  node_gossip_node=$(readConfPeerValue "$node_name" peer.gossip.node)
+  node_port=$(readConfPeerValue "$node_name" node.port)
+  node_chaincode_port=$(readConfPeerValue "$node_name" node.chaincode.port)
+  node_operations_port=$(readConfPeerValue "$node_name" node.operations.port)
+  node_gossip_node=$(readConfPeerValue "$node_name" node.gossip)
   node_domain=$node_name.$org_domain
   logInfo "Node port:" "$node_port"
   logInfo "Node chaincode port:" "$node_chaincode_port"
@@ -68,7 +75,7 @@ function configNode {
   cp -r "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH" "$node_home/$CHAINCODE_EXTERNAL_BUILDER_PATH"
   cp -r "$org_home/crypto-config/peerOrganizations/$org_domain/peers/$node_domain/"* "$node_home"
 
-  gossip_node_port=$(readConfPeerValue $node_gossip_node peer.port)
+  gossip_node_port=$(readConfPeerValue $node_gossip_node node.port)
   core_file=$node_home/core.yaml
   sed -e "s/<peer.name>/${node_name}/
   s/<peer.mspid>/${org_mspid}/
@@ -128,30 +135,28 @@ function config {
   org_user_count=$(readConfOrgValue 'org.user.count')
   org_anchor_peer=$(readConfOrgValue 'org.anchor.peer')
 
-  logInfo "Start config orgnaization: " "$org_name"
-  logInfo "Orgnaization mspid:" "$org_mspid"
-  logInfo "Orgnaization domain:" "$org_domain"
-  logInfo "Orgnaization node count:" "$org_node_count"
-  logInfo "Orgnaization user count:" "$org_user_count"
-  logInfo "Orgnaization anchor peer:" "$org_anchor_peer"
+  logInfo "Start config organization: " "$org_name"
+  logInfo "Organization mspid:" "$org_mspid"
+  logInfo "Organization domain:" "$org_domain"
+  logInfo "Organization node count:" "$org_node_count"
+  logInfo "Organization user count:" "$org_user_count"
+  logInfo "Organization anchor peer:" "$org_anchor_peer"
 
   org_home=$WORK_HOME/$org_name
   if [ -d "$org_home" ]; then
       rm -fr "$org_home"
   fi
   mkdir -p "$org_home" && cd "$org_home"
-  logInfo "Orgnaization work home:" "$org_home"
+  logInfo "Organization work home:" "$org_home"
 
   cp "$CONF_FILE" "$org_home/conf.ini"
   # generate org msp config files.
   "$DIR/msp.sh" -t peer -d "$org_home" -f "$CONF_FILE"
-  if [ $? != 0 ]; then
-      exit 1
-  fi
+  checkSuccess
 
   org_msp_dir=$org_home/crypto-config/peerOrganizations/$org_domain/msp
   org_anchor_peeer_host=$org_anchor_peer.$org_domain
-  org_anchor_peeer_port=$(readConfPeerValue $org_anchor_peer peer.port)
+  org_anchor_peeer_port=$(readConfPeerValue $org_anchor_peer node.port)
   configtx_file=$org_home/configtx-org.yaml
   sed -e "s/<org.name>/${org_name}/
   s/<org.mspid>/${org_mspid}/
@@ -160,7 +165,7 @@ function config {
   s:<org.msp.dir>:${org_msp_dir}:
   s/<org.anchor.host>/${org_anchor_peeer_host}/
   s/<org.anchor.port>/${org_anchor_peeer_port}/" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
-  logSuccess "Orgnaization configtx config file generated:" "$configtx_file"
+  logSuccess "Organization configtx config file generated:" "$configtx_file"
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
       configNode "$org_name" "peer$i" "$org_domain" "$org_mspid"
