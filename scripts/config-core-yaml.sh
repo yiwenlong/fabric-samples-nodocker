@@ -45,7 +45,6 @@ if [ ! "$NODE_NAME" ]; then
     logError "Missing node name" "-n node_name"
 fi
 
-
 org_mspid="$(readConfValue "$CONF_FILE" org org.mspid)"
 org_domain="$(readConfValue "$CONF_FILE" org org.domain)"
 

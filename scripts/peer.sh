@@ -75,21 +75,8 @@ function configNode {
   cp -r "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH" "$node_home/$CHAINCODE_EXTERNAL_BUILDER_PATH"
   cp -r "$org_home/crypto-config/peerOrganizations/$org_domain/peers/$node_domain/"* "$node_home"
 
-  gossip_node_port=$(readConfPeerValue $node_gossip_node node.port)
-  core_file=$node_home/core.yaml
-  sed -e "s/<peer.name>/${node_name}/
-  s/<peer.mspid>/${org_mspid}/
-  s/<peer.address>/${node_domain}:${node_port}/
-  s/<peer.domain>/${node_domain}/
-  s/<peer.gossip.address>/${node_gossip_node}.${org_domain}:${gossip_node_port}/
-  s/<peer.operations.port>/${node_operations_port}/
-  s/<peer.couchdb.address>/${node_couchdb_address}/
-  s/<peer.couchdb.username>/${node_couchdb_user}/
-  s/<peer.couchdb.password>/${node_couchdb_pwd}/
-  s/<peer.chaincode.builder.path>/${CHAINCODE_EXTERNAL_BUILDER_PATH}/
-  s/<peer.chaincode.builder.name>/${CHAINCODE_EXTERNAL_BUILDER_NAME}/
-  s/<peer.chaincode.address>/${node_domain}:${node_chaincode_port}/" $CORE_TEMPLATE_FILE > $core_file
-  logSuccess "Node config file generated" "$core_file"
+  "$DIR/config-core-yaml.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"
+  checkSuccess
 
   supervisor_process_name=fabric-$org_name-$node_name
   supervisor_conf_file_name=$supervisor_process_name.ini
