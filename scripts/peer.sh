@@ -187,7 +187,6 @@ do
       checkfileexist "$CONF_FILE"
       ;;
     d) CONF_DIR=$(absolutefile "$OPTARG" "$WORK_HOME")
-      echo "confdir: $CONF_DIR"
       checkdirexist "$CONF_DIR"
       ;;
     *) usage; exit 1;;

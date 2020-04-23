@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-. $DIR/utils/log-utils.sh
+"$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/log-utils.sh"
 
 function checkfileexist {
     if [ ! -f $1 ]; then
