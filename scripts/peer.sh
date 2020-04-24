@@ -70,17 +70,11 @@ function configNode {
   "$DIR/config-core-yaml.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"
   checkSuccess
 
-  supervisor_process_name=fabric-$org_name-$node_name
-  supervisor_conf_file_name=$supervisor_process_name.ini
-  supervisor_conf_file=$node_home/$supervisor_conf_file_name
-  echo "[program:$supervisor_process_name]" > "$supervisor_conf_file"
-  echo "command=$COMMAND_PEER node start" >> "$supervisor_conf_file"
-  echo "directory=${node_home}" >> "$supervisor_conf_file"
-  echo "redirect_stderr=true" >> "$supervisor_conf_file"
-  echo "stdout_logfile=${node_home}/peer.log" >> "$supervisor_conf_file"
-  echo "stdout_logfile_maxbytes=20MB" >> "$supervisor_conf_file"
-  echo "stdout_logfile_backups=2" >> "$supervisor_conf_file"
-  logSuccess "Supervisor config file generate:" "$supervisor_conf_file"
+  supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
+  supervisor_conf_file_name="$supervisor_process_name.ini"
+  supervisor_conf_file="$node_home/$supervisor_conf_file_name"
+  "$DIR/supervisor.sh" -n "$supervisor_process_name" -h "$node_home" -c "$COMMAND_PEER node start" -d "$supervisor_conf_file"
+  checkSuccess
 
   boot_script_file=$node_home/boot.sh
   echo '#!/bin/bash' > "$boot_script_file"
@@ -93,7 +87,7 @@ function configNode {
   echo 'echo Staring: '"$node_name"'' >> "$boot_script_file"
   echo 'sleep 1' >> "$boot_script_file"
   echo 'supervisorctl status' >> "$boot_script_file"
-  chmod u+x "$boot_script_file"
+  chmod +x "$boot_script_file"
   logSuccess "Node boot script generated: " "$boot_script_file"
 
   stop_script_file=$node_home/stop.sh

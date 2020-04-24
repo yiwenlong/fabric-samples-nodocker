@@ -68,17 +68,11 @@ function configNode {
   s/<orderer.operations.port>/${node_operations_port}/" "$TMP_ORDERER" > "$orderer_config_file"
   logInfo "Node config file generated:" "$orderer_config_file"
 
-  supervisor_process_name="fabric-$org_name-$node_name"
+  supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
   supervisor_conf_file_name="$supervisor_process_name.ini"
   supervisor_conf_file="$node_home/$supervisor_conf_file_name"
-  echo "[program:$supervisor_process_name]" > "$supervisor_conf_file"
-  echo "command=$CMD_ORDERER" >> "$supervisor_conf_file"
-  echo "directory=${node_home}" >> "$supervisor_conf_file"
-  echo "redirect_stderr=true" >> "$supervisor_conf_file"
-  echo "stdout_logfile=${node_home}/orderer.log" >> "$supervisor_conf_file"
-  echo "stdout_logfile_maxbytes=20MB" >> "$supervisor_conf_file"
-  echo "stdout_logfile_backups=2 " >> "$supervisor_conf_file"
-  logInfo "Supervisor config file generated:" "$supervisor_conf_file"
+  "$DIR/supervisor.sh" -n "$supervisor_process_name" -h "$node_home" -c "$CMD_ORDERER" -d "$supervisor_conf_file"
+  checkSuccess
 
   boot_script_file="$node_home/boot.sh"
   echo '#!/bin/bash' > "$boot_script_file"
