@@ -17,23 +17,15 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
-CRYPTO_CONFIG_TEMPLATE_FILE=$DIR/template/crypto-config-peer.yaml
 ORG_CONFIGTX_TEMPLATE_FILE=$DIR/template/configtx-peer.yaml
-CORE_TEMPLATE_FILE=$DIR/template/core.yaml
-
 DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH=$DIR/chaincode-builder
-CHAINCODE_EXTERNAL_BUILDER_NAME=my_external_builder
-CHAINCODE_EXTERNAL_BUILDER_PATH=my_external_builder
-
-COMMAND_CRYPTOGEN=$FABRIC_BIN/cryptogen
 COMMAND_PEER=$FABRIC_BIN/peer
 
-. $DIR/utils/log-utils.sh
-. $DIR/utils/conf-utils.sh
-. $DIR/utils/file-utils.sh
+. "$DIR/utils/log-utils.sh"
+. "$DIR/utils/conf-utils.sh"
+. "$DIR/utils/file-utils.sh"
 
 function readConfOrgValue() {
-    # shellcheck disable=SC2046
     echo $(readConfValue $CONF_FILE 'org' $1)
 }
 
@@ -195,11 +187,8 @@ done
 
 case $COMMAND in 
   configorg)
-    checkfileexist "$CRYPTO_CONFIG_TEMPLATE_FILE"
     checkfileexist "$ORG_CONFIGTX_TEMPLATE_FILE"
-    checkfileexist "$CORE_TEMPLATE_FILE"
     checkdirexist "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH"
-    checkfileexist "$COMMAND_CRYPTOGEN"
     config
     ;;
   startorg)

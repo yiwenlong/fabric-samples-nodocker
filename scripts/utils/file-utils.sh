@@ -18,14 +18,14 @@
 "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/log-utils.sh"
 
 function checkfileexist {
-    if [ ! -f $1 ]; then
+    if [ ! -f "$1" ]; then
         logError "File not found:" $1
         exit 1
     fi
 }
 
 function checkdirexist {
-    if [ ! -d $1 ]; then
+    if [ ! -d "$1" ]; then
         logError "Directory not found:" $1
         exit 1
     fi
