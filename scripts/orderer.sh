@@ -37,6 +37,12 @@ function readConfNodeValue() {
   echo $(readConfValue $CONF_FILE $1 $2)
 }
 
+function checkSuccess() {
+    if [[ $? != 0 ]]; then
+        exit $?
+    fi
+}
+
 function configNode {
   node_name=$1
   org_name=$2
@@ -113,12 +119,13 @@ function config {
   fi
   mkdir -p "$org_home" && cd "$org_home"
   logInfo "Organization work dir:" "$org_home"
+  checkSuccess
+
   cp "$CONF_FILE" "$org_home/conf.ini"
+
   # generate msp config files.
   "$DIR/msp.sh" -t orderer -d "$org_home" -f "$CONF_FILE"
-  if [ $? != 0 ]; then
-      exit 1
-  fi
+  checkSuccess
 
   org_msp_dir="$org_home/crypto-config/ordererOrganizations/$org_domain/msp"
   org_configtx_file="$org_home/configtx-org.yaml"
@@ -126,6 +133,7 @@ function config {
   s/<org.mspid>/${org_mspid}/
   s:<org.msp.dir>:${org_msp_dir}:" "$TMP_CONF_TX_ORDERER" > "$org_configtx_file"
   logSuccess "Organization configtx file generated:" "$org_configtx_file"
+  checkSuccess
 
   # config system channel genesis block
   genesis_configtx_file="$org_home/configtx.yaml"
