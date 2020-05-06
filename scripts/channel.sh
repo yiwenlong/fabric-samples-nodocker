@@ -53,7 +53,7 @@ function config {
   ch_orgs=$(readValue channel.orgs)
   ch_orderer=$(readValue channel.orderer)
   logInfo "Start config channel:" "$ch_name"
-  LogInfo "Channel profile name:" "$ch_profile"
+  logInfo "Channel profile name:" "$ch_profile"
   logInfo "Channel orgnaizations:" "$ch_orgs"
 
     # 2. Generate a directory for the channel to store files.

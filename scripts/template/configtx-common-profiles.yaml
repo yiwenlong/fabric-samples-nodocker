@@ -1,0 +1,18 @@
+Profiles:
+  SampleMultiNodeEtcdRaft:
+    <<: *ChannelDefaults
+    Capabilities:
+      <<: *ChannelCapabilities
+    Orderer:
+      <<: *OrdererDefaults
+      Organizations:
+        - *_org_name_
+      Capabilities:
+        <<: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - <<: *_org_name_
+    Consortiums:
+      SampleConsortium:
+        Organizations:

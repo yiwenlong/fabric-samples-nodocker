@@ -25,16 +25,19 @@ CMD_CRYPTOGEN="$FABRIC_BIN/cryptogen"
 CMD_CONFIGTXGEN="$FABRIC_BIN/configtxgen"
 CMD_ORDERER="$FABRIC_BIN/orderer"
 
-. $DIR/utils/log-utils.sh
-. $DIR/utils/conf-utils.sh
-. $DIR/utils/file-utils.sh
+# shellcheck source=utils/log-utils.sh
+. "$DIR/utils/log-utils.sh"
+# shellcheck source=utils/conf-utils.sh
+. "$DIR/utils/conf-utils.sh"
+# shellcheck source=utils/file-utils.sh
+. "$DIR/utils/file-utils.sh"
 
 function readConfOrgValue() {
-  echo $(readConfValue "$CONF_FILE" org "$1")
+  readConfValue "$CONF_FILE" org "$1"; echo
 }
 
 function readConfNodeValue() {
-  echo $(readConfValue $CONF_FILE $1 $2)
+  readConfValue "$CONF_FILE" "$1" "$2"; echo
 }
 
 function checkSuccess() {
@@ -117,69 +120,18 @@ function config {
   logSuccess "Organization configtx file generated:" "$org_configtx_file"
   checkSuccess
 
-  # config system channel genesis block
-  genesis_configtx_file="$org_home/configtx.yaml"
-  echo "Organizations:" > "$genesis_configtx_file"
-  cat $org_configtx_file >> "$genesis_configtx_file"
-  _peerorgs=$(readConfNodeValue genesis genesis.peerorg.list)
-  peerorgs=(${_peerorgs//,/ })
-  for peer_org_name in ${peerorgs[@]}
-  do
-    cat "$WORK_HOME/$peer_org_name/configtx-org.yaml" >> "$genesis_configtx_file"
-  done
-  cat "$TMP_CONF_TX_COMMON" >> "$genesis_configtx_file"
-  for (( i = 0; i < "$org_node_count" ; ++i)); do
-    node_name=orderer${i}
-    node_home="$org_home/$node_name"
-    node_address="$node_name.$org_domain"
-    node_port=$(readConfNodeValue "$node_name" node.port)
-    echo '            - Host: '"${node_address}"'
-              Port: '"${node_port}"'
-              ClientTLSCert: '"${node_home}"'/tls/server.crt
-              ServerTLSCert: '"${node_home}"'/tls/server.crt' >> "$genesis_configtx_file"
-  done
-  echo 'Profiles:
-  SampleMultiNodeEtcdRaft:
-      <<: *ChannelDefaults
-      Capabilities:
-          <<: *ChannelCapabilities
-      Orderer:
-          <<: *OrdererDefaults
-          Organizations:
-          - *'"${org_name}"'
-          Capabilities:
-              <<: *OrdererCapabilities
-      Application:
-          <<: *ApplicationDefaults
-          Organizations:
-          - <<: *'"${org_name}"'
-      Consortiums:
-          SampleConsortium:
-              Organizations:' >> "$genesis_configtx_file"
-  for peer_org_name in ${peerorgs[@]}
-  do
-    echo "                - *${peer_org_name}" >> "$genesis_configtx_file"
-  done
-  logInfo "Configtx file generated::" "$genesis_configtx_file"
-
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     configNode "orderer$i" "$org_name" "$org_domain" "$org_mspid"
   done
 
-  sys_channel_name=$(readConfOrgValue org.sys.channel.name)
-  logInfo "System channel name:" "$sys_channel_name"
-  sys_channel_genesis_file="$org_home/genesis.block"
-
-  $CMD_CONFIGTXGEN \
-    -profile SampleMultiNodeEtcdRaft \
-    -channelID "$sys_channel_name" \
-    -outputBlock "$sys_channel_genesis_file" \
-    -configPath "$org_home"
-  logInfo "System channel genesis block file generated:" "$sys_channel_genesis_file"
+  cd "$WORK_HOME"
+  "$DIR/config-orderer-genesis.sh" -f "$CONF_FILE"
+  checkSuccess
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     cp "$org_home/genesis.block" "$org_home/orderer$i/"
   done
+
   logSuccess "Organization config success:" "$org_name"
 }
 

@@ -1,0 +1,138 @@
+Organizations:
+    - &Orderer
+        Name: Orderer
+        ID: OrdererMSP
+        MSPDir: /Users/yiwenlong/Gopath/src/cgbbcp/bcp-fabric/samples/network-tps/Orderer/crypto-config/ordererOrganizations/example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Writers:
+                Type: Signature
+                Rule: "OR('OrdererMSP.member')"
+            Admins:
+                Type: Signature
+                Rule: "OR('OrdererMSP.admin')"
+    - &Org1
+        Name: Org1
+        ID: Org1MSP
+        MSPDir: /Users/yiwenlong/Gopath/src/cgbbcp/bcp-fabric/samples/network-tps/Org1/crypto-config/peerOrganizations/org1.example.com/msp
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('Org1MSP.peer')"
+        AnchorPeers:
+            - Host: peer0.org1.example.com
+              Port: 7051
+Capabilities:
+    Channel: &ChannelCapabilities
+        V2_0: true
+    Orderer: &OrdererCapabilities
+        V2_0: true
+    Application: &ApplicationCapabilities
+        V2_0: true
+Application: &ApplicationDefaults
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        LifecycleEndorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+        Endorsement:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Endorsement"
+    Capabilities:
+        <<: *ApplicationCapabilities
+Channel: &ChannelDefaults
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+    Capabilities:
+        <<: *ChannelCapabilities
+Orderer: &OrdererDefaults
+    OrdererType: etcdraft
+    BatchTimeout: 2s
+    BatchSize:
+        MaxMessageCount: 10
+        AbsoluteMaxBytes: 99 MB
+        PreferredMaxBytes: 512 KB
+    Organizations:
+    Policies:
+        Readers:
+            Type: ImplicitMeta
+            Rule: "ANY Readers"
+        Writers:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+        Admins:
+            Type: ImplicitMeta
+            Rule: "MAJORITY Admins"
+        BlockValidation:
+            Type: ImplicitMeta
+            Rule: "ANY Writers"
+    Addresses:
+        - orderer0.example.com:7050
+        - orderer1.example.com:8050
+        - orderer2.example.com:9050
+Profiles:
+    SampleMultiNodeEtcdRaft:
+        <<: *ChannelDefaults
+        Capabilities:
+            <<: *ChannelCapabilities
+        Orderer:
+            <<: *OrdererDefaults
+            OrdererType: etcdraft
+            EtcdRaft:
+                Consenters:
+                - Host: orderer0.example.com
+                  Port: 7050
+                  ClientTLSCert: /Users/yiwenlong/Gopath/src/cgbbcp/bcp-fabric/samples/network-tps/Orderer/orderer0/tls/server.crt
+                  ServerTLSCert: /Users/yiwenlong/Gopath/src/cgbbcp/bcp-fabric/samples/network-tps/Orderer/orderer0/tls/server.crt
+                - Host: orderer1.example.com
+                  Port: 8050
+                  ClientTLSCert: /Users/yiwenlong/Gopath/src/cgbbcp/bcp-fabric/samples/network-tps/Orderer/orderer1/tls/server.crt
+                  ServerTLSCert: /Users/yiwenlong/Gopath/src/cgbbcp/bcp-fabric/samples/network-tps/Orderer/orderer1/tls/server.crt
+                - Host: orderer2.example.com
+                  Port: 9050
+                  ClientTLSCert: /Users/yiwenlong/Gopath/src/cgbbcp/bcp-fabric/samples/network-tps/Orderer/orderer2/tls/server.crt
+                  ServerTLSCert: /Users/yiwenlong/Gopath/src/cgbbcp/bcp-fabric/samples/network-tps/Orderer/orderer2/tls/server.crt
+            Addresses:
+                - orderer0.example.com:7050
+                - orderer1.example.com:8050
+                - orderer2.example.com:9050
+            Organizations:
+            - *Orderer
+            Capabilities:
+                <<: *OrdererCapabilities
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+            - <<: *Orderer
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                - *Org1

@@ -26,11 +26,11 @@ COMMAND_PEER=$FABRIC_BIN/peer
 . "$DIR/utils/file-utils.sh"
 
 function readConfOrgValue() {
-    echo $(readConfValue $CONF_FILE 'org' $1)
+  readConfValue "$CONF_FILE" org "$1"; echo
 }
 
 function readConfPeerValue() {
-    echo $(readConfValue $CONF_FILE $1 $2)
+  readConfValue "$CONF_FILE" "$1" "$2"; echo
 }
 
 function checkSuccess() {
@@ -97,7 +97,7 @@ function config {
 
   org_home=$WORK_HOME/$org_name
   if [ -d "$org_home" ]; then
-      rm -fr "$org_home"
+    rm -fr "$org_home"
   fi
   mkdir -p "$org_home" && cd "$org_home"
   logInfo "Organization work home:" "$org_home"
@@ -121,7 +121,7 @@ function config {
   logSuccess "Organization configtx config file generated:" "$configtx_file"
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
-      configNode "$org_name" "peer$i" "$org_domain" "$org_mspid"
+    configNode "$org_name" "peer$i" "$org_domain" "$org_mspid"
   done
 }
 
@@ -170,10 +170,10 @@ case $COMMAND in
         cd "$CONF_DIR"
     fi
     for node_name in $(ls . | grep peer); do
-        sh "$node_name"/boot.sh
-        if [ $? -eq 0 ]; then
-            logSuccess "Node started:" "$node_name"
-        fi
+      sh "$node_name"/boot.sh
+      if [ $? -eq 0 ]; then
+          logSuccess "Node started:" "$node_name"
+      fi
     done
     sleep 3
     logSuccess "Orgnaization all node started:" $(pwd)
@@ -210,7 +210,7 @@ case $COMMAND in
     if [ -f stop.sh ]; then
       sh stop.sh
       if [ $? -eq 0 ]; then
-        logSuccess "Node stoped:" $(pwd)
+        logSuccess "Node stop:" $(pwd)
       fi
     fi
     ;;

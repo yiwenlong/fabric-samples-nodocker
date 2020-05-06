@@ -49,7 +49,7 @@ function down() {
   "$SCRIPT_PATH"/orderer.sh stoporg -d Orderer
   logInfo "Clean orderer:" Orderer
   rm -fr "$DIR"/Orderer
-  logSuccess "Network stoped!"
+  logSuccess "Network stop!"
 }
 
 function usage() {
