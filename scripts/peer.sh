@@ -67,7 +67,7 @@ function configNode {
   cp -r "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH" "$node_home/$CHAINCODE_EXTERNAL_BUILDER_PATH"
   cp -r "$org_home/crypto-config/peerOrganizations/$org_domain/peers/$node_domain/"* "$node_home"
 
-  "$DIR/config-core-yaml.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"
+  "$DIR/config-yaml-core.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"
   checkSuccess
 
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"

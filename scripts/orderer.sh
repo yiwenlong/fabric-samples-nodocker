@@ -75,30 +75,12 @@ function configNode {
   logInfo "Node config file generated:" "$orderer_config_file"
 
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-  supervisor_conf_file_name="$supervisor_process_name.ini"
-  supervisor_conf_file="$node_home/$supervisor_conf_file_name"
-  "$DIR/supervisor.sh" -n "$supervisor_process_name" -h "$node_home" -c "$CMD_ORDERER" -d "$supervisor_conf_file"
+  "$DIR/config-supervisor.sh" -n "$supervisor_process_name" -h "$node_home" -c "$CMD_ORDERER"
   checkSuccess
 
-  boot_script_file="$node_home/boot.sh"
-  echo '#!/bin/bash' > "$boot_script_file"
-  echo 'export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)' >> "$boot_script_file"
-  echo 'if [ -f /usr/local/etc/supervisor.d/'"$supervisor_conf_file_name"' ]; then' >> "$boot_script_file"
-  echo '  rm /usr/local/etc/supervisor.d/'"$supervisor_conf_file_name"'' >> "$boot_script_file"
-  echo 'fi' >> "$boot_script_file"
-  echo 'ln '"$supervisor_conf_file"' /usr/local/etc/supervisor.d/' >> "$boot_script_file"
-  echo 'supervisorctl update' >> "$boot_script_file"
-  echo 'echo Starting node: '"$node_name"'' >> "$boot_script_file"
-  echo 'supervisorctl status' >> "$boot_script_file"
-  chmod u+x "$boot_script_file"
-  logInfo "Boot script generated: " "$boot_script_file"
+  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home"
+  checkSuccess
 
-  stop_script_file="$node_home/stop.sh"
-  echo '#!/bin/bash' > "$stop_script_file"
-  echo 'supervisorctl stop '"$supervisor_process_name" >> "$stop_script_file"
-  echo 'rm /usr/local/etc/supervisor.d/'"$supervisor_conf_file_name" >> "$stop_script_file"
-  echo 'supervisorctl remove '"$supervisor_process_name" >> "$stop_script_file"
-  logInfo "Stop script generatd: " "$boot_script_file"
   logSuccess "Node config success:" "$node_name"
 }
 
