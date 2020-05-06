@@ -124,7 +124,7 @@ function config {
   cp "$CONF_FILE" "$org_home/conf.ini"
 
   # generate msp config files.
-  "$DIR/msp.sh" -t orderer -d "$org_home" -f "$CONF_FILE"
+  "$DIR/config-msp.sh" -t orderer -d "$org_home" -f "$CONF_FILE"
   checkSuccess
 
   org_msp_dir="$org_home/crypto-config/ordererOrganizations/$org_domain/msp"

@@ -71,31 +71,11 @@ function configNode {
   checkSuccess
 
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-  supervisor_conf_file_name="$supervisor_process_name.ini"
-  supervisor_conf_file="$node_home/$supervisor_conf_file_name"
-  "$DIR/supervisor.sh" -n "$supervisor_process_name" -h "$node_home" -c "$COMMAND_PEER node start" -d "$supervisor_conf_file"
+  "$DIR/config-supervisor.sh" -n "$supervisor_process_name" -h "$node_home" -c "$COMMAND_PEER node start"
   checkSuccess
 
-  boot_script_file=$node_home/boot.sh
-  echo '#!/bin/bash' > "$boot_script_file"
-  echo 'export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)' >> "$boot_script_file"
-  echo 'if [ -f /usr/local/etc/supervisor.d/'$supervisor_conf_file_name' ]; then' >> "$boot_script_file"
-  echo '  rm /usr/local/etc/supervisor.d/'$supervisor_conf_file_name'' >> "$boot_script_file"
-  echo 'fi' >> "$boot_script_file"
-  echo 'ln '"$supervisor_conf_file"' /usr/local/etc/supervisor.d/' >> "$boot_script_file"
-  echo 'supervisorctl update' >> "$boot_script_file"
-  echo 'echo Staring: '"$node_name"'' >> "$boot_script_file"
-  echo 'sleep 1' >> "$boot_script_file"
-  echo 'supervisorctl status' >> "$boot_script_file"
-  chmod +x "$boot_script_file"
-  logSuccess "Node boot script generated: " "$boot_script_file"
-
-  stop_script_file=$node_home/stop.sh
-  echo '#!/bin/bash' > "$stop_script_file"
-  echo 'supervisorctl stop '"$supervisor_process_name" >> "$stop_script_file"
-  echo 'rm /usr/local/etc/supervisor.d/'"$supervisor_conf_file_name" >> "$stop_script_file"
-  echo 'supervisorctl remove '"$supervisor_process_name" >> "$stop_script_file"
-  logSuccess "Node stop script generated: " "$stop_script_file"
+  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home"
+  checkSuccess
 
   logSuccess "Node config success:" "$node_name"
 }
@@ -124,7 +104,7 @@ function config {
 
   cp "$CONF_FILE" "$org_home/conf.ini"
   # generate org msp config files.
-  "$DIR/msp.sh" -t peer -d "$org_home" -f "$CONF_FILE"
+  "$DIR/config-msp.sh" -t peer -d "$org_home" -f "$CONF_FILE"
   checkSuccess
 
   org_msp_dir=$org_home/crypto-config/peerOrganizations/$org_domain/msp
@@ -218,10 +198,10 @@ case $COMMAND in
     for node_name in $(ls . | grep peer); do
       sh "$node_name"/stop.sh
       if [ $? -eq 0 ]; then
-        logSuccess "Node stoped:" "$node_name"
+        logSuccess "Node stop:" "$node_name"
       fi
     done
-    logSuccess "Organization all node stoped:" $(pwd)
+    logSuccess "Organization all node stop:" $(pwd)
     ;;
   stopnode)
     if [ "$CONF_DIR" ]; then
