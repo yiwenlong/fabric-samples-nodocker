@@ -60,17 +60,42 @@ done
 cat "$TMP_CONF_TX_COMMON" >> "$genesis_configtx_file"
 for (( i = 0; i < "$org_node_count" ; ++i)); do
   node_name=orderer${i}
+  node_address="$node_name.$org_domain"
+  node_port=$(readConfValue "$conf_file" "$node_name" node.port)
+  printf "        - %s:%s\n" "$node_address" "$node_port" >> "$genesis_configtx_file"
+done
+
+sed -e "s/_org_name_/${org_name}/" "$TMP_CONF_TX_COMMON_PROFILES" >> "$genesis_configtx_file"
+for (( i = 0; i < "$org_node_count" ; ++i)); do
+  node_name=orderer${i}
   node_home="$org_home/$node_name"
   node_address="$node_name.$org_domain"
   node_port=$(readConfValue "$conf_file" "$node_name" node.port)
-  printf "        - Host: %s\n" "$node_address" >> "$genesis_configtx_file"
-  printf "          Port: %s\n" "$node_port" >> "$genesis_configtx_file"
-  printf "          ClientTLSCert: %s\n" "$node_home/tls/server.crt" >> "$genesis_configtx_file"
-  printf "          ServerTLSCert: %s\n" "$node_home/tls/server.crt" >> "$genesis_configtx_file"
+  printf "          - Host: %s\n" "$node_address" >> "$genesis_configtx_file"
+  printf "            Port: %s\n" "$node_port" >> "$genesis_configtx_file"
+  printf "            ClientTLSCert: %s\n" "$node_home/tls/server.crt" >> "$genesis_configtx_file"
+  printf "            ServerTLSCert: %s\n" "$node_home/tls/server.crt" >> "$genesis_configtx_file"
 done
-sed -e "s/_org_name_/${org_name}/" "$TMP_CONF_TX_COMMON_PROFILES" >> "$genesis_configtx_file"
-for org in ${orgs//,/ }
-do
+echo "      Addresses:" >> "$genesis_configtx_file"
+for (( i = 0; i < "$org_node_count" ; ++i)); do
+  node_name=orderer${i}
+  node_address="$node_name.$org_domain"
+  node_port=$(readConfValue "$conf_file" "$node_name" node.port)
+  printf "          - %s:%s\n" "$node_address" "$node_port" >> "$genesis_configtx_file"
+done
+printf "      Organizations:\n" >> "$genesis_configtx_file"
+printf "      - *%s\n" "$org_name" >> "$genesis_configtx_file"
+printf "      Capabilities:\n" >> "$genesis_configtx_file"
+printf "        <<: *OrdererCapabilities\n" >> "$genesis_configtx_file"
+printf "    Application:\n" >> "$genesis_configtx_file"
+printf "      <<: *ApplicationDefaults\n" >> "$genesis_configtx_file"
+printf "      Organizations:\n" >> "$genesis_configtx_file"
+printf "      - <<: *%s\n" "$org_name" >> "$genesis_configtx_file"
+printf "    Consortiums:\n" >> "$genesis_configtx_file"
+printf "      SampleConsortium:\n" >> "$genesis_configtx_file"
+printf "        Organizations:\n" >> "$genesis_configtx_file"
+
+for org in ${orgs//,/ }; do
   printf "        - *%s\n" "$org" >> "$genesis_configtx_file"
 done
 logInfo "Configtx file generated:" "$genesis_configtx_file"

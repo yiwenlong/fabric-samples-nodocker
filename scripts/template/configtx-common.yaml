@@ -59,5 +59,4 @@ Orderer: &OrdererDefaults
         BlockValidation:
             Type: ImplicitMeta
             Rule: "ANY Writers"
-    EtcdRaft:
-        Consenters:
+    Addresses:
