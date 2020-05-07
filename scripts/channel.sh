@@ -130,7 +130,7 @@ function config {
         for node_name in ${peers[@]}; do
             ch_node_conf_home="$ch_home/$org_name-$node_name-$ch_name-conf"
             mkdir -p "$ch_node_conf_home"
-            ch_node_conf_file="$ch_node_conf_home/channel.conf"
+            ch_node_conf_file="$ch_node_conf_home/channel.ini"
             cp "$org_tls_ca_file" "$ch_node_conf_home/peer-tls-ca.pem"
             cp "$orderer_tls_ca_file" "$ch_node_conf_home/orderer-tls-ca.pem"
             cp "$ch_home/$ch_name.tx" "$ch_node_conf_home"
@@ -299,7 +299,7 @@ case $COMMAND in
     config ;;
   create | join | updateAnchorPeer )
     checkdirexist "$CONF_DIR"
-    CONF_FILE=$CONF_DIR/channel.conf
+    CONF_FILE=$CONF_DIR/channel.ini
     checkfileexist "$CONF_FILE"
     $COMMAND ;;
   *) usage; exit 1;;

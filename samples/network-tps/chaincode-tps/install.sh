@@ -25,10 +25,10 @@ CHANNEL_HOME=$(cd "$DIR"/../channel-mychannel/mychannel && pwd)
 . "$SCRIPT_PATH"/utils/log-utils.sh
 
 logInfo "Package chaincode:" tps
-"$SCRIPT_PATH"/chaincode.sh package -f cc-tps.conf
+"$SCRIPT_PATH"/chaincode.sh package -f cc-tps.ini
 logInfo "Install chaincode:" "tps -> org1.peer0"
 "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
-logInfo "Install chaincode:" "tps -> org1.peer0"
-"$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer1-mychannel-conf
-logInfo "Approve chaincode:" "tps"
-"$SCRIPT_PATH"/chaincode.sh approve -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
+#logInfo "Install chaincode:" "tps -> org1.peer0"
+#"$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer1-mychannel-conf
+#logInfo "Approve chaincode:" "tps"
+#"$SCRIPT_PATH"/chaincode.sh approve -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf

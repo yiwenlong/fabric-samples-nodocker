@@ -20,20 +20,23 @@ WORK_HOME=$(pwd)
 
 COMMAND_PEER=$FABRIC_BIN/peer
 
+# shellcheck source=utils/log-utils.sh
 . "$DIR"/utils/log-utils.sh
+# shellcheck source=utils/conf-utils.sh
 . "$DIR"/utils/conf-utils.sh
+# shellcheck source=utils/file-utils.sh
 . "$DIR"/utils/file-utils.sh
 
 function absolute() {
-  echo $(absolutefile $1 "$WORK_HOME")
+  absolutefile "$1" "$WORK_HOME"; echo
 }
 
 function confValue() {
-  echo $(readConfValue $CONF_FILE $1)
+  readConfValue "$CONF_FILE" "$1"; echo
 }
 
 function channelValue() {
-  echo $(readConfValue $CHANNEL_CONF_FILE $1)
+  readConfValue "$CHANNEL_CONF_FILE" "$1"; echo
 }
 
 function usage() {
@@ -46,16 +49,16 @@ function package {
   cc_name=$(confValue chaincode.name)
   cc_address=$(confValue chaincode.address)
   cc_binary=$(absolute $(confValue chaincode.binary.file))
-  logInfo "Chaincode Nmae:" "$cc_name"
+  logInfo "Chaincode Name:" "$cc_name"
   logInfo "Chaincode Address:" "$cc_address"
   logInfo "Chaincode Binary:" "$cc_binary"
   checkfileexist "$cc_binary"
 
-  cc_home=$WORK_HOME/chaincode-home-$(basename -s .conf "$CONF_FILE")
-  mkdir -p "$cc_home" && rm -fr "$cc_home"/* && cd "$cc_home"
+  cc_home="$WORK_HOME/chaincode-home-$(basename -s .ini "$CONF_FILE")"
+  mkdir -p "$cc_home" && rm -fr "${cc_home:?}/*" && cd "$cc_home" || exit
   logInfo "Chaincode work home generated:" "$cc_home"
 
-  cp "$CONF_FILE" "$cc_home"/chaincode.conf
+  cp "$CONF_FILE" "$cc_home"/chaincode.ini
   cp "$cc_binary" "$cc_home"/
 
   cc_connection_file=$cc_home/connection.json
@@ -209,8 +212,8 @@ case $command in
     install | approve)
       checkdirexist "$CC_HOME"
       checkdirexist "$CHANNEL_HOME"
-      CONF_FILE="$CC_HOME"/chaincode.conf
-      CHANNEL_CONF_FILE="$CHANNEL_HOME"/channel.conf
+      CONF_FILE="$CC_HOME"/chaincode.ini
+      CHANNEL_CONF_FILE="$CHANNEL_HOME"/channel.ini
       checkfileexist "$CONF_FILE"
       checkfileexist "$CHANNEL_CONF_FILE"
       $command;;
