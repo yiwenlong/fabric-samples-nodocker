@@ -64,7 +64,7 @@ function configNode {
   mkdir -p "$node_home" && cd "$node_home"
   logInfo "Node work home:" "$node_home"
 
-  cp -r "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH" "$node_home/$CHAINCODE_EXTERNAL_BUILDER_PATH"
+  cp -r "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH" "$node_home/my_external_builder"
   cp -r "$org_home/crypto-config/peerOrganizations/$org_domain/peers/$node_domain/"* "$node_home"
 
   "$DIR/config-yaml-core.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"
