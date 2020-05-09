@@ -37,3 +37,5 @@ logInfo "Config chaincode server boot scripts:" "tps"
 "$SCRIPT_PATH"/chaincode.sh configChaincodeServer -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
 logInfo "Starting chaincode server:" "tps"
 ./chaincode-home-cc-tps/boot.sh
+logInfo "Commit chaincode define:" "tps"
+"$SCRIPT_PATH"/chaincode.sh commit -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf

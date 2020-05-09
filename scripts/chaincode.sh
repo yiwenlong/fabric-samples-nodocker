@@ -214,6 +214,78 @@ function configChaincodeServer() {
   checkSuccess
 }
 
+function commit() {
+  ch_name=$(channelValue channel.name)
+  cc_name=$(confValue chaincode.name)
+  cc_version=$(confValue chaincode.version)
+  cc_package_id=$(confValue chaincode.package.id)
+  cc_sequence=$(confValue chaincode.sequence)
+
+  logInfo "Approve chaincode:" "$cc_name"
+  logInfo "Chaincode version:" "$cc_version"
+  logInfo "Chaincode package id:" "$cc_package_id"
+  logInfo "Chaincode sequence:" "$cc_sequence"
+  logInfo "Channel name:" "$cc_name"
+
+  ch_orderer_address=$(channelValue orderer.address)
+  ch_orderer_tls_ca=$CHANNEL_HOME/$(channelValue orderer.tls.ca)
+  logInfo "Orderer address:" "$ch_orderer_address"
+  logInfo "Orderer TLS ca file:" "$ch_orderer_tls_ca"
+  checkfileexist "$ch_orderer_tls_ca"
+
+  org_name=$(channelValue org.name)
+  org_admin_msp_dir=$CHANNEL_HOME/$(channelValue org.adminmsp)
+  org_mspid=$(channelValue org.mspid)
+  org_tls_ca=$CHANNEL_HOME/$(channelValue org.tls.ca)
+  org_peer_address=$(channelValue org.peer.address)
+  logInfo "Organization name:" "$org_name"
+  logInfo "Organization admin msp directory:" "$org_admin_msp_dir"
+  logInfo "Organization msp id:" "$org_mspid"
+  logInfo "Organization TLS ca file:" "$org_tls_ca"
+  logInfo "Organization node address:" "$org_peer_address"
+  checkfileexist "$org_tls_ca"
+  checkdirexist "$org_admin_msp_dir"
+
+  export CORE_PEER_MSPCONFIGPATH="$org_admin_msp_dir"
+  export CORE_PEER_LOCALMSPID="$org_mspid"
+  export CORE_PEER_ADDRESS="$org_peer_address"
+  export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_ca"
+  export CORE_PEER_TLS_ENABLE=true
+
+  cd "$CHANNEL_HOME"
+  for org_anchor_conf in $(ls | grep anchor-conf); do
+      anchor_conf_dir=$CHANNEL_HOME/$org_anchor_conf
+      anchor_conf_file=$CHANNEL_HOME/$org_anchor_conf/anchor.conf
+      anchor_address=$(awk -F '=' '/org.anchor.address/{print $2;exit}' "$anchor_conf_file")
+      anchor_tls_ca=$anchor_conf_dir/$(awk -F '=' '/org.tls.cafile/{print $2;exit}' "$anchor_conf_file")
+      anchor_params="$anchor_params --peerAddresses $anchor_address --tlsRootCertFiles $anchor_tls_ca"
+  done
+
+  $COMMAND_PEER lifecycle chaincode commit \
+    --channelID "$ch_name" \
+    --name "$cc_name" \
+    --version "$cc_version" \
+    --init-required \
+    --sequence "$cc_sequence" \
+    --tls true \
+    --orderer "$ch_orderer_address" \
+    --cafile "$ch_orderer_tls_ca" "$anchor_params"
+
+  if [ $? -eq 0 ]; then
+    logSuccess "Chaincode commit success:" "$org_name -> $cc_package_id"
+  else
+    logError "Chaincode commit failed:" "$org_name -> $cc_package_id"
+    exit 1
+  fi
+
+  $COMMAND_PEER lifecycle chaincode querycommitted \
+  --orderer "$ch_orderer_address" \
+  --cafile "$ch_orderer_tls_ca" \
+  --channelID "$ch_name" \
+  --name "$cc_name" \
+  --tls true
+}
+
 command=$1
 shift
 
@@ -235,7 +307,7 @@ case $command in
     package) 
         checkfileexist "$CONF_FILE"
         $command ;;
-    install | approve | configChaincodeServer )
+    install | approve | configChaincodeServer | commit )
       checkdirexist "$CC_HOME"
       checkdirexist "$CHANNEL_HOME"
       CONF_FILE="$CC_HOME/chaincode.ini"

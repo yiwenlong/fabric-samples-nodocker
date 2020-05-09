@@ -21,8 +21,11 @@ ORG_CONFIGTX_TEMPLATE_FILE=$DIR/template/configtx-peer.yaml
 DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH=$DIR/chaincode-builder
 COMMAND_PEER=$FABRIC_BIN/peer
 
+# shellcheck source=utils/log-utils.sh
 . "$DIR/utils/log-utils.sh"
+# shellcheck source=utils/conf-utils.sh
 . "$DIR/utils/conf-utils.sh"
+# shellcheck source=utils/file-utils.sh
 . "$DIR/utils/file-utils.sh"
 
 function readConfOrgValue() {

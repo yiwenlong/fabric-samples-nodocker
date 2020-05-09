@@ -15,7 +15,9 @@
 # limitations under the License.
 #
 
+# shellcheck source=utils/log-utils.sh
 . "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/utils/log-utils.sh"
+# shellcheck source=utils/file-utils.sh
 . "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/utils/file-utils.sh"
 
 function usage() {
