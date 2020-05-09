@@ -36,7 +36,7 @@ brew services start supervisor
 git clone https://github.com/yiwenlong/fabric-samples-nodocker.git
 ```
 
-#### Using the Tps test network
+#### Using the Single org test network
 
 ##### Bring up the test network
 

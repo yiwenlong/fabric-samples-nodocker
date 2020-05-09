@@ -22,25 +22,39 @@ export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 
 . "$SCRIPT_PATH"/utils/log-utils.sh
 
+function checkSuccess() {
+    if [[ $? != 0 ]]; then
+        exit $?
+    fi
+}
+
 function config() {
   logInfo "Config organization:" Org1
   "$SCRIPT_PATH"/peer.sh configorg -f Org1.ini
+  checkSuccess
   logInfo "Config orderer organization:" Orderer
   "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.ini
+  checkSuccess
 }
 
 function start() {
   logInfo "Start organization nodes:" Org1
   "$SCRIPT_PATH"/peer.sh startorg -d Org1
+  checkSuccess
   logInfo "Start orderer:" Orderer
   "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer0
+  checkSuccess
   "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer1
+  checkSuccess
   "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer2
+  checkSuccess
   sleep 3
   supervisorctl status
   cd "$DIR/channel-mychannel" && "./create.sh"
+  checkSuccess
   sleep 2
   cd "$DIR/chaincode-tps" && "./install.sh"
+  checkSuccess
 }
 
 function down() {

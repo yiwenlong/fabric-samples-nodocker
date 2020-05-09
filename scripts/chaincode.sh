@@ -54,7 +54,7 @@ function package {
 
   cc_name=$(confValue chaincode.name)
   cc_address=$(confValue chaincode.address)
-  cc_binary=$(absolute $(confValue chaincode.binary.file))
+  cc_binary=$(absolute "$(confValue chaincode.binary.file)")
   logInfo "Chaincode Name:" "$cc_name"
   logInfo "Chaincode Address:" "$cc_address"
   logInfo "Chaincode Binary:" "$cc_binary"
@@ -82,58 +82,13 @@ function package {
   logSuccess "Chaincde package success! Check Work Directory:" "$cc_home"
 }
 
-function install() {
-  cc_name=$(confValue chaincode.name)
-  cc_binary=$(absolutefile $(confValue chaincode.binary.file) "$CC_HOME")
-  cc_package=$(absolutefile "$cc_name".tar.gz "$CC_HOME")
-  logInfo "Chaincode name:" "$cc_name"
-  logInfo "Chaincode binary file:" "$cc_binary"
-  logInfo "Chaincode package file:" "$cc_package"
-  checkfileexist "$cc_binary"
-  checkfileexist "$cc_package"
-
-  ch_name=$(channelValue channel.name)
-  org_name=$(channelValue org.name)
-  logInfo "Channel name:" "$ch_name"
-  logInfo "Organization name:" "$org_name"
-
-  org_admin_msp_dir="$CHANNEL_HOME"/$(channelValue org.adminmsp)
-  org_mspid=$(channelValue org.mspid)
-  org_tls_ca="$CHANNEL_HOME"/$(channelValue org.tls.ca)
-  node_address=$(channelValue org.peer.address)
-  logInfo "Organization admin msp directory:" "$org_admin_msp_dir"
-  logInfo "Organization msp id:" "$org_mspid"
-  logInfo "Organization TLS ca file:" "$org_tls_ca"
-  logInfo "Organization node_address:" "$node_address"
-  checkdirexist "$org_admin_msp_dir"
-  checkfileexist "$org_tls_ca"
-
-  export CORE_PEER_MSPCONFIGPATH="$org_admin_msp_dir"
-  export CORE_PEER_LOCALMSPID="$org_mspid"
-  export CORE_PEER_ADDRESS="$node_address"
-  export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_ca"
-
-  $COMMAND_PEER lifecycle chaincode install "$cc_package"
-  if [ $? -eq 0 ]; then
-      logSuccess "Chaincode install success:" "$cc_name"
-  else
-      logError "Chaincode install failed:" "$cc_name"
-      exit 1
-  fi
-
-  cc_package_id=$($COMMAND_PEER lifecycle chaincode queryinstalled | grep "$cc_name" | awk -F 'Package ID: ' '{print $2}' | awk -F ',' '{print $1;exit}')
-  echo "chaincode.package.id=${cc_package_id}" >> "$CONF_FILE"
-  logInfo "Chaincode PackageId:" "$cc_package_id"
-}
-
-function approve() {
+function env() {
   ch_name=$(channelValue channel.name)
   cc_name=$(confValue chaincode.name)
   cc_version=$(confValue chaincode.version)
   cc_package_id=$(confValue chaincode.package.id)
   cc_sequence=$(confValue chaincode.sequence)
 
-  logInfo "Approve chaincode:" "$cc_name"
   logInfo "Chaincode version:" "$cc_version"
   logInfo "Chaincode package id:" "$cc_package_id"
   logInfo "Chaincode sequence:" "$cc_sequence"
@@ -163,7 +118,26 @@ function approve() {
   export CORE_PEER_ADDRESS="$org_peer_address"
   export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_ca"
   export CORE_PEER_TLS_ENABLE=true
+}
 
+function install() {
+  env
+  cc_package=$(absolutefile "$cc_name".tar.gz "$CC_HOME")
+  $COMMAND_PEER lifecycle chaincode install "$cc_package"
+  if [ $? -eq 0 ]; then
+      logSuccess "Chaincode install success:" "$cc_name"
+  else
+      logError "Chaincode install failed:" "$cc_name"
+      exit 1
+  fi
+
+  cc_package_id=$($COMMAND_PEER lifecycle chaincode queryinstalled | grep "$cc_name" | awk -F 'Package ID: ' '{print $2}' | awk -F ',' '{print $1;exit}')
+  echo "chaincode.package.id=${cc_package_id}" >> "$CONF_FILE"
+  logInfo "Chaincode PackageId:" "$cc_package_id"
+}
+
+function approve() {
+  env
   $COMMAND_PEER lifecycle chaincode approveformyorg \
     --channelID "$ch_name" \
     --name "$cc_name" \
@@ -215,43 +189,7 @@ function configChaincodeServer() {
 }
 
 function commit() {
-  ch_name=$(channelValue channel.name)
-  cc_name=$(confValue chaincode.name)
-  cc_version=$(confValue chaincode.version)
-  cc_package_id=$(confValue chaincode.package.id)
-  cc_sequence=$(confValue chaincode.sequence)
-
-  logInfo "Approve chaincode:" "$cc_name"
-  logInfo "Chaincode version:" "$cc_version"
-  logInfo "Chaincode package id:" "$cc_package_id"
-  logInfo "Chaincode sequence:" "$cc_sequence"
-  logInfo "Channel name:" "$cc_name"
-
-  ch_orderer_address=$(channelValue orderer.address)
-  ch_orderer_tls_ca=$CHANNEL_HOME/$(channelValue orderer.tls.ca)
-  logInfo "Orderer address:" "$ch_orderer_address"
-  logInfo "Orderer TLS ca file:" "$ch_orderer_tls_ca"
-  checkfileexist "$ch_orderer_tls_ca"
-
-  org_name=$(channelValue org.name)
-  org_admin_msp_dir=$CHANNEL_HOME/$(channelValue org.adminmsp)
-  org_mspid=$(channelValue org.mspid)
-  org_tls_ca=$CHANNEL_HOME/$(channelValue org.tls.ca)
-  org_peer_address=$(channelValue org.peer.address)
-  logInfo "Organization name:" "$org_name"
-  logInfo "Organization admin msp directory:" "$org_admin_msp_dir"
-  logInfo "Organization msp id:" "$org_mspid"
-  logInfo "Organization TLS ca file:" "$org_tls_ca"
-  logInfo "Organization node address:" "$org_peer_address"
-  checkfileexist "$org_tls_ca"
-  checkdirexist "$org_admin_msp_dir"
-
-  export CORE_PEER_MSPCONFIGPATH="$org_admin_msp_dir"
-  export CORE_PEER_LOCALMSPID="$org_mspid"
-  export CORE_PEER_ADDRESS="$org_peer_address"
-  export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_ca"
-  export CORE_PEER_TLS_ENABLE=true
-
+  env
   cd "$CHANNEL_HOME"
   for org_anchor_conf in $(ls | grep anchor-conf); do
       anchor_conf_dir=$CHANNEL_HOME/$org_anchor_conf
