@@ -275,6 +275,50 @@ function invoke() {
   fi
 }
 
+function query() {
+  ch_name=$(channelValue channel.name)
+  ch_orderer_address=$(channelValue orderer.address)
+  ch_orderer_tls_ca=$CHANNEL_HOME/$(channelValue orderer.tls.ca)
+  logInfo "Orderer address:" "$ch_orderer_address"
+  logInfo "Orderer TLS ca file:" "$ch_orderer_tls_ca"
+  checkfileexist "$ch_orderer_tls_ca"
+
+  org_admin_msp_dir=$CHANNEL_HOME/$(channelValue org.adminmsp)
+  org_mspid=$(channelValue org.mspid)
+  org_tls_ca=$CHANNEL_HOME/$(channelValue org.tls.ca)
+  org_peer_address=$(channelValue org.peer.address)
+  logInfo "Organization name:" "$org_name"
+  logInfo "Organization admin msp directory:" "$org_admin_msp_dir"
+  logInfo "Organization msp id:" "$org_mspid"
+  logInfo "Organization TLS ca file:" "$org_tls_ca"
+  logInfo "Organization node address:" "$org_peer_address"
+  checkfileexist "$org_tls_ca"
+  checkdirexist "$org_admin_msp_dir"
+
+  export CORE_PEER_MSPCONFIGPATH="$org_admin_msp_dir"
+  export CORE_PEER_LOCALMSPID="$org_mspid"
+  export CORE_PEER_ADDRESS="$org_peer_address"
+  export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_ca"
+  export CORE_PEER_TLS_ENABLE=true
+
+  cd "$CHANNEL_HOME"
+
+  $COMMAND_PEER chaincode query \
+    --orderer "$ch_orderer_address" \
+    --cafile "$ch_orderer_tls_ca" \
+    --channelID "$ch_name" \
+    --tls true \
+    --name "$CC_NAME" \
+    -c "$CC_PARAMS"
+
+  if [ $? -eq 0 ]; then
+    logSuccess "Chaincode invoke success"
+  else
+    logError "Chaincode invoke failed"
+    exit 1
+  fi
+}
+
 command=$1
 shift
 
