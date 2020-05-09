@@ -14,5 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-./chaincode-home-cc-tps/stop.sh
-rm -fr chaincode-home-cc-tps/
+"$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/chaincode-home-cc-tps/stop.sh"
+rm -fr "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/chaincode-home-cc-tps"

@@ -38,6 +38,9 @@ function start() {
   "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer2
   sleep 3
   supervisorctl status
+  cd "$DIR/channel-mychannel" && "./create.sh"
+  sleep 2
+  cd "$DIR/chaincode-tps" && "./install.sh"
 }
 
 function down() {
@@ -49,6 +52,10 @@ function down() {
   "$SCRIPT_PATH"/orderer.sh stoporg -d Orderer
   logInfo "Clean orderer:" Orderer
   rm -fr "$DIR"/Orderer
+  logInfo "Clean channel:" Orderer
+  ./channel-mychannel/clean.sh
+  logInfo "Clean chaincode:" Orderer
+  ./chaincode-tps/clean.sh
   logSuccess "Network stop!"
 }
 
