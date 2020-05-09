@@ -224,6 +224,57 @@ function commit() {
   --tls true
 }
 
+function invoke() {
+  ch_name=$(channelValue channel.name)
+  ch_orderer_address=$(channelValue orderer.address)
+  ch_orderer_tls_ca=$CHANNEL_HOME/$(channelValue orderer.tls.ca)
+  logInfo "Orderer address:" "$ch_orderer_address"
+  logInfo "Orderer TLS ca file:" "$ch_orderer_tls_ca"
+  checkfileexist "$ch_orderer_tls_ca"
+
+  org_admin_msp_dir=$CHANNEL_HOME/$(channelValue org.adminmsp)
+  org_mspid=$(channelValue org.mspid)
+  org_tls_ca=$CHANNEL_HOME/$(channelValue org.tls.ca)
+  org_peer_address=$(channelValue org.peer.address)
+  logInfo "Organization name:" "$org_name"
+  logInfo "Organization admin msp directory:" "$org_admin_msp_dir"
+  logInfo "Organization msp id:" "$org_mspid"
+  logInfo "Organization TLS ca file:" "$org_tls_ca"
+  logInfo "Organization node address:" "$org_peer_address"
+  checkfileexist "$org_tls_ca"
+  checkdirexist "$org_admin_msp_dir"
+
+  export CORE_PEER_MSPCONFIGPATH="$org_admin_msp_dir"
+  export CORE_PEER_LOCALMSPID="$org_mspid"
+  export CORE_PEER_ADDRESS="$org_peer_address"
+  export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_ca"
+  export CORE_PEER_TLS_ENABLE=true
+
+  cd "$CHANNEL_HOME"
+  for org_anchor_conf in $(ls | grep anchor-conf); do
+      anchor_conf_dir=$CHANNEL_HOME/$org_anchor_conf
+      anchor_conf_file=$CHANNEL_HOME/$org_anchor_conf/anchor.conf
+      anchor_address=$(awk -F '=' '/org.anchor.address/{print $2;exit}' "$anchor_conf_file")
+      anchor_tls_ca=$anchor_conf_dir/$(awk -F '=' '/org.tls.cafile/{print $2;exit}' "$anchor_conf_file")
+      anchor_params="$anchor_params --peerAddresses $anchor_address --tlsRootCertFiles $anchor_tls_ca"
+  done
+
+  $COMMAND_PEER chaincode invoke \
+    --orderer "$ch_orderer_address" \
+    --cafile "$ch_orderer_tls_ca" \
+    --channelID "$ch_name" \
+    --tls true \
+    --name "$CC_NAME" \
+    -c "$CC_PARAMS" "$anchor_params" "$CC_IS_INIT"
+
+  if [ $? -eq 0 ]; then
+    logSuccess "Chaincode invoke success"
+  else
+    logError "Chaincode invoke failed"
+    exit 1
+  fi
+}
+
 command=$1
 shift
 
@@ -233,7 +284,6 @@ do
         f) CONF_FILE=$(absolute "$OPTARG"); checkfileexist "$CONF_FILE";;
         h) CC_HOME=$(absolute "$OPTARG"); checkdirexist "$CC_HOME";;
         c) CHANNEL_HOME=$(absolute "$OPTARG"); checkdirexist "$CHANNEL_HOME";;
-        p) PROC_NAME="$OPTARG";;
         n) CC_NAME="$OPTARG";;
         v) CC_PARAMS="$OPTARG";;
         i) CC_IS_INIT="--isInit";;
@@ -243,14 +293,19 @@ done
 
 case $command in 
     package) 
-        checkfileexist "$CONF_FILE"
-        $command ;;
+      checkfileexist "$CONF_FILE"
+      $command ;;
     install | approve | configChaincodeServer | commit )
       checkdirexist "$CC_HOME"
       checkdirexist "$CHANNEL_HOME"
       CONF_FILE="$CC_HOME/chaincode.ini"
       CHANNEL_CONF_FILE="$CHANNEL_HOME/channel.ini"
       checkfileexist "$CONF_FILE"
+      checkfileexist "$CHANNEL_CONF_FILE"
+      $command;;
+    invoke | query)
+      checkdirexist "$CHANNEL_HOME"
+      CHANNEL_CONF_FILE="$CHANNEL_HOME/channel.ini"
       checkfileexist "$CHANNEL_CONF_FILE"
       $command;;
     *) usage;;

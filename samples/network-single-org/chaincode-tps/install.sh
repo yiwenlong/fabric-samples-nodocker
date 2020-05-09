@@ -31,30 +31,33 @@ function checkSuccess() {
     fi
 }
 
-logInfo "Package chaincode:" tps
-"$SCRIPT_PATH"/chaincode.sh package -f cc-tps.ini
-checkSuccess
+#logInfo "Package chaincode:" tps
+#"$SCRIPT_PATH"/chaincode.sh package -f cc-tps.ini
+#checkSuccess
+#
+#logInfo "Install chaincode:" "tps -> org1.peer0"
+#"$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
+#checkSuccess
+#
+#logInfo "Install chaincode:" "tps -> org1.peer0"
+#"$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer1-mychannel-conf
+#checkSuccess
+#
+#logInfo "Approve chaincode:" "tps"
+#"$SCRIPT_PATH"/chaincode.sh approve -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
+#checkSuccess
+#
+#logInfo "Config chaincode server boot scripts:" "tps"
+#"$SCRIPT_PATH"/chaincode.sh configChaincodeServer -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
+#checkSuccess
+#
+#logInfo "Starting chaincode server:" "tps"
+#./chaincode-home-cc-tps/boot.sh
+#checkSuccess
+#
+#logInfo "Commit chaincode define:" "tps"
+#"$SCRIPT_PATH"/chaincode.sh commit -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
+#checkSuccess
 
-logInfo "Install chaincode:" "tps -> org1.peer0"
-"$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
-checkSuccess
-
-logInfo "Install chaincode:" "tps -> org1.peer0"
-"$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer1-mychannel-conf
-checkSuccess
-
-logInfo "Approve chaincode:" "tps"
-"$SCRIPT_PATH"/chaincode.sh approve -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
-checkSuccess
-
-logInfo "Config chaincode server boot scripts:" "tps"
-"$SCRIPT_PATH"/chaincode.sh configChaincodeServer -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
-checkSuccess
-
-logInfo "Starting chaincode server:" "tps"
-./chaincode-home-cc-tps/boot.sh
-checkSuccess
-
-logInfo "Commit chaincode define:" "tps"
-"$SCRIPT_PATH"/chaincode.sh commit -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
-checkSuccess
+logInfo "Init chaincode:" "tps"
+"$SCRIPT_PATH"/chaincode.sh invoke -i -n tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf -v '{"Args":["Init",""]}'
