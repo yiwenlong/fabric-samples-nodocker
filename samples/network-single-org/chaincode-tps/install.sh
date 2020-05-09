@@ -22,7 +22,8 @@ export FABRIC_CFG_PATH=$(cd "$DIR"/../Org1/peer0 && pwd)
 
 CHANNEL_HOME=$(cd "$DIR"/../channel-mychannel/mychannel && pwd)
 
-. "$SCRIPT_PATH"/utils/log-utils.sh
+# shellcheck source=utils/log-utils.sh
+. "$SCRIPT_PATH/utils/log-utils.sh"
 
 logInfo "Package chaincode:" tps
 "$SCRIPT_PATH"/chaincode.sh package -f cc-tps.ini
@@ -32,3 +33,7 @@ logInfo "Install chaincode:" "tps -> org1.peer0"
 "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer1-mychannel-conf
 logInfo "Approve chaincode:" "tps"
 "$SCRIPT_PATH"/chaincode.sh approve -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
+logInfo "Config chaincode server boot scripts:" "tps"
+"$SCRIPT_PATH"/chaincode.sh configChaincodeServer -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
+logInfo "Starting chaincode server:" "tps"
+./chaincode-home-cc-tps/boot.sh

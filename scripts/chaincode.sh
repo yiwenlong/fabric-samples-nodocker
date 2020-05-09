@@ -39,6 +39,12 @@ function channelValue() {
   readConfValue "$CHANNEL_CONF_FILE" "$1"; echo
 }
 
+function checkSuccess() {
+    if [[ $? != 0 ]]; then
+        exit $?
+    fi
+}
+
 function usage() {
   echo "usage"
 }
@@ -159,33 +165,53 @@ function approve() {
   export CORE_PEER_TLS_ENABLE=true
 
   $COMMAND_PEER lifecycle chaincode approveformyorg \
-        --channelID "$ch_name" \
-        --name "$cc_name" \
-        --version "$cc_version" \
-        --init-required \
-        --package-id "$cc_package_id" \
-        --sequence "$cc_sequence" \
-        --tls true \
-        --orderer "$ch_orderer_address" \
-        --cafile "$ch_orderer_tls_ca"
+    --channelID "$ch_name" \
+    --name "$cc_name" \
+    --version "$cc_version" \
+    --init-required \
+    --package-id "$cc_package_id" \
+    --sequence "$cc_sequence" \
+    --tls true \
+    --orderer "$ch_orderer_address" \
+    --cafile "$ch_orderer_tls_ca"
 
-    if [ $? -eq 0 ]; then
-        logSuccess "Chaincode approve success:" "$org_name -> $cc_package_id"
-    else
-        logError "Chaincode approve failed:" "$org_name -> $cc_package_id"
-        exit 1
-    fi
+  if [ $? -eq 0 ]; then
+    logSuccess "Chaincode approve success:" "$org_name -> $cc_package_id"
+  else
+    logError "Chaincode approve failed:" "$org_name -> $cc_package_id"
+    exit 1
+  fi
 
-    $COMMAND_PEER lifecycle chaincode checkcommitreadiness \
-        --channelID "$ch_name" \
-        --name "$cc_name" \
-        --version "$cc_version" \
-        --init-required \
-        --sequence "$cc_sequence" \
-        --tls true \
-        --orderer "$ch_orderer_address" \
-        --cafile "$ch_orderer_tls_ca" \
-        --output json
+  $COMMAND_PEER lifecycle chaincode checkcommitreadiness \
+    --channelID "$ch_name" \
+    --name "$cc_name" \
+    --version "$cc_version" \
+    --init-required \
+    --sequence "$cc_sequence" \
+    --tls true \
+    --orderer "$ch_orderer_address" \
+    --cafile "$ch_orderer_tls_ca" \
+    --output json
+}
+
+function configChaincodeServer() {
+  ch_name=$(channelValue channel.name)
+  org_name=$(channelValue org.name)
+  cc_name=$(confValue chaincode.name)
+  cc_package_id=$(confValue chaincode.package.id)
+  cc_address=$(confValue chaincode.address)
+  cc_binary=$(absolutefile "$(confValue chaincode.binary.file)" "$CC_HOME")
+
+  supervisor_process_name="FABRIC-NODOCKER-$org_name-$ch_name-$cc_name"
+  logInfo "Supervisor process name:" "$supervisor_process_name"
+  logInfo "Chaincode home:" "$CC_HOME"
+  logInfo "Chaincode command:" "$cc_binary $cc_package_id $cc_address"
+
+  "$DIR/config-supervisor.sh" -n "$supervisor_process_name" -h "$CC_HOME" -c "$cc_binary $cc_package_id $cc_address"
+  checkSuccess
+
+  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$CC_HOME"
+  checkSuccess
 }
 
 command=$1
@@ -209,11 +235,11 @@ case $command in
     package) 
         checkfileexist "$CONF_FILE"
         $command ;;
-    install | approve)
+    install | approve | configChaincodeServer )
       checkdirexist "$CC_HOME"
       checkdirexist "$CHANNEL_HOME"
-      CONF_FILE="$CC_HOME"/chaincode.ini
-      CHANNEL_CONF_FILE="$CHANNEL_HOME"/channel.ini
+      CONF_FILE="$CC_HOME/chaincode.ini"
+      CHANNEL_CONF_FILE="$CHANNEL_HOME/channel.ini"
       checkfileexist "$CONF_FILE"
       checkfileexist "$CHANNEL_CONF_FILE"
       $command;;
