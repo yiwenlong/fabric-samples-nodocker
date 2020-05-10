@@ -20,6 +20,7 @@ DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 export FABRIC_BIN=$(cd "$DIR"/../../fabric-bin/darwin && pwd)
 export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 
+# shellcheck source=utils/log-utils.sh
 . "$SCRIPT_PATH"/utils/log-utils.sh
 
 function checkSuccess() {
@@ -74,8 +75,8 @@ function down() {
 }
 
 function usage() {
-  echo "USAGE"
-  exit 0
+  echo "USAGE:"
+  echo "  network.sh [up | down ]"
 }
 
 COMMAND=$1

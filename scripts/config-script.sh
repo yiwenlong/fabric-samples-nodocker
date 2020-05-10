@@ -17,11 +17,18 @@
 
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
+# shellcheck source=utils/log-utils.sh
 . "$SCRIPT_DIR/utils/log-utils.sh"
+# shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
 
 TMP_BOOT="$SCRIPT_DIR/template/boot.sh"
 TMP_STOP="$SCRIPT_DIR/template/stop.sh"
+
+function usage() {
+    echo "Usage: "
+    echo "  config-script.sh -n supervisor_process_name -h node_home"
+}
 
 while getopts n:h: opt
 do

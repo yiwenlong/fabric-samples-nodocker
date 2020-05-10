@@ -18,8 +18,11 @@
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 HOME=$(pwd)
 
+# shellcheck source=utils/log-utils.sh
 . "$SCRIPT_DIR/utils/log-utils.sh"
+# shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
+# shellcheck source=utils/conf-utils.sh
 . "$SCRIPT_DIR/utils/conf-utils.sh"
 
 TMP_CONF_TX_COMMON="$SCRIPT_DIR/template/configtx-common.yaml"

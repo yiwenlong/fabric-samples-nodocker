@@ -22,16 +22,19 @@ CONFIGTX_COMMON_TEMPLATE_FILE=$DIR/template/configtx-common-channel.yaml
 COMMAND_PEER=$FABRIC_BIN/peer
 COMMAND_CONFIGTXGEN=$FABRIC_BIN/configtxgen
 
-. $DIR/utils/log-utils.sh
-. $DIR/utils/conf-utils.sh
-. $DIR/utils/file-utils.sh
+# shellcheck source=utils/log-utils.sh
+. "$DIR/utils/log-utils.sh"
+# shellcheck source=utils/conf-utils.sh
+. "$DIR/utils/conf-utils.sh"
+# shellcheck source=utils/file-utils.sh
+. "$DIR/utils/file-utils.sh"
 
 function readValue {
-  echo $(readConfValue $CONF_FILE $1)
+  readConfValue "$CONF_FILE" "$1"; echo
 }
 
 function readNodeValue {
-  echo $(readConfValue $CONF_FILE $1 $2)
+  readConfValue "$CONF_FILE" "$1" "$2"; echo
 }
 
 #

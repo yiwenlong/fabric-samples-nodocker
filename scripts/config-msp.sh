@@ -21,12 +21,16 @@ WORK_HOME=$(pwd)
 CMD_CRYPTOGEN="$FABRIC_BIN/cryptogen"
 TMP_PEER="$SCRIPT_DIR/template/crypto-config-peer.yaml"
 
+# shellcheck source=utils/log-utils.sh
 . "$SCRIPT_DIR/utils/log-utils.sh"
+# shellcheck source=utils/conf-utils.sh
 . "$SCRIPT_DIR/utils/conf-utils.sh"
+# shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
 
 function usage() {
-    echo "usage"
+    echo "Usage"
+    echo "  config-msp.sh -t [peer|orderer] -d org_home -f org_conf.ini"
 }
 
 while getopts f:t:d: opt

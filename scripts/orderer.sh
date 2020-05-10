@@ -198,7 +198,7 @@ case "$COMMAND" in
     if [ -f boot.sh ]; then
       sh boot.sh
       if [ $? -eq 0 ]; then
-        logSuccess "Node started:" $(pwd)
+        logSuccess "Node started:" "$(pwd)"
       fi
     else
       logError "Script file not found:" boot.sh
@@ -213,7 +213,7 @@ case "$COMMAND" in
         logSuccess "Node stoped:" "$node_name"
       fi
     done
-    logSuccess "Orgnaization all node stoped:" $(pwd);;
+    logSuccess "Organization all node stop:" "$(pwd)";;
   stopnode)
     if [ "$CONF_DIR" ]; then
       cd "$CONF_DIR"
@@ -221,7 +221,7 @@ case "$COMMAND" in
     if [ -f stop.sh ]; then
       sh stop.sh
       if [ $? -eq 0 ]; then
-        logSuccess "Node stoped:" $(pwd)
+        logSuccess "Node stop:" "$(pwd)"
       fi
     fi;;
   *) usage; exit 1;;

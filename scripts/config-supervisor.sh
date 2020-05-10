@@ -21,7 +21,8 @@
 . "$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)/utils/file-utils.sh"
 
 function usage() {
-    echo "usage"
+    echo "Usage:"
+    echo "  config-supervisor.sh -n process_name -h work_home -c command"
 }
 
 while getopts n:h:c: opt

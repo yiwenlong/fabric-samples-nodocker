@@ -22,12 +22,16 @@ TMP_CORE="$SCRIPT_DIR/template/core.yaml"
 EXTERNAL_BUILDER_NAME=my_external_builder
 EXTERNAL_BUILDER_PATH=my_external_builder
 
+# shellcheck source=utils/log-utils.sh
 . "$SCRIPT_DIR/utils/log-utils.sh"
+# shellcheck source=utils/conf-utils.sh
 . "$SCRIPT_DIR/utils/conf-utils.sh"
+# shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
 
 function usage() {
-    echo "usage"
+    echo "Usage:"
+    echo "  config-yaml-core.sh -f org_conf.ini -d node_home -n node_name"
 }
 
 while getopts f:d:n: opt

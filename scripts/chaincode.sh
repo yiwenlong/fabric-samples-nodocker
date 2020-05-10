@@ -71,15 +71,15 @@ function package {
   echo '{"address": "'"$cc_address"'","dial_timeout": "10s","tls_required": false,"client_auth_required": false}' > "$cc_connection_file"
   logInfo "connection.json generated:" "$cc_connection_file"
 
-  cc_metadate_file=$cc_home/metadata.json
-  echo '{"path":"","type":"external","label":"'"$cc_name"'"}' > "$cc_metadate_file"
-  logInfo "metadata.json generated:" "$cc_metadate_file"
+  cc_metadata_file=$cc_home/metadata.json
+  echo '{"path":"","type":"external","label":"'"$cc_name"'"}' > "$cc_metadata_file"
+  logInfo "metadata.json generated:" "$cc_metadata_file"
 
   tar czfP code.tar.gz connection.json
   tar czfP "$cc_name".tar.gz code.tar.gz metadata.json
   logInfo "$cc_name"'.tar.gz generated:' "$cc_home/$cc_name".tar.gz
 
-  logSuccess "Chaincde package success! Check Work Directory:" "$cc_home"
+  logSuccess "Chaincode package success! Check Work Directory:" "$cc_home"
 }
 
 function env() {

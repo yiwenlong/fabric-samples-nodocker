@@ -111,16 +111,16 @@ function config {
   checkSuccess
 
   org_msp_dir=$org_home/crypto-config/peerOrganizations/$org_domain/msp
-  org_anchor_peeer_host=$org_anchor_peer.$org_domain
-  org_anchor_peeer_port=$(readConfPeerValue $org_anchor_peer node.port)
+  org_anchor_peer_host=$org_anchor_peer.$org_domain
+  org_anchor_peer_port=$(readConfPeerValue "$org_anchor_peer" node.port)
   configtx_file=$org_home/configtx-org.yaml
   sed -e "s/<org.name>/${org_name}/
   s/<org.mspid>/${org_mspid}/
   s/<org.mspid>/${org_mspid}/
   s/<org.mspid>/${org_mspid}/
   s:<org.msp.dir>:${org_msp_dir}:
-  s/<org.anchor.host>/${org_anchor_peeer_host}/
-  s/<org.anchor.port>/${org_anchor_peeer_port}/" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
+  s/<org.anchor.host>/${org_anchor_peer_host}/
+  s/<org.anchor.port>/${org_anchor_peer_port}/" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
   logSuccess "Organization configtx config file generated:" "$configtx_file"
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
@@ -179,7 +179,7 @@ case $COMMAND in
       fi
     done
     sleep 3
-    logSuccess "Orgnaization all node started:" $(pwd)
+    logSuccess "Orgnaization all node started:" "$(pwd)"
     ;;
   startnode)
     if [ "$CONF_DIR" ]; then
@@ -188,7 +188,7 @@ case $COMMAND in
     if [ -f boot.sh ]; then
       sh boot.sh
       if [ $? -eq 0 ]; then
-        logSuccess "Node started:" $(pwd)
+        logSuccess "Node started:" "$(pwd)"
       fi
     else
       logError "Script file not found:" boot.sh
@@ -204,7 +204,7 @@ case $COMMAND in
         logSuccess "Node stop:" "$node_name"
       fi
     done
-    logSuccess "Organization all node stop:" $(pwd)
+    logSuccess "Organization all node stop:" "$(pwd)"
     ;;
   stopnode)
     if [ "$CONF_DIR" ]; then
@@ -213,7 +213,7 @@ case $COMMAND in
     if [ -f stop.sh ]; then
       sh stop.sh
       if [ $? -eq 0 ]; then
-        logSuccess "Node stop:" $(pwd)
+        logSuccess "Node stop:" "$(pwd)"
       fi
     fi
     ;;
