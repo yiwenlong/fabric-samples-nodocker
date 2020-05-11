@@ -3,3 +3,4 @@ samples/*/Orderer/
 samples/*/*/mychannel/
 samples/*/*/mychannel2/
 chaincode-home-*/
+build/
