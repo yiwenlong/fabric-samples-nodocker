@@ -17,7 +17,7 @@
 
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-export FABRIC_BIN=$(cd "$DIR"/../../fabric-bin/darwin && pwd)
+export FABRIC_BIN=$(cd "$DIR"/../../build/bin && pwd)
 export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 
 # shellcheck source=utils/log-utils.sh

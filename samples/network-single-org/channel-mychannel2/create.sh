@@ -16,7 +16,7 @@
 #
 
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
-export FABRIC_BIN=$(cd "$DIR"/../../../fabric-bin/darwin && pwd)
+export FABRIC_BIN=$(cd "$DIR"/../../../build/bin && pwd)
 export SCRIPT_PATH=$(cd "$DIR"/../../../scripts && pwd)
 export FABRIC_CFG_PATH=$(cd "$DIR"/../Org1/peer0 && pwd)
 
