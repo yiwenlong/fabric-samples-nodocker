@@ -63,9 +63,8 @@ function package {
   cc_home="$WORK_HOME/chaincode-home-$(basename -s .ini "$CONF_FILE")"
   mkdir -p "$cc_home" && rm -fr "${cc_home:?}/*" && cd "$cc_home" || exit
   logInfo "Chaincode work home generated:" "$cc_home"
-
-  cp "$CONF_FILE" "$cc_home"/chaincode.ini
-  cp "$cc_binary" "$cc_home"/
+  sed -e "s:$(confValue chaincode.binary.file):${cc_binary}:" "$CONF_FILE" > "$cc_home"/chaincode.ini
+  checkSuccess
 
   cc_connection_file=$cc_home/connection.json
   echo '{"address": "'"$cc_address"'","dial_timeout": "10s","tls_required": false,"client_auth_required": false}' > "$cc_connection_file"

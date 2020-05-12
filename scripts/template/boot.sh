@@ -17,9 +17,19 @@
 
 export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
+function checkSuccess() {
+  if [[ $? != 0 ]]; then
+      exit $?
+  fi
+}
+
 dst_file="/usr/local/etc/supervisor.d/_supervisor_conf_file_name_.ini"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
+fi
+
+if [ ! -d /usr/local/etc/supervisor.d/ ]; then
+  mkdir -p /usr/local/etc/supervisor.d/
 fi
 
 ln "$FABRIC_CFG_PATH/_supervisor_conf_file_name_.ini" /usr/local/etc/supervisor.d/

@@ -173,23 +173,19 @@ case $COMMAND in
         cd "$CONF_DIR"
     fi
     for node_name in $(ls . | grep peer); do
-      sh "$node_name"/boot.sh
-      if [ $? -eq 0 ]; then
-          logSuccess "Node started:" "$node_name"
-      fi
+      "$node_name/boot.sh"
+      checkSuccess
     done
     sleep 3
-    logSuccess "Orgnaization all node started:" "$(pwd)"
+    logSuccess "Organization all node started:" "$(pwd)"
     ;;
   startnode)
     if [ "$CONF_DIR" ]; then
       cd "$CONF_DIR"
     fi
     if [ -f boot.sh ]; then
-      sh boot.sh
-      if [ $? -eq 0 ]; then
-        logSuccess "Node started:" "$(pwd)"
-      fi
+      ./boot.sh
+      checkSuccess
     else
       logError "Script file not found:" boot.sh
     fi
@@ -199,10 +195,8 @@ case $COMMAND in
       cd "$CONF_DIR"
     fi
     for node_name in $(ls . | grep peer); do
-      sh "$node_name"/stop.sh
-      if [ $? -eq 0 ]; then
-        logSuccess "Node stop:" "$node_name"
-      fi
+      "$node_name/stop.sh"
+      checkSuccess
     done
     logSuccess "Organization all node stop:" "$(pwd)"
     ;;
@@ -211,10 +205,8 @@ case $COMMAND in
       cd "$CONF_DIR"
     fi
     if [ -f stop.sh ]; then
-      sh stop.sh
-      if [ $? -eq 0 ]; then
-        logSuccess "Node stop:" "$(pwd)"
-      fi
+      ./stop.sh
+      checkSuccess
     fi
     ;;
 esac 
