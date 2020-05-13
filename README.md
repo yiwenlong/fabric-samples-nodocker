@@ -12,6 +12,12 @@
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
+##### Install wget
+
+```shell
+brew install wget
+```
+
 ##### Install jq
 
 ```shell
@@ -38,6 +44,13 @@ git clone https://github.com/yiwenlong/fabric-samples-nodocker.git
 
 #### Using the Single org test network
 
+##### Config binary files
+
+```sh
+cd $fabric-samples-nodocker
+./config.sh
+```
+
 ##### Bring up the test network
 
 ```shell
@@ -48,6 +61,7 @@ cd $fabric-samples-nodocker/samples/network-tps
 ##### Bring up the test network
 
 ```shell
+cd $fabric-samples-nodocker/samples/network-tps
 ./network down
 ```
 
