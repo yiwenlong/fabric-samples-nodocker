@@ -30,11 +30,12 @@ function usage() {
     echo "  config-script.sh -n supervisor_process_name -h node_home"
 }
 
-while getopts n:h: opt
+while getopts n:h:c: opt
 do
   case $opt in
     n) supervisor_conf_file_name=$OPTARG ;;
     h) node_home=$OPTARG ;;
+    c) command=$OPTARG ;;
     *) usage; exit 1;;
   esac
 done
@@ -42,7 +43,8 @@ done
 checkdirexist "$node_home"
 
 boot_script_file=$node_home/boot.sh
-sed -e "s/_supervisor_conf_file_name_/${supervisor_conf_file_name}/" "$TMP_BOOT" > "$boot_script_file"
+sed -e "s/_supervisor_conf_file_name_/${supervisor_conf_file_name}/
+s/_command_/${command}/" "$TMP_BOOT" > "$boot_script_file"
 chmod +x "$boot_script_file"
 logSuccess "Node boot script generated: " "$boot_script_file"
 

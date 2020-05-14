@@ -77,11 +77,9 @@ function configNode {
   s/<orderer.operations.port>/${node_operations_port}/" "$TMP_ORDERER" > "$orderer_config_file"
   logInfo "Node config file generated:" "$orderer_config_file"
 
+  cp "$CMD_ORDERER" "$node_home/"
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-  "$DIR/config-supervisor.sh" -n "$supervisor_process_name" -h "$node_home" -c "$CMD_ORDERER"
-  checkSuccess
-
-  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home"
+  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home" -c "orderer"
   checkSuccess
 
   logSuccess "Node config success:" "$node_name"

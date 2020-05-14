@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+BOOT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
 arch=$(uname -s|tr '[:upper:]' '[:lower:]')
@@ -42,7 +42,13 @@ if [ ! -d "$supervisor_conf_dir/" ]; then
   mkdir -p "$supervisor_conf_dir/"
 fi
 
-ln "$FABRIC_CFG_PATH/_supervisor_conf_file_name_.ini" "$supervisor_conf_dir/"
+echo "[program:_supervisor_conf_file_name_]" > "$dst_file"
+echo "command=$BOOT_DIR/_command_" >> "$dst_file"
+echo "directory=$BOOT_DIR" >> "$dst_file"
+echo "redirect_stderr=true" >> "$dst_file"
+echo "stdout_logfile=$BOOT_DIR/_supervisor_conf_file_name_.log" >> "$dst_file"
+echo "Supervisor config file generate:" "$dst_file"
+
 supervisorctl update
 echo Staring: "_supervisor_conf_file_name_"
 sleep 3

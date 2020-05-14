@@ -73,11 +73,10 @@ function configNode {
   "$DIR/config-yaml-core.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"
   checkSuccess
 
+  cp "$COMMAND_PEER" "$node_home/"
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-  "$DIR/config-supervisor.sh" -n "$supervisor_process_name" -h "$node_home" -c "$COMMAND_PEER node start"
-  checkSuccess
 
-  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home"
+  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home" -c "peer node start"
   checkSuccess
 
   logSuccess "Node config success:" "$node_name"
