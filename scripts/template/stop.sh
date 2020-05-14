@@ -15,7 +15,17 @@
 # limitations under the License.
 #
 
+arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+if [ "$arch" == "darwin" ]; then
+  supervisor_conf_dir="/usr/local/etc/supervisor.d"
+elif [ "$arch" == "linux" ]; then
+  supervisor_conf_dir="/etc/supervisor.d"
+else
+  echo "System operation not support."
+  eixt
+fi
+
 supervisorctl stop _supervisor_conf_file_name_
-rm /usr/local/etc/supervisor.d/_supervisor_conf_file_name_.ini
+rm "$supervisor_conf_dir/_supervisor_conf_file_name_.ini"
 supervisorctl remove _supervisor_conf_file_name_
 supervisorctl status

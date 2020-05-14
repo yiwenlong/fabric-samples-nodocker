@@ -17,22 +17,32 @@
 
 export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
+arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+if [ "$arch" == "darwin" ]; then
+  supervisor_conf_dir="/usr/local/etc/supervisor.d"
+elif [ "$arch" == "linux" ]; then
+  supervisor_conf_dir="/etc/supervisor.d"
+else
+  echo "System operation not support."
+  eixt
+fi
+
 function checkSuccess() {
   if [[ $? != 0 ]]; then
       exit $?
   fi
 }
 
-dst_file="/usr/local/etc/supervisor.d/_supervisor_conf_file_name_.ini"
+dst_file="$supervisor_conf_dir/_supervisor_conf_file_name_.ini"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
 fi
 
-if [ ! -d /usr/local/etc/supervisor.d/ ]; then
-  mkdir -p /usr/local/etc/supervisor.d/
+if [ ! -d "$supervisor_conf_dir/" ]; then
+  mkdir -p "$supervisor_conf_dir/"
 fi
 
-ln "$FABRIC_CFG_PATH/_supervisor_conf_file_name_.ini" /usr/local/etc/supervisor.d/
+ln "$FABRIC_CFG_PATH/_supervisor_conf_file_name_.ini" "$supervisor_conf_dir/"
 supervisorctl update
 echo Staring: "_supervisor_conf_file_name_"
 sleep 3
