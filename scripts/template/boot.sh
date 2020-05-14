@@ -21,7 +21,7 @@ arch=$(uname -s|tr '[:upper:]' '[:lower:]')
 if [ "$arch" == "darwin" ]; then
   supervisor_conf_dir="/usr/local/etc/supervisor.d"
 elif [ "$arch" == "linux" ]; then
-  supervisor_conf_dir="/etc/supervisor.d"
+  supervisor_conf_dir="/etc/supervisord.d"
 else
   echo "System operation not support."
   eixt
