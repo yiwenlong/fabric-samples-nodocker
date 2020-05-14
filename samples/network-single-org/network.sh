@@ -51,9 +51,14 @@ function start() {
   checkSuccess
   sleep 3
   supervisorctl status
+}
+
+function createChannel() {
   cd "$DIR/channel-mychannel" && "./create.sh"
   checkSuccess
-  sleep 2
+}
+
+function installChaincode() {
   cd "$DIR/chaincode-tps" && "./install.sh"
   checkSuccess
 }
@@ -82,11 +87,11 @@ function usage() {
 COMMAND=$1
 case $COMMAND in 
   up)
+    config && start && createChannel && installChaincode;;
+  start)
     config && start ;;
   config)
     config ;;
-  start)
-    start ;;
   down)
     down ;;
   *) usage;;
