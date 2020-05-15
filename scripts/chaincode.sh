@@ -63,8 +63,8 @@ function package {
   cc_home="$WORK_HOME/chaincode-home-$(basename -s .ini "$CONF_FILE")"
   mkdir -p "$cc_home" && rm -fr "${cc_home:?}/*" && cd "$cc_home" || exit
   logInfo "Chaincode work home generated:" "$cc_home"
-  sed -e "s:$(confValue chaincode.binary.file):${cc_binary}:" "$CONF_FILE" > "$cc_home"/chaincode.ini
-  checkSuccess
+  sed -e "s:$(confValue chaincode.binary.file):${cc_binary##*/}:" "$CONF_FILE" > "$cc_home"/chaincode.ini
+  cp "$cc_binary" "$cc_home"
 
   cc_connection_file=$cc_home/connection.json
   echo '{"address": "'"$cc_address"'","dial_timeout": "10s","tls_required": false,"client_auth_required": false}' > "$cc_connection_file"
@@ -180,10 +180,7 @@ function configChaincodeServer() {
   logInfo "Chaincode home:" "$CC_HOME"
   logInfo "Chaincode command:" "$cc_binary $cc_package_id $cc_address"
 
-  "$DIR/config-supervisor.sh" -n "$supervisor_process_name" -h "$CC_HOME" -c "$cc_binary $cc_package_id $cc_address"
-  checkSuccess
-
-  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$CC_HOME"
+  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$CC_HOME" -c "${cc_binary##*/} $cc_package_id $cc_address"
   checkSuccess
 }
 
