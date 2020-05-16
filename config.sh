@@ -15,19 +15,13 @@
 # limitations under the License.
 #
 
-# build chaincode
-mkdir -p "$(pwd)/build/chaincode"
-rm -fr "$(pwd)/build/chaincode/*"
-export GOBIN="$(pwd)/build/chaincode"
-go install github.com/yiwenlong/fabric-samples-nodocker/chaincode/tps
-
 function download() {
-    local BINARY_FILE=$1
+    local TAR_FILE=$1
     local URL=$2
     echo "===> Downloading: " "${URL}"
     wget "${URL}" || rc=$?
-    tar xvzf "${BINARY_FILE}" || rc=$?
-    rm "${BINARY_FILE}"
+    tar xvzf "${TAR_FILE}" || rc=$?
+    rm "${TAR_FILE}"
     if [ -n "$rc" ]; then
         echo "==> There was an error downloading the binary file."
         return 22
@@ -35,17 +29,34 @@ function download() {
         echo "==> Done."
     fi
 }
-cd ./build/
-VERSION=2.0.1
-MARCH=$(uname -m)
-FABRIC_TAG=${MARCH}-${VERSION}
+
 ARCH=$(echo "$(uname -s|tr '[:upper:]' '[:lower:]'|sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')")
-BINARY_FILE=hyperledger-fabric-${ARCH}-${VERSION}.tar.gz
+
+rm -fr "$(pwd)/build/*"
+mkdir -p "$(pwd)/build/chaincode"
+
+cd ./build/
+
+MARCH=$(uname -m)
+FABRIC_VERSION=2.0.1
+FABRIC_TAG=${MARCH}-${FABRIC_VERSION}
+TAR_FILE=hyperledger-fabric-${ARCH}-${FABRIC_VERSION}.tar.gz
 echo "===> Downloading version ${FABRIC_TAG} platform specific fabric binaries"
-download "${BINARY_FILE}" "https://github.com/hyperledger/fabric/releases/download/v${VERSION}/${BINARY_FILE}"
+download "${TAR_FILE}" "https://github.com/hyperledger/fabric/releases/download/v${FABRIC_VERSION}/${TAR_FILE}"
 if [ $? -eq 22 ]; then
     echo
     echo "------> ${FABRIC_TAG} platform specific fabric binary is not available to download <----"
+    echo
+    exit
+fi
+
+cd ./chaincode/
+CHAINCODE_TPS_VERSION=1.0
+CHAINCODE_TPS_BINARY_FILE=tps-${ARCH}-${CHAINCODE_TPS_VERSION}.tar.gz
+download "${CHAINCODE_TPS_BINARY_FILE}" "https://github.com/yiwenlong/chaincode-examples/releases/download/tps-${CHAINCODE_TPS_VERSION}/${CHAINCODE_TPS_BINARY_FILE}"
+if [ $? -eq 22 ]; then
+    echo
+    echo "------> ${ARCH} platform specific tps binary is not available to download <----"
     echo
     exit
 fi
