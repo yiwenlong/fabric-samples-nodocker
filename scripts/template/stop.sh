@@ -14,18 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-arch=$(uname -s|tr '[:upper:]' '[:lower:]')
-if [ "$arch" == "darwin" ]; then
-  supervisor_conf_dir="/usr/local/etc/supervisor.d"
-elif [ "$arch" == "linux" ]; then
-  supervisor_conf_dir="/etc/supervisord.d"
-else
-  echo "System operation not support."
-  eixt
-fi
-
 supervisorctl stop _supervisor_conf_file_name_
 supervisorctl remove _supervisor_conf_file_name_
-rm "$supervisor_conf_dir/_supervisor_conf_file_name_.ini"
+rm "_supervisor_conf_dir_/_supervisor_conf_file_name_.ini"
 supervisorctl status

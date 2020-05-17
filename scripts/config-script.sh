@@ -40,15 +40,27 @@ do
   esac
 done
 
+# If you don't set SUPERVISOR_CONFD_DIR, set a default value.
+if [ ! "$SUPERVISOR_CONFD_DIR" ]; then
+  arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+  if [ "$arch" == "darwin" ]; then
+    # macos
+    export SUPERVISOR_CONFD_DIR="/usr/local/etc/supervisor.d"
+  elif [ "$arch" == "linux" ]; then
+    # centos Linux
+    export SUPERVISOR_CONFD_DIR="/etc/supervisor.d"
+  fi
+fi
 checkdirexist "$node_home"
-
 boot_script_file=$node_home/boot.sh
 sed -e "s/_supervisor_conf_file_name_/${supervisor_conf_file_name}/
+s:_supervisor_conf_dir_:${SUPERVISOR_CONFD_DIR}:
 s/_command_/${command}/" "$TMP_BOOT" > "$boot_script_file"
 chmod +x "$boot_script_file"
 logSuccess "Node boot script generated: " "$boot_script_file"
 
 stop_script_file=$node_home/stop.sh
-sed -e "s/_supervisor_conf_file_name_/${supervisor_conf_file_name}/" "$TMP_STOP" > "$stop_script_file"
+sed -e "s/_supervisor_conf_file_name_/${supervisor_conf_file_name}/
+s:_supervisor_conf_dir_:${SUPERVISOR_CONFD_DIR}:" "$TMP_STOP" > "$stop_script_file"
 chmod +x "$stop_script_file"
 logSuccess "Node stop script generated: " "$stop_script_file"

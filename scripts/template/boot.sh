@@ -17,29 +17,19 @@
 BOOT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-arch=$(uname -s|tr '[:upper:]' '[:lower:]')
-if [ "$arch" == "darwin" ]; then
-  supervisor_conf_dir="/usr/local/etc/supervisor.d"
-elif [ "$arch" == "linux" ]; then
-  supervisor_conf_dir="/etc/supervisord.d"
-else
-  echo "System operation not support."
-  eixt
-fi
-
 function checkSuccess() {
   if [[ $? != 0 ]]; then
       exit $?
   fi
 }
 
-dst_file="$supervisor_conf_dir/_supervisor_conf_file_name_.ini"
+dst_file="_supervisor_conf_dir_/_supervisor_conf_file_name_.ini"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
 fi
 
-if [ ! -d "$supervisor_conf_dir/" ]; then
-  mkdir -p "$supervisor_conf_dir/"
+if [ ! -d "_supervisor_conf_dir_/" ]; then
+  mkdir -p "_supervisor_conf_dir_/"
 fi
 
 echo "[program:_supervisor_conf_file_name_]" > "$dst_file"
