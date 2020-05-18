@@ -1,5 +1,7 @@
 ## Fabric samples nodocker - tools to deploy fabric network without docker
 
+中文介绍[文档](https://www.jianshu.com/p/1f9b051d1e1d)
+
 **Note:** You can run this script tools on Linux/MaxOS. 
 
 ## Start
