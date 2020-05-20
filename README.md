@@ -14,21 +14,11 @@
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
-##### Install wget
+##### Install wget & jq & supervisor
 
 ```shell
 brew install wget
-```
-
-##### Install jq
-
-```shell
 brew install jq
-```
-
-##### Install supervisor
-
-```shell
 brew install supervisor
 ```
 
