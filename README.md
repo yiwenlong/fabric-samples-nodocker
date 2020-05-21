@@ -18,7 +18,6 @@
 
 ```shell
 brew install wget
-brew install jq
 brew install supervisor
 ```
 
