@@ -14,9 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-set -euo pipefail
-METADIR=$2
-if [ "$(/usr/local/bin/jq -r .type "$METADIR/metadata.json")" == "external" ]; then
-    exit 0
-fi
-exit 1
+# Support external chaincode builder only.
+exit 0
