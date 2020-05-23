@@ -22,7 +22,18 @@ export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 
 # shellcheck source=utils/log-utils.sh
 . "$SCRIPT_PATH"/utils/log-utils.sh
+# shellcheck source=utils/file-utils.sh
+. "$SCRIPT_PATH"/utils/file-utils.sh
 
+checkdirexist "$FABRIC_BIN"
+checkdirexist "$SCRIPT_PATH"
+
+echo "========================= FABRIC BINARY VERSION ==========================="
+"$FABRIC_BIN/peer" version
+"$FABRIC_BIN/orderer" version
+"$FABRIC_BIN/cryptogen" version
+echo "==========================================================================="
+exit
 function checkSuccess() {
     if [[ $? != 0 ]]; then
         exit $?
@@ -81,7 +92,7 @@ function down() {
 
 function usage() {
   echo "USAGE:"
-  echo "  network.sh [up | down ]"
+  echo "  network.sh [ up | down | config | start]"
 }
 
 COMMAND=$1
