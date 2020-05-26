@@ -48,7 +48,7 @@ if [ ! "$SUPERVISOR_CONFD_DIR" ]; then
     export SUPERVISOR_CONFD_DIR="/usr/local/etc/supervisor.d"
   elif [ "$arch" == "linux" ]; then
     # centos Linux
-    export SUPERVISOR_CONFD_DIR="/etc/supervisor.d"
+    export SUPERVISOR_CONFD_DIR="/etc/supervisord.d"
   fi
 fi
 checkdirexist "$node_home"
