@@ -33,7 +33,7 @@ echo "========================= FABRIC BINARY VERSION ==========================
 "$FABRIC_BIN/orderer" version
 "$FABRIC_BIN/cryptogen" version
 echo "==========================================================================="
-exit
+
 function checkSuccess() {
     if [[ $? != 0 ]]; then
         exit $?
