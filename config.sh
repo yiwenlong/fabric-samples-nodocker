@@ -19,7 +19,7 @@ function download() {
     local TAR_FILE=$1
     local URL=$2
     echo "===> Downloading: " "${URL}"
-    wget "${URL}" || rc=$?
+    curl -OL "${URL}" || rc=$?
     tar xvzf "${TAR_FILE}" || rc=$?
     rm "${TAR_FILE}"
     if [ -n "$rc" ]; then
