@@ -8,23 +8,21 @@
 
 ### Prerequisites
 
-##### Install homebrew
+##### Install & bring up supervisor service
 
 ```shell
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
-
-##### Install wget & jq & supervisor
-
-```shell
-brew install wget
+# MacOS
 brew install supervisor
-```
-
-##### Start supervisor service
-
-```
 brew services start supervisor
+# CentOS
+yum install supervisor
+supervisord
+# Ubuntu
+apt install supervisor
+supervisord
+
+# Check your supervisor
+supervicosrctl status
 ```
 
 ##### Checkout this respository
@@ -33,9 +31,7 @@ brew services start supervisor
 git clone https://github.com/yiwenlong/fabric-samples-nodocker.git
 ```
 
-#### Using the Single org test network
-
-##### Config
+##### Config environment
 
 ```sh
 cd $fabric-samples-nodocker
@@ -47,6 +43,18 @@ export SUPERVISOR_CONFD_DIR=/usr/local/etc/supervisor.d
 export SUPERVISOR_CONFD_DIR=/etc/supervisord.d
 # Ubuntu
 export SUPERVISOR_CONFD_DIR=/etc/supervisor/conf.d  
+```
+
+#### Using the Single org test network
+
+##### Add the following to the host file(/etc/hosts)
+
+```shell
+127.0.0.1 	peer0.org1.example.com
+127.0.0.1 	peer1.org1.example.com
+127.0.0.1 	orderer0.example.com
+127.0.0.1 	orderer1.example.com
+127.0.0.1 	orderer2.example.com
 ```
 
 ##### Bring up the test network
