@@ -1,6 +1,6 @@
-samples/*/Org1/
-samples/*/Orderer/
-samples/*/*/mychannel/
-samples/*/*/mychannel2/
+samples/network-single-org/Org1/
+samples/network-single-org/Orderer/
+samples/network-single-org/*/mychannel/
+samples/network-single-org/*/mychannel2/
 chaincode-home-*/
 build/
