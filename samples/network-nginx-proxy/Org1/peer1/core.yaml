@@ -37,7 +37,7 @@ peer:
     # in the same organization. For peers in other organization, see
     # gossip.externalEndpoint for more info.
     # When used as CLI config, this means the peer's endpoint to interact with
-    address: peer1.org1.example.com:18051
+    address: peer1.org1.example.com:8051
 
     # Whether the Peer should programmatically determine its address
     # This case is useful for docker containers.
@@ -83,7 +83,7 @@ peer:
         # Important: The endpoints here have to be endpoints of peers in the same
         # organization, because the peer would refuse connecting to these endpoints
         # unless they are in the same organization as the peer.
-        bootstrap: peer0.org1.example.com:7051
+        bootstrap: peer0.org1.example.com:17051
 
         # NOTE: orgLeader and useLeaderElection parameters are mutual exclusive.
         # Setting both to true would result in the termination of the peer
