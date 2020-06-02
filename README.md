@@ -19,7 +19,7 @@ yum install supervisor
 supervisord
 # Ubuntu
 apt install supervisor
-supervisord
+service supervisor start
 
 # Check your supervisor
 supervicosrctl status
