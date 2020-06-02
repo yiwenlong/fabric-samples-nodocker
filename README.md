@@ -60,14 +60,14 @@ export SUPERVISOR_CONFD_DIR=/etc/supervisor/conf.d
 ##### Bring up the test network
 
 ```shell
-cd $fabric-samples-nodocker/samples/network-tps
+cd $fabric-samples-nodocker/samples/network-single-org
 ./network up
 ```
 
 ##### Bring up the test network
 
 ```shell
-cd $fabric-samples-nodocker/samples/network-tps
+cd $fabric-samples-nodocker/samples/network-single-org
 ./network down
 ```
 
