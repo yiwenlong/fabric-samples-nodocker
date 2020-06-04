@@ -25,6 +25,8 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 TMP_BOOT="$SCRIPT_DIR/template/boot.sh"
 TMP_STOP="$SCRIPT_DIR/template/stop.sh"
 
+DEFAULT_CONF_SUFFIX="ini"
+
 function usage() {
     echo "Usage: "
     echo "  config-script.sh -n supervisor_process_name -h node_home"
@@ -48,13 +50,19 @@ if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
     export SUPERVISOR_CONFD_DIR="/usr/local/etc/supervisor.d"
   elif [ "$arch" == "linux" ]; then
     # centos Linux
-    export SUPERVISOR_CONFD_DIR="/etc/supervisord.d"
+    if [ -n "${hostnamectl | grep "Ubuntu"}" ]; then
+      export SUPERVISOR_CONFD_DIR="/etc/supervisor/conf.d"
+      DEFAULT_CONF_SUFFIX="conf"
+    elif [ -n "${hostnamectl | grep "Centos"}" ]; then
+      export SUPERVISOR_CONFD_DIR="/etc/supervisord.d"
+    fi
   fi
 fi
 checkdirexist "$node_home"
 boot_script_file=$node_home/boot.sh
 sed -e "s/_supervisor_conf_file_name_/${supervisor_conf_file_name}/
 s:_supervisor_conf_dir_:${SUPERVISOR_CONFD_DIR}:
+s/_suffix_/${DEFAULT_CONF_SUFFIX}/
 s/_command_/${command}/" "$TMP_BOOT" > "$boot_script_file"
 chmod +x "$boot_script_file"
 logSuccess "Node boot script generated: " "$boot_script_file"
