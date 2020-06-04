@@ -53,7 +53,7 @@ if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
     if hostnamectl | grep "Ubuntu" ; then
       export SUPERVISOR_CONFD_DIR="/etc/supervisor/conf.d"
       DEFAULT_CONF_SUFFIX="conf"
-    elif hostnamectl | grep "Centos" ; then
+    elif < /etc/system-release grep CentOS ; then
       export SUPERVISOR_CONFD_DIR="/etc/supervisord.d"
     fi
   fi
