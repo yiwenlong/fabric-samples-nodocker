@@ -23,7 +23,7 @@ function checkSuccess() {
   fi
 }
 
-dst_file="_supervisor_conf_dir_/_supervisor_conf_file_name_.ini"
+dst_file="_supervisor_conf_dir_/_supervisor_conf_file_name_._suffix_"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
 fi
