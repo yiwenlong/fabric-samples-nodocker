@@ -41,7 +41,7 @@ do
 done
 
 # If you don't set SUPERVISOR_CONFD_DIR, set a default value.
-if [ ! "$SUPERVISOR_CONFD_DIR" ]; then
+if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
   arch=$(uname -s|tr '[:upper:]' '[:lower:]')
   if [ "$arch" == "darwin" ]; then
     # macos
