@@ -16,5 +16,5 @@
 #
 supervisorctl stop _supervisor_conf_file_name_
 supervisorctl remove _supervisor_conf_file_name_
-rm "_supervisor_conf_dir_/_supervisor_conf_file_name_.ini"
+rm "_supervisor_conf_dir_/_supervisor_conf_file_name_._suffix_"
 supervisorctl status

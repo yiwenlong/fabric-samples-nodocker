@@ -69,6 +69,7 @@ logSuccess "Node boot script generated: " "$boot_script_file"
 
 stop_script_file=$node_home/stop.sh
 sed -e "s/_supervisor_conf_file_name_/${supervisor_conf_file_name}/
+s/_suffix_/${DEFAULT_CONF_SUFFIX}/
 s:_supervisor_conf_dir_:${SUPERVISOR_CONFD_DIR}:" "$TMP_STOP" > "$stop_script_file"
 chmod +x "$stop_script_file"
 logSuccess "Node stop script generated: " "$stop_script_file"
