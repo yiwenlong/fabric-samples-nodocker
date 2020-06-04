@@ -50,10 +50,10 @@ if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
     export SUPERVISOR_CONFD_DIR="/usr/local/etc/supervisor.d"
   elif [ "$arch" == "linux" ]; then
     # centos Linux
-    if [ -n "${hostnamectl | grep "Ubuntu"}" ]; then
+    if hostnamectl | grep "Ubuntu" ; then
       export SUPERVISOR_CONFD_DIR="/etc/supervisor/conf.d"
       DEFAULT_CONF_SUFFIX="conf"
-    elif [ -n "${hostnamectl | grep "Centos"}" ]; then
+    elif hostnamectl | grep "Centos" ; then
       export SUPERVISOR_CONFD_DIR="/etc/supervisord.d"
     fi
   fi
