@@ -18,5 +18,7 @@
 rm -fr ./Orderer/*/etcdraft/
 rm -fr ./Orderer/*/file-ledger/
 rm -fr ./Orderer/*/FABRIC-NODOCKER-Orderer-*.log
+rm -fr ./Orderer/*/orderer
 rm -fr ./Org1/*/data/
 rm -fr ./Org1/*/FABRIC-NODOCKER-Org1-*.log
+rm -fr ./Org1/*/peer

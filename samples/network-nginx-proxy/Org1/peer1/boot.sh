@@ -23,6 +23,10 @@ function checkSuccess() {
   fi
 }
 
+if [ ! -f peer ]; then
+  cp "$BOOT_DIR/../../../../build/bin/peer" "$BOOT_DIR"
+fi
+
 dst_file="/usr/local/etc/supervisor.d/FABRIC-NODOCKER-Org1-peer1.ini"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"

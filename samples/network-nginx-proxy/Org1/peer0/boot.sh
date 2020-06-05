@@ -17,6 +17,10 @@
 BOOT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
+if [ ! -f peer ]; then
+  cp "$BOOT_DIR/../../../../build/bin/peer" "$BOOT_DIR"
+fi
+
 function checkSuccess() {
   if [[ $? != 0 ]]; then
       exit $?

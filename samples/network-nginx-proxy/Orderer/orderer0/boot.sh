@@ -23,6 +23,10 @@ function checkSuccess() {
   fi
 }
 
+if [ ! -f orderer ]; then
+  cp "$BOOT_DIR/../../../../build/bin/orderer" "$BOOT_DIR"
+fi
+
 dst_file="/usr/local/etc/supervisor.d/FABRIC-NODOCKER-Orderer-orderer0.ini"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
