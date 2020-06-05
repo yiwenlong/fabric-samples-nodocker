@@ -14,6 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+export SUPERVISOR_CONF_SUFFIX="ini"
+# If you don't set SUPERVISOR_CONFD_DIR, set a default value.
+if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
+  arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+  if [ "$arch" == "darwin" ]; then
+    # macos
+    export SUPERVISOR_CONFD_DIR="/usr/local/etc/supervisor.d"
+  elif [ "$arch" == "linux" ]; then
+    # centos Linux
+    if hostnamectl | grep "Ubuntu" ; then
+      export SUPERVISOR_CONFD_DIR="/etc/supervisor/conf.d"
+      export SUPERVISOR_CONF_SUFFIX="conf"
+    elif < /etc/system-release grep CentOS ; then
+      export SUPERVISOR_CONFD_DIR="/etc/supervisord.d"
+    fi
+  fi
+fi
 
 ./Org1/peer0/boot.sh
 ./Org1/peer1/boot.sh

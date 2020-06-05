@@ -27,7 +27,7 @@ if [ ! -f peer ]; then
   cp "$BOOT_DIR/../../../../build/bin/peer" "$BOOT_DIR"
 fi
 
-dst_file="/usr/local/etc/supervisor.d/FABRIC-NODOCKER-Org1-peer1.ini"
+dst_file="$SUPERVISOR_CONFD_DIR/FABRIC-NODOCKER-Org1-peer1.$SUPERVISOR_CONF_SUFFIX"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
 fi

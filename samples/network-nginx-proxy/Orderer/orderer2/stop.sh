@@ -16,5 +16,5 @@
 #
 supervisorctl stop FABRIC-NODOCKER-Orderer-orderer2
 supervisorctl remove FABRIC-NODOCKER-Orderer-orderer2
-rm "/usr/local/etc/supervisor.d/FABRIC-NODOCKER-Orderer-orderer2.ini"
+rm "$SUPERVISOR_CONFD_DIR/FABRIC-NODOCKER-Orderer-orderer2.$SUPERVISOR_CONF_SUFFIX"
 supervisorctl status
