@@ -6,6 +6,8 @@
 
 ## Start
 
+> Notice: If you run this script on ubuntu, please add sudo before the command.
+
 ### Prerequisites
 
 ##### Install & bring up supervisor service
@@ -36,6 +38,7 @@ git clone https://github.com/yiwenlong/fabric-samples-nodocker.git
 ```sh
 cd $fabric-samples-nodocker
 ./config.sh
+
 # Config your supervisor config dir. 
 # MacOS
 export SUPERVISOR_CONFD_DIR=/usr/local/etc/supervisor.d
@@ -48,6 +51,10 @@ export SUPERVISOR_CONFD_DIR=/etc/supervisor/conf.d
 #### Using the Single org test network
 
 ##### Add the following to the host file(/etc/hosts)
+
+```shell
+sudo vim /etc/hosts
+```
 
 ```shell
 127.0.0.1 	peer0.org1.example.com
