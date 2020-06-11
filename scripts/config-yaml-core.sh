@@ -49,33 +49,38 @@ checkfileexist "$CONF_FILE"
 checkdirexist "$DEST_DIR"
 if [ ! "$NODE_NAME" ]; then
     logError "Missing node name" "-n node_name"
+    exit 1
 fi
 
 org_mspid="$(readConfValue "$CONF_FILE" org org.mspid)"
 org_domain="$(readConfValue "$CONF_FILE" org org.domain)"
 
 node_domain="$NODE_NAME.$org_domain"
-node_port="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.port)"
-node_chaincode_port="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.chaincode.port)"
-node_operations_port="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.operations.port)"
 node_couchdb_address="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.couchdb.address)"
 node_couchdb_user="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.couchdb.user)"
 node_couchdb_pwd="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.couchdb.pwd)"
 
-gossip_node="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.gossip)"
-gossip_node_port="$(readConfValue "$CONF_FILE" "$gossip_node" node.port)"
+node_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.listen)
+node_operations_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.operations.listen)
+node_gossip_bootstrap=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.gossip.bootstrap)
+node_chaincode_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.chaincode.listen)
+
+logInfo "Node domain:" "$node_domain"
+logInfo "Node listen address:" "$node_listen"
+logInfo "Node chaincode listen address:" "$node_chaincode_listen"
+logInfo "Node operations listen address:" "$node_operations_listen"
+logInfo "Node gossip bootstrap address:" "$node_gossip_bootstrap"
 
 core_file="$DEST_DIR/core.yaml"
 sed -e "s/<peer.name>/${NODE_NAME}/
 s/<peer.mspid>/${org_mspid}/
-s/<peer.address>/${node_domain}:${node_port}/
-s/<peer.domain>/${node_domain}/
-s/<peer.gossip.address>/${gossip_node}.${org_domain}:${gossip_node_port}/
-s/<peer.operations.port>/${node_operations_port}/
+s/<peer.address>/${node_listen}/
+s/<peer.gossip.address>/${node_gossip_bootstrap}/
+s/<peer.chaincode.address>/${node_chaincode_listen}/
+s/<peer.operations.address>/${node_operations_listen}/
 s/<peer.couchdb.address>/${node_couchdb_address}/
 s/<peer.couchdb.username>/${node_couchdb_user}/
 s/<peer.couchdb.password>/${node_couchdb_pwd}/
 s/<peer.chaincode.builder.path>/${EXTERNAL_BUILDER_NAME}/
-s/<peer.chaincode.builder.name>/${EXTERNAL_BUILDER_PATH}/
-s/<peer.chaincode.address>/${node_domain}:${node_chaincode_port}/" "$TMP_CORE" > "$core_file"
+s/<peer.chaincode.builder.name>/${EXTERNAL_BUILDER_PATH}/" "$TMP_CORE" > "$core_file"
 logSuccess "Node config file generated" "$core_file"

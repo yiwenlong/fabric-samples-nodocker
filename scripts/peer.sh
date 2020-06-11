@@ -48,36 +48,30 @@ function configNode {
   org_domain=$3
   org_mspid=$4
   logInfo "Start config node:" "$org_name.$node_name"
-  node_port=$(readConfPeerValue "$node_name" node.port)
-  node_chaincode_port=$(readConfPeerValue "$node_name" node.chaincode.port)
-  node_operations_port=$(readConfPeerValue "$node_name" node.operations.port)
-  node_gossip_node=$(readConfPeerValue "$node_name" node.gossip)
   node_domain=$node_name.$org_domain
-  logInfo "Node port:" "$node_port"
-  logInfo "Node chaincode port:" "$node_chaincode_port"
-  logInfo "Node operations port:" "$node_operations_port"
-  logInfo "Node gossip node:" "$node_gossip_node"
-  logInfo "Node domain:" "$node_domain"
 
   org_home=$WORK_HOME/$org_name
   node_home=$org_home/$node_name
   if [ -d "$node_home" ]; then
-      rm -fr "$node_home"
+    logError "Working directory already exists!!" "$node_home"
+    exit 1
   fi
-  mkdir -p "$node_home" && cd "$node_home"
+  mkdir -p "$node_home" && cd "$node_home" || exit
   logInfo "Node work home:" "$node_home"
 
   cp -r "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH" "$node_home/my_external_builder"
   cp -r "$org_home/crypto-config/peerOrganizations/$org_domain/peers/$node_domain/"* "$node_home"
 
-  "$DIR/config-yaml-core.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"
-  checkSuccess
+  if ! "$DIR/config-yaml-core.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"; then
+    exit $?
+  fi
 
   cp "$COMMAND_PEER" "$node_home/"
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
 
-  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home" -c "peer node start"
-  checkSuccess
+  if ! "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home" -c "peer node start"; then
+    exit $?
+  fi
 
   logSuccess "Node config success:" "$node_name"
 }
@@ -99,28 +93,30 @@ function config {
 
   org_home=$WORK_HOME/$org_name
   if [ -d "$org_home" ]; then
-    rm -fr "$org_home"
+    logError "Working directory already exists!! $node_home"
+    exit 1
   fi
-  mkdir -p "$org_home" && cd "$org_home"
+  mkdir -p "$org_home" && cd "$org_home" || exit
   logInfo "Organization work home:" "$org_home"
 
   cp "$CONF_FILE" "$org_home/conf.ini"
   # generate org msp config files.
-  "$DIR/config-msp.sh" -t peer -d "$org_home" -f "$CONF_FILE"
-  checkSuccess
+  if ! "$DIR/config-msp.sh" -t peer -d "$org_home" -f "$CONF_FILE"; then
+    exit $?
+  fi
 
-  org_msp_dir=$org_home/crypto-config/peerOrganizations/$org_domain/msp
-  org_anchor_peer_host=$org_anchor_peer.$org_domain
-  org_anchor_peer_port=$(readConfPeerValue "$org_anchor_peer" node.port)
-  configtx_file=$org_home/configtx-org.yaml
-  sed -e "s/<org.name>/${org_name}/
-  s/<org.mspid>/${org_mspid}/
-  s/<org.mspid>/${org_mspid}/
-  s/<org.mspid>/${org_mspid}/
-  s:<org.msp.dir>:${org_msp_dir}:
-  s/<org.anchor.host>/${org_anchor_peer_host}/
-  s/<org.anchor.port>/${org_anchor_peer_port}/" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
-  logSuccess "Organization configtx config file generated:" "$configtx_file"
+#  org_msp_dir=$org_home/crypto-config/peerOrganizations/$org_domain/msp
+#  org_anchor_peer_host=$org_anchor_peer.$org_domain
+#  org_anchor_peer_port=$(readConfPeerValue "$org_anchor_peer" node.port)
+#  configtx_file=$org_home/configtx-org.yaml
+#  sed -e "s/<org.name>/${org_name}/
+#  s/<org.mspid>/${org_mspid}/
+#  s/<org.mspid>/${org_mspid}/
+#  s/<org.mspid>/${org_mspid}/
+#  s:<org.msp.dir>:${org_msp_dir}:
+#  s/<org.anchor.host>/${org_anchor_peer_host}/
+#  s/<org.anchor.port>/${org_anchor_peer_port}/" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
+#  logSuccess "Organization configtx config file generated:" "$configtx_file"
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     configNode "$org_name" "peer$i" "$org_domain" "$org_mspid"
