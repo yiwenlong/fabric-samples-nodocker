@@ -71,8 +71,7 @@ else
 fi
 logInfo "Organization MSP config file generated:" "$msp_conf_file"
 
-msg=$($CMD_CRYPTOGEN generate --config="$msp_conf_file")
-if [ $? -eq 0 ]; then
+if msg=$($CMD_CRYPTOGEN generate --config="$msp_conf_file"); then
   logSuccess "Organization MSP certificate files generated:" "$msp_conf_file"
 else
   logError "Organization MSP certificate file generate failed！！！" "$msg"

@@ -105,18 +105,14 @@ function config {
     exit $?
   fi
 
-#  org_msp_dir=$org_home/crypto-config/peerOrganizations/$org_domain/msp
-#  org_anchor_peer_host=$org_anchor_peer.$org_domain
-#  org_anchor_peer_port=$(readConfPeerValue "$org_anchor_peer" node.port)
-#  configtx_file=$org_home/configtx-org.yaml
-#  sed -e "s/<org.name>/${org_name}/
-#  s/<org.mspid>/${org_mspid}/
-#  s/<org.mspid>/${org_mspid}/
-#  s/<org.mspid>/${org_mspid}/
-#  s:<org.msp.dir>:${org_msp_dir}:
-#  s/<org.anchor.host>/${org_anchor_peer_host}/
-#  s/<org.anchor.port>/${org_anchor_peer_port}/" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
-#  logSuccess "Organization configtx config file generated:" "$configtx_file"
+  org_msp_dir=$org_home/crypto-config/peerOrganizations/$org_domain/msp
+  configtx_file=$org_home/configtx-org.yaml
+  sed -e "s/<org.name>/${org_name}/
+  s/<org.mspid>/${org_mspid}/
+  s/<org.mspid>/${org_mspid}/
+  s/<org.mspid>/${org_mspid}/
+  s:<org.msp.dir>:${org_msp_dir}:" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
+  logSuccess "Organization configtx config file generated:" "$configtx_file"
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     configNode "$org_name" "peer$i" "$org_domain" "$org_mspid"
