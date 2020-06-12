@@ -63,8 +63,8 @@ done
 cat "$TMP_CONF_TX_COMMON" >> "$genesis_configtx_file"
 for (( i = 0; i < "$org_node_count" ; ++i)); do
   node_name=orderer${i}
-  node_address="$node_name.$org_domain"
-  node_port=$(readConfValue "$conf_file" "$node_name" node.port)
+  node_address=$(readConfValue "$conf_file" "$node_name" node.listen.address)
+  node_port=$(readConfValue "$conf_file" "$node_name" node.listen.port)
   printf "        - %s:%s\n" "$node_address" "$node_port" >> "$genesis_configtx_file"
 done
 
@@ -72,8 +72,8 @@ sed -e "s/_org_name_/${org_name}/" "$TMP_CONF_TX_COMMON_PROFILES" >> "$genesis_c
 for (( i = 0; i < "$org_node_count" ; ++i)); do
   node_name=orderer${i}
   node_home="$org_home/$node_name"
-  node_address="$node_name.$org_domain"
-  node_port=$(readConfValue "$conf_file" "$node_name" node.port)
+  node_address=$(readConfValue "$conf_file" "$node_name" node.listen.address)
+  node_port=$(readConfValue "$conf_file" "$node_name" node.listen.port)
   printf "          - Host: %s\n" "$node_address" >> "$genesis_configtx_file"
   printf "            Port: %s\n" "$node_port" >> "$genesis_configtx_file"
   printf "            ClientTLSCert: %s\n" "$node_home/tls/server.crt" >> "$genesis_configtx_file"
@@ -82,8 +82,8 @@ done
 echo "      Addresses:" >> "$genesis_configtx_file"
 for (( i = 0; i < "$org_node_count" ; ++i)); do
   node_name=orderer${i}
-  node_address="$node_name.$org_domain"
-  node_port=$(readConfValue "$conf_file" "$node_name" node.port)
+  node_address=$(readConfValue "$conf_file" "$node_name" node.listen.address)
+  node_port=$(readConfValue "$conf_file" "$node_name" node.listen.port)
   printf "          - %s:%s\n" "$node_address" "$node_port" >> "$genesis_configtx_file"
 done
 printf "      Organizations:\n" >> "$genesis_configtx_file"

@@ -52,7 +52,8 @@ function configNode {
   org_domain=$3
   org_mspid=$4
   logInfo "Start config node:" "$node_name"
-  node_port=$(readConfNodeValue "$node_name" node.port)
+  node_port=$(readConfNodeValue "$node_name" node.listen.port)
+  node_address=$(readConfNodeValue "$node_name" node.listen.address)
   node_operations_port=$(readConfNodeValue "$node_name" node.operations.port)
   logInfo "Node port:" "$node_port"
   logInfo "Node operation port:" "$node_operations_port"
@@ -62,16 +63,15 @@ function configNode {
   if [ -d "$node_home" ]; then
       rm -fr "$node_home"
   fi
-  mkdir -p "$node_home" && cd "$node_home"
+  mkdir -p "$node_home" && cd "$node_home" || exit
   logInfo "Node work home created:" "$node_home"
 
   cp -r "$org_home/crypto-config/ordererOrganizations/$org_domain/orderers/$node_name.$org_domain/"* "$node_home"
   logInfo "Node msp directory:" "$node_home/msp"
   logInfo "Node tls directory:" "$node_home/tls"
 
-  node_domain="$node_name.$org_domain"
   orderer_config_file="$node_home/orderer.yaml"
-  sed -e "s/<orderer.address>/${node_domain}/
+  sed -e "s/<orderer.address>/${node_address}/
   s/<orderer.port>/${node_port}/
   s/<org.mspid>/${org_mspid}/
   s/<orderer.operations.port>/${node_operations_port}/" "$TMP_ORDERER" > "$orderer_config_file"
@@ -122,7 +122,7 @@ function config {
     configNode "orderer$i" "$org_name" "$org_domain" "$org_mspid"
   done
 
-  cd "$WORK_HOME"
+  cd "$WORK_HOME" || exit
   "$DIR/config-orderer-genesis.sh" -f "$CONF_FILE"
   checkSuccess
 
