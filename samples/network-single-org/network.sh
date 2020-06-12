@@ -54,7 +54,7 @@ function start() {
   if ! "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer0; then
     exit $?
   fi
-  if "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer1; then
+  if ! "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer1; then
     exit $?
   fi
   if ! "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer2; then
