@@ -15,3 +15,4 @@
             Endorsement:
                 Type: Signature
                 Rule: "OR('<org.mspid>.peer')"
+        AnchorPeers:

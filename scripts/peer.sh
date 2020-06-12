@@ -36,12 +36,6 @@ function readConfPeerValue() {
   readConfValue "$CONF_FILE" "$1" "$2"; echo
 }
 
-function checkSuccess() {
-    if [[ $? != 0 ]]; then
-        exit $?
-    fi
-}
-
 function configNode {
   org_name=$1
   node_name=$2
@@ -82,14 +76,14 @@ function config {
   org_domain=$(readConfOrgValue 'org.domain')
   org_node_count=$(readConfOrgValue 'org.node.count')
   org_user_count=$(readConfOrgValue 'org.user.count')
-  org_anchor_peer=$(readConfOrgValue 'org.anchor.peer')
+  org_anchor_peers=$(readConfOrgValue 'org.anchor.peers')
 
   logInfo "Start config organization: " "$org_name"
   logInfo "Organization mspid:" "$org_mspid"
   logInfo "Organization domain:" "$org_domain"
   logInfo "Organization node count:" "$org_node_count"
   logInfo "Organization user count:" "$org_user_count"
-  logInfo "Organization anchor peer:" "$org_anchor_peer"
+  logInfo "Organization anchor peer:" "$org_anchor_peers"
 
   org_home=$WORK_HOME/$org_name
   if [ -d "$org_home" ]; then
@@ -105,13 +99,23 @@ function config {
     exit $?
   fi
 
-  org_msp_dir=$org_home/crypto-config/peerOrganizations/$org_domain/msp
-  configtx_file=$org_home/configtx-org.yaml
+  org_msp_dir="$org_home/crypto-config/peerOrganizations/$org_domain/msp"
+  configtx_file="$org_home/configtx-org.yaml"
   sed -e "s/<org.name>/${org_name}/
   s/<org.mspid>/${org_mspid}/
   s/<org.mspid>/${org_mspid}/
   s/<org.mspid>/${org_mspid}/
   s:<org.msp.dir>:${org_msp_dir}:" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
+  # append anchor peers.
+  for peer_name in $org_anchor_peers; do
+    anchor_peer_host=$(readConfPeerValue "$peer_name" "node.access.host")
+    anchor_peer_port=$(readConfPeerValue "$peer_name" "node.access.port")
+    if [ -n "$anchor_peer_host" ] && [ -n "$anchor_peer_port" ] ; then
+      echo "            - Host: $anchor_peer_host" >> "$configtx_file"
+      echo "              Port: $anchor_peer_port" >> "$configtx_file"
+    fi
+  done
+
   logSuccess "Organization configtx config file generated:" "$configtx_file"
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
@@ -161,43 +165,47 @@ case $COMMAND in
     ;;
   startorg)
     if [ "$CONF_DIR" ]; then
-        cd "$CONF_DIR"
+        cd "$CONF_DIR" || exit
     fi
     for node_name in $(ls . | grep peer); do
-      "$node_name/boot.sh"
-      checkSuccess
+      if ! "$node_name/boot.sh"; then
+        exit $?
+      fi
     done
     sleep 3
     logSuccess "Organization all node started:" "$(pwd)"
     ;;
   startnode)
     if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR"
+      cd "$CONF_DIR" || exit
     fi
     if [ -f boot.sh ]; then
-      ./boot.sh
-      checkSuccess
+      if ! ./boot.sh; then
+        exit $?
+      fi
     else
       logError "Script file not found:" boot.sh
     fi
     ;;
   stoporg)
     if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR"
+      cd "$CONF_DIR" || exit
     fi
     for node_name in $(ls . | grep peer); do
-      "$node_name/stop.sh"
-      checkSuccess
+      if ! "$node_name/stop.sh"; then
+        exit $?
+      fi
     done
     logSuccess "Organization all node stop:" "$(pwd)"
     ;;
   stopnode)
     if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR"
+      cd "$CONF_DIR" || exit
     fi
     if [ -f stop.sh ]; then
-      ./stop.sh
-      checkSuccess
+      if ! ./stop.sh; then
+        exit $?
+      fi
     fi
     ;;
 esac 
