@@ -57,7 +57,7 @@ function config {
   ch_orderer=$(readValue channel.orderer)
   logInfo "Start config channel:" "$ch_name"
   logInfo "Channel profile name:" "$ch_profile"
-  logInfo "Channel orgnaizations:" "$ch_orgs"
+  logInfo "Channel organizations:" "$ch_orgs"
 
     # 2. Generate a directory for the channel to store files.
     ch_home="$WORK_HOME/$ch_name"
@@ -70,16 +70,15 @@ function config {
     # 3. Generate configtx.yaml.
     ch_configtx_file="$ch_home/configtx.yaml"
     echo "Organizations:" > "$ch_configtx_file"
-    peerorgs=(${ch_orgs//,/ })
-    for org_name in ${peerorgs[@]}; do
-        org_ch_configtx_file=$WORK_HOME/$(readNodeValue $org_name 'org.configtx')
+    for org_name in $ch_orgs; do
+        org_ch_configtx_file="$WORK_HOME/$(readNodeValue "$org_name" 'org.configtx')"
         checkfileexist "$org_ch_configtx_file"
         cat "$org_ch_configtx_file" >> "$ch_configtx_file"
     done 
     # 3.2. Wirte common code. 
     cat "$CONFIGTX_COMMON_TEMPLATE_FILE" >> "$ch_configtx_file"
     # 3.3. Write channel profile
-    for org_name in ${peerorgs[@]}; do
+    for org_name in $ch_orgs; do
         echo "                - *${org_name}" >> "$ch_configtx_file"
     done 
     echo '            Capabilities:
@@ -100,7 +99,7 @@ function config {
     logInfo "Channel transaction file has been generated:" "$ch_tx_file"
     
     # 5. Generate transaction files for update anchor peer.
-    for org_name in ${peerorgs[@]}; do
+    for org_name in $ch_orgs; do
         anchor_tx_file="$ch_home/${org_name}Panchors.tx"
         $COMMAND_CONFIGTXGEN \
             -profile "$ch_profile" \
@@ -120,17 +119,15 @@ function config {
     orderer_address=$(readNodeValue "$ch_orderer" org.address)
     checkfileexist "$orderer_tls_ca_file"
 
-    for org_name in ${peerorgs[@]}; do
+    for org_name in $ch_orgs; do
         org_node_list=$(readNodeValue "$org_name" 'org.node.list')
         org_admin_msp_dir=$WORK_HOME/$(readNodeValue "$org_name" 'org.admin.msp.dir')
         org_msp_id=$(readNodeValue "$org_name" 'org.mspid')
-        org_domain=$(readNodeValue "$org_name" 'org.domain')
         org_tls_ca_file=$WORK_HOME/$(readNodeValue "$org_name" 'org.tls.ca')
         checkdirexist "$org_admin_msp_dir"
         checkfileexist "$org_tls_ca_file"
 
-        peers=(${org_node_list//,/ })
-        for node_name in ${peers[@]}; do
+        for node_name in $org_node_list; do
             ch_node_conf_home="$ch_home/$org_name-$node_name-$ch_name-conf"
             mkdir -p "$ch_node_conf_home"
             ch_node_conf_file="$ch_node_conf_home/channel.ini"
@@ -140,8 +137,7 @@ function config {
             cp "$ch_home/${org_name}Panchors.tx" "$ch_node_conf_home"
             cp -r "$org_admin_msp_dir" "$ch_node_conf_home/adminmsp"
 
-            node_domain="$node_name.$org_domain"
-            node_port=$(readNodeValue "$org_name.$node_name" 'node.port')
+            node_address=$(readNodeValue "$org_name.$node_name" 'node.address')
 
             echo "channel.name=$ch_name" > "$ch_node_conf_file"
             echo "channel.create.tx.file.name=$ch_name.tx" >> "$ch_node_conf_file"
@@ -151,14 +147,14 @@ function config {
             echo "org.name=$org_name" >> "$ch_node_conf_file"
             echo "org.mspid=$org_msp_id" >> "$ch_node_conf_file"
             echo "org.adminmsp=adminmsp" >> "$ch_node_conf_file"
-            echo "org.peer.address=$node_domain:$node_port" >> "$ch_node_conf_file"
+            echo "org.peer.address=$node_address" >> "$ch_node_conf_file"
             echo "org.tls.ca=peer-tls-ca.pem" >> "$ch_node_conf_file"
 
             logSuccess "Channel config home for org: $org_name node: $node_name has been generated:" "$ch_node_conf_home"
         done 
     done 
 
-    logSuccess "Channel config success:" $ch_name
+    logSuccess "Channel config success:" "$ch_name"
 }
 
 function create {
