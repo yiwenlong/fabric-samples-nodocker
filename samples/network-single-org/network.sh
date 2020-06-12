@@ -34,44 +34,46 @@ echo "========================= FABRIC BINARY VERSION ==========================
 "$FABRIC_BIN/cryptogen" version
 echo "==========================================================================="
 
-function checkSuccess() {
-    if [[ $? != 0 ]]; then
-        exit $?
-    fi
-}
-
 function config() {
   logInfo "Config organization:" Org1
-  "$SCRIPT_PATH"/peer.sh configorg -f Org1.ini
-  checkSuccess
+  if ! "$SCRIPT_PATH"/peer.sh configorg -f Org1.ini; then
+    exit $?
+  fi
   logInfo "Config orderer organization:" Orderer
-  "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.ini
-  checkSuccess
+  if ! "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.ini; then
+    exit $?
+  fi
 }
 
 function start() {
   logInfo "Start organization nodes:" Org1
-  "$SCRIPT_PATH"/peer.sh startorg -d Org1
-  checkSuccess
+  if ! "$SCRIPT_PATH"/peer.sh startorg -d Org1; then
+    exit $?
+  fi
   logInfo "Start orderer:" Orderer
-  "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer0
-  checkSuccess
-  "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer1
-  checkSuccess
-  "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer2
-  checkSuccess
+  if ! "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer0; then
+    exit $?
+  fi
+  if "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer1; then
+    exit $?
+  fi
+  if ! "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer2; then
+    exit $?
+  fi
   sleep 3
   supervisorctl status
 }
 
 function createChannel() {
-  cd "$DIR/channel-mychannel" && "./create.sh"
-  checkSuccess
+  if ! cd "$DIR/channel-mychannel" && "./create.sh"; then
+    exit $?
+  fi
 }
 
 function installChaincode() {
-  cd "$DIR/chaincode-tps" && "./install.sh"
-  checkSuccess
+  if ! cd "$DIR/chaincode-tps" && "./install.sh"; then
+    exit $?
+  fi
 }
 
 function down() {
