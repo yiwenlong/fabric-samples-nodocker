@@ -65,13 +65,15 @@ function start() {
 }
 
 function createChannel() {
-  if ! cd "$DIR/channel-mychannel" && "./create.sh"; then
+  cd "$DIR/channel-mychannel" || exit
+  if ! "./create.sh"; then
     exit $?
   fi
 }
 
 function installChaincode() {
-  if ! cd "$DIR/chaincode-tps" && "./install.sh"; then
+  cd "$DIR/chaincode-tps" || exit
+  if ! "./install.sh"; then
     exit $?
   fi
 }
@@ -100,9 +102,14 @@ function usage() {
 COMMAND=$1
 case $COMMAND in 
   up)
-    config && start && createChannel && installChaincode;;
+    config
+    start
+    createChannel
+    installChaincode
+    ;;
   start)
-    config && start ;;
+    config
+    start ;;
   config)
     config ;;
   down)
