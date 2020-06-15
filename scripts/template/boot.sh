@@ -32,11 +32,13 @@ if [ ! -d "_supervisor_conf_dir_/" ]; then
   mkdir -p "_supervisor_conf_dir_/"
 fi
 
-echo "[program:_supervisor_conf_file_name_]" > "$dst_file"
-echo "command=$BOOT_DIR/_command_" >> "$dst_file"
-echo "directory=$BOOT_DIR" >> "$dst_file"
-echo "redirect_stderr=true" >> "$dst_file"
-echo "stdout_logfile=$BOOT_DIR/_supervisor_conf_file_name_.log" >> "$dst_file"
+{
+  echo "[program:_supervisor_conf_file_name_]"
+  echo "command=$BOOT_DIR/_command_"
+  echo "directory=$BOOT_DIR"
+  echo "redirect_stderr=true"
+  echo "stdout_logfile=$BOOT_DIR/_supervisor_conf_file_name_.log"
+} >> "$dst_file"
 echo "Supervisor config file generate:" "$dst_file"
 
 supervisorctl update

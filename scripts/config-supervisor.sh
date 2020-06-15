@@ -38,9 +38,11 @@ done
 checkdirexist "$work_home"
 dst_file="$work_home/$process_name.ini"
 
-echo "[program:$process_name]" > "$dst_file"
-echo "command=$command" >> "$dst_file"
-echo "directory=${work_home}" >> "$dst_file"
-echo "redirect_stderr=true" >> "$dst_file"
-echo "stdout_logfile=${work_home}/$process_name.log" >> "$dst_file"
+{
+  echo "[program:$process_name]"
+  echo "command=$command"
+  echo "directory=${work_home}"
+  echo "redirect_stderr=true"
+  echo "stdout_logfile=${work_home}/$process_name.log"
+} >> "$dst_file"
 logSuccess "Supervisor config file generate:" "$dst_file"
