@@ -593,7 +593,7 @@ ledger:
     # stateDatabase - options are "goleveldb", "CouchDB"
     # goleveldb - default state database stored in goleveldb.
     # CouchDB - store state database in CouchDB
-    stateDatabase: goleveldb
+    stateDatabase: <peer.state.database>
     # Limit on the number of records to return per query
     totalQueryLimit: 100000
     couchDBConfig:

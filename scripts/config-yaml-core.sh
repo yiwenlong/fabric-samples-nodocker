@@ -56,9 +56,14 @@ org_mspid="$(readConfValue "$CONF_FILE" org org.mspid)"
 org_domain="$(readConfValue "$CONF_FILE" org org.domain)"
 
 node_domain="$NODE_NAME.$org_domain"
-node_couchdb_address="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.couchdb.address)"
-node_couchdb_user="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.couchdb.user)"
-node_couchdb_pwd="$(readConfValue "$CONF_FILE" "$NODE_NAME" node.couchdb.pwd)"
+state_db_type="goleveldb"
+couchdb_conf=$(readConfValue "$CONF_FILE" "$NODE_NAME" "node.couchdb")
+if [ -n "$couchdb_conf" ]; then
+  state_db_type="Couchdb"
+  node_couchdb_address=$(readConfValue "$CONF_FILE" "$couchdb_conf" "couchdb.address")
+  node_couchdb_user=$(readConfValue "$CONF_FILE" "$couchdb_conf" "couchdb.user")
+  node_couchdb_pwd=$(readConfValue "$CONF_FILE" "$couchdb_conf" "couchdb.passwd")
+fi
 
 node_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.listen)
 node_operations_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.operations.listen)
@@ -78,6 +83,7 @@ s/<peer.address>/${node_listen}/
 s/<peer.gossip.address>/${node_gossip_bootstrap}/
 s/<peer.chaincode.address>/${node_chaincode_listen}/
 s/<peer.operations.address>/${node_operations_listen}/
+s/<peer.state.database>/${state_db_type}/
 s/<peer.couchdb.address>/${node_couchdb_address}/
 s/<peer.couchdb.username>/${node_couchdb_user}/
 s/<peer.couchdb.password>/${node_couchdb_pwd}/
