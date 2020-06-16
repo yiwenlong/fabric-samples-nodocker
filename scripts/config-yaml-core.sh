@@ -59,7 +59,7 @@ node_domain="$NODE_NAME.$org_domain"
 state_db_type="goleveldb"
 couchdb_conf=$(readConfValue "$CONF_FILE" "$NODE_NAME" "node.couchdb")
 if [ -n "$couchdb_conf" ]; then
-  state_db_type="Couchdb"
+  state_db_type="CouchDB"
   node_couchdb_address=$(readConfValue "$CONF_FILE" "$couchdb_conf" "couchdb.address")
   node_couchdb_user=$(readConfValue "$CONF_FILE" "$couchdb_conf" "couchdb.user")
   node_couchdb_pwd=$(readConfValue "$CONF_FILE" "$couchdb_conf" "couchdb.passwd")
