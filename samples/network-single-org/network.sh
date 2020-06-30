@@ -82,15 +82,26 @@ function down() {
   logInfo "Down organization:" Org1
   "$SCRIPT_PATH"/peer.sh stoporg -d Org1
   logInfo "Clean organization:" Org1
-  rm -fr "$DIR"/Org1
+  if [ -d "$DIR/Org1" ]; then
+    rm -fr "$DIR/Org1"
+  fi
+
   logInfo "Down orderer:" Orderer
   "$SCRIPT_PATH"/orderer.sh stoporg -d Orderer
   logInfo "Clean orderer:" Orderer
-  rm -fr "$DIR"/Orderer
+  if [ -d "$DIR/Orderer" ]; then
+    rm -fr "$DIR/Orderer"
+  fi
+
   logInfo "Clean channel:" Orderer
-  ./channel-mychannel/clean.sh
+  if [ -f "./channel-mychannel/clean.sh" ]; then
+    "./channel-mychannel/clean.sh"
+  fi
+
   logInfo "Clean chaincode:" Orderer
-  ./chaincode-tps/clean.sh
+  if [ -f "./chaincode-tps/clean.sh" ]; then
+    ./chaincode-tps/clean.sh
+  fi
   logSuccess "Network stop!"
 }
 
