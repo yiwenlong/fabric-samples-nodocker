@@ -50,20 +50,6 @@ export SUPERVISOR_CONFD_DIR=/etc/supervisor/conf.d
 
 #### Using the Single org test network
 
-##### Add the following to the host file(/etc/hosts)
-
-```shell
-sudo vim /etc/hosts
-```
-
-```shell
-127.0.0.1 	peer0.org1.example.com
-127.0.0.1 	peer1.org1.example.com
-127.0.0.1 	orderer0.example.com
-127.0.0.1 	orderer1.example.com
-127.0.0.1 	orderer2.example.com
-```
-
 ##### Bring up the test network
 
 ```shell
