@@ -17,10 +17,10 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
-CONFIGTX_COMMON_TEMPLATE_FILE=$DIR/template/configtx-common-channel.yaml
+CONFIGTX_COMMON_TEMPLATE_FILE="$DIR/template/configtx-common-channel.yaml"
 
-COMMAND_PEER=$FABRIC_BIN/peer
-COMMAND_CONFIGTXGEN=$FABRIC_BIN/configtxgen
+COMMAND_PEER="$FABRIC_BIN/peer"
+COMMAND_CONFIGTXGEN="$FABRIC_BIN/configtxgen"
 
 # shellcheck source=utils/log-utils.sh
 . "$DIR/utils/log-utils.sh"
@@ -64,7 +64,7 @@ function config {
     if [ -d "$ch_home" ]; then
         rm -fr "$ch_home"
     fi 
-    mkdir -p "$ch_home" && cd "$ch_home"
+    mkdir -p "$ch_home" && cd "$ch_home" || exit
     logInfo "Channel Home dir:" "$ch_home"
 
     # 3. Generate configtx.yaml.
@@ -87,29 +87,27 @@ function config {
 
     # 4. Generate transaction file for create channel.
     ch_tx_file="$ch_home/$ch_name.tx"
-    $COMMAND_CONFIGTXGEN \
+    if ! $COMMAND_CONFIGTXGEN \
         -profile "$ch_profile" \
         -outputCreateChannelTx "$ch_tx_file" \
         -channelID "$ch_name" \
-        -configPath "$ch_home"
-    if [ ! $? -eq 0 ]; then
+        -configPath "$ch_home" ; then
         logError "Transaction Generate Error:" "$ch_tx_file"
-        exit 1
+        exit $?
     fi
     logInfo "Channel transaction file has been generated:" "$ch_tx_file"
     
     # 5. Generate transaction files for update anchor peer.
     for org_name in $ch_orgs; do
         anchor_tx_file="$ch_home/${org_name}Panchors.tx"
-        $COMMAND_CONFIGTXGEN \
+        if ! $COMMAND_CONFIGTXGEN \
             -profile "$ch_profile" \
             -outputAnchorPeersUpdate "$anchor_tx_file" \
             -channelID "$ch_name" \
             -asOrg "$org_name" \
-            -configPath "$ch_home"
-        if [ ! $? -eq 0 ]; then
+            -configPath "$ch_home"; then
             logError "Transaction Generate Error:" "$anchor_tx_file"
-            exit 1
+            exit $?
         fi
         logInfo "Anchor peer transaction file for $org_name has been generated:" "$anchor_tx_file"
     done 
@@ -169,10 +167,10 @@ function create {
     org_mspid=$(readValue "org.mspid")
     ch_name=$(readValue "channel.name")
 
-    checkfileexist $tx_file
-    checkfileexist $orderer_tls_file
-    checkfileexist $org_tls_file
-    checkdirexist $admin_msp_dir
+    checkfileexist "$tx_file"
+    checkfileexist "$orderer_tls_file"
+    checkfileexist "$org_tls_file"
+    checkdirexist "$admin_msp_dir"
 
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
@@ -183,9 +181,9 @@ function create {
     block_file=$CONF_DIR/$ch_name.block
 
     $COMMAND_PEER channel create \
-        -c $ch_name -f $tx_file \
-        -o $orderer_address --tls --cafile $orderer_tls_file \
-        --outputBlock $block_file
+        -c "$ch_name" -f "$tx_file" \
+        -o "$orderer_address" --tls --cafile "$orderer_tls_file" \
+        --outputBlock "$block_file"
 }
 
 function join {
@@ -245,8 +243,8 @@ function updateAnchorPeer {
 
     ch_name=$(readValue "channel.name")
 
-    checkdirexist $admin_msp_dir
-    checkfileexist $org_tls_file
+    checkdirexist "$admin_msp_dir"
+    checkfileexist "$org_tls_file"
 
     export CORE_PEER_TLS_ENABLED=true
     export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
@@ -258,13 +256,13 @@ function updateAnchorPeer {
     orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
     anchor_tx_file=$CONF_DIR/$(readValue "org.anchorfile")
 
-    checkfileexist $orderer_tls_file
+    checkfileexist "$orderer_tls_file"
 
-    checkfileexist $anchor_tx_file
+    checkfileexist "$anchor_tx_file"
 
     $COMMAND_PEER channel update \
-        -c $ch_name -f $anchor_tx_file \
-        -o $orderer_address --tls --cafile $orderer_tls_file
+        -c "$ch_name" -f "$anchor_tx_file" \
+        -o "$orderer_address" --tls --cafile "$orderer_tls_file"
 }
 
 function usage {
@@ -274,7 +272,7 @@ function usage {
 }
 
 COMMAND=$1
-if [ ! $COMMAND ]; then 
+if [ ! "$COMMAND" ]; then
     usage
     exit 1
 fi 
@@ -298,7 +296,7 @@ case $COMMAND in
     config ;;
   create | join | updateAnchorPeer )
     checkdirexist "$CONF_DIR"
-    CONF_FILE=$CONF_DIR/channel.ini
+    CONF_FILE="$CONF_DIR/channel.ini"
     checkfileexist "$CONF_FILE"
     $COMMAND ;;
   *) usage; exit 1;;
