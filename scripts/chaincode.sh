@@ -122,8 +122,8 @@ function env() {
 function install() {
   env
   cc_package=$(absolutefile "$cc_name".tar.gz "$CC_HOME")
-  $COMMAND_PEER lifecycle chaincode install "$cc_package"
-  if [ $? -eq 0 ]; then
+
+  if $COMMAND_PEER lifecycle chaincode install "$cc_package"; then
       logSuccess "Chaincode install success:" "$cc_name"
   else
       logError "Chaincode install failed:" "$cc_name"
@@ -137,7 +137,7 @@ function install() {
 
 function approve() {
   env
-  $COMMAND_PEER lifecycle chaincode approveformyorg \
+  if $COMMAND_PEER lifecycle chaincode approveformyorg \
     --channelID "$ch_name" \
     --name "$cc_name" \
     --version "$cc_version" \
@@ -146,9 +146,7 @@ function approve() {
     --sequence "$cc_sequence" \
     --tls true \
     --orderer "$ch_orderer_address" \
-    --cafile "$ch_orderer_tls_ca"
-
-  if [ $? -eq 0 ]; then
+    --cafile "$ch_orderer_tls_ca"; then
     logSuccess "Chaincode approve success:" "$org_name -> $cc_package_id"
   else
     logError "Chaincode approve failed:" "$org_name -> $cc_package_id"
@@ -186,7 +184,7 @@ function configChaincodeServer() {
 
 function commit() {
   env
-  cd "$CHANNEL_HOME"
+  cd "$CHANNEL_HOME" || exit
   for org_anchor_conf in $(ls | grep anchor-conf); do
       anchor_conf_dir=$CHANNEL_HOME/$org_anchor_conf
       anchor_conf_file=$CHANNEL_HOME/$org_anchor_conf/anchor.conf
@@ -246,7 +244,7 @@ function invoke() {
   export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_ca"
   export CORE_PEER_TLS_ENABLE=true
 
-  cd "$CHANNEL_HOME"
+  cd "$CHANNEL_HOME" || exit
   for org_anchor_conf in $(ls | grep anchor-conf); do
       anchor_conf_dir=$CHANNEL_HOME/$org_anchor_conf
       anchor_conf_file=$CHANNEL_HOME/$org_anchor_conf/anchor.conf
@@ -255,20 +253,17 @@ function invoke() {
       anchor_params="$anchor_params --peerAddresses $anchor_address --tlsRootCertFiles $anchor_tls_ca"
   done
 
-  $COMMAND_PEER chaincode invoke \
+  if $COMMAND_PEER chaincode invoke \
     --orderer "$ch_orderer_address" \
     --cafile "$ch_orderer_tls_ca" \
     --channelID "$ch_name" \
     --tls true \
     --name "$CC_NAME" \
-    -c "$CC_PARAMS" "$anchor_params" "$CC_IS_INIT"
-
-  if [ $? -eq 0 ]; then
+    -c "$CC_PARAMS" "$anchor_params" "$CC_IS_INIT"; then
     logSuccess "Chaincode invoke success"
-  else
-    logError "Chaincode invoke failed"
-    exit 1
+    return
   fi
+  logError "Chaincode invoke failed"
 }
 
 function query() {
@@ -297,7 +292,7 @@ function query() {
   export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_ca"
   export CORE_PEER_TLS_ENABLE=true
 
-  cd "$CHANNEL_HOME"
+  cd "$CHANNEL_HOME" || exit
 
   $COMMAND_PEER chaincode query \
     --orderer "$ch_orderer_address" \
