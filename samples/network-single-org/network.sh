@@ -64,6 +64,25 @@ function start() {
   supervisorctl status
 }
 
+function stop() {
+  logInfo "Start organization nodes:" Org1
+  if ! "$SCRIPT_PATH"/peer.sh stoporg -d Org1; then
+    exit $?
+  fi
+  logInfo "Start orderer:" Orderer
+  if ! "$SCRIPT_PATH"/orderer.sh stopnode -d Orderer/orderer0; then
+    exit $?
+  fi
+  if ! "$SCRIPT_PATH"/orderer.sh stopnode -d Orderer/orderer1; then
+    exit $?
+  fi
+  if ! "$SCRIPT_PATH"/orderer.sh stopnode -d Orderer/orderer2; then
+    exit $?
+  fi
+  sleep 3
+  supervisorctl status
+}
+
 function createChannel() {
   cd "$DIR/channel-mychannel" || exit
   if ! "./create.sh"; then
@@ -121,8 +140,8 @@ case $COMMAND in
   start)
     config
     start ;;
-  config)
-    config ;;
+  config | stop | clean)
+    "$COMMAND" ;;
   down)
     down ;;
   *) usage;;
