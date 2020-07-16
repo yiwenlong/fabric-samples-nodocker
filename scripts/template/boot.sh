@@ -17,12 +17,6 @@
 BOOT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-function checkSuccess() {
-  if [[ $? != 0 ]]; then
-      exit $?
-  fi
-}
-
 dst_file="_supervisor_conf_dir_/_supervisor_conf_file_name_._suffix_"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
