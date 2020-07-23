@@ -34,7 +34,7 @@ function checkSuccess() {
 logInfo "Package chaincode:" tps
 "$SCRIPT_PATH"/chaincode.sh package -f cc-tps.ini
 checkSuccess
-exit
+
 logInfo "Install chaincode:" "tps -> org1.peer0"
 "$SCRIPT_PATH"/chaincode.sh install -h chaincode-home-cc-tps -c "$CHANNEL_HOME"/Org1-peer0-mychannel-conf
 checkSuccess
