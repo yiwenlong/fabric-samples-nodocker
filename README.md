@@ -27,6 +27,8 @@ service supervisor start
 supervicosrctl status
 ```
 
+More information about [supervisor](http://supervisord.org/).
+
 ##### Checkout this respository
 
 ```shell

@@ -85,7 +85,7 @@ function config {
   logInfo "Organization user count:" "$org_user_count"
   logInfo "Organization anchor peer:" "$org_anchor_peers"
 
-  org_home=$WORK_HOME/$org_name
+  org_home="$WORK_HOME/$org_name"
   if [ -d "$org_home" ]; then
     logError "Working directory already exists!! $node_home"
     exit 1
