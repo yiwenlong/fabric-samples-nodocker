@@ -4,6 +4,7 @@ samples/network-single-org/*/mychannel/
 samples/network-single-org/*/mychannel2/
 chaincode-home-*/
 build/
+binaries/
 /samples/network-nginx-proxy/Orderer/*/etcdraft/
 /samples/network-nginx-proxy/Orderer/*/file-ledger/
 /samples/network-nginx-proxy/Orderer/*/FABRIC-NODOCKER-Orderer-*.log
