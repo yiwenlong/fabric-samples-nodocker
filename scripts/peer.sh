@@ -17,9 +17,8 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
-ORG_CONFIGTX_TEMPLATE_FILE=$DIR/template/configtx-peer.yaml
-DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH=$DIR/chaincode-builder
-COMMAND_PEER=$FABRIC_BIN/peer
+ORG_CONFIGTX_TEMPLATE_FILE="$DIR/template/configtx-peer.yaml"
+DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH="$DIR/chaincode-builder"
 
 # shellcheck source=utils/log-utils.sh
 . "$DIR/utils/log-utils.sh"
@@ -44,8 +43,8 @@ function configNode {
   logInfo "Start config node:" "$org_name.$node_name"
   node_domain=$node_name.$org_domain
 
-  org_home=$WORK_HOME/$org_name
-  node_home=$org_home/$node_name
+  org_home="$WORK_HOME/$org_name"
+  node_home="$org_home/$node_name"
   if [ -d "$node_home" ]; then
     logError "Working directory already exists!!" "$node_home"
     exit 1
@@ -59,14 +58,19 @@ function configNode {
   if ! "$DIR/config-yaml-core.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"; then
     exit $?
   fi
+  command=$(readConfPeerValue "$node_name" "node.command.binary")
+  command=$(absolutefile "$command" "$WORK_HOME")
+  if [ -f "$command" ]; then
+    logInfo "Node binary file:" "$command"
+    cp "$command" "$node_home/"
+  else
+    logError "Warming: no peer command binary found!!!" "$command"
+  fi
 
-  cp "$COMMAND_PEER" "$node_home/"
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-
   if ! "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home" -c "peer node start"; then
     exit $?
   fi
-
   logSuccess "Node config success:" "$node_name"
 }
 
@@ -140,9 +144,6 @@ if [ ! "$COMMAND" ]; then
   exit 1
 fi
 shift
-
-CONF_FILE=
-CONF_DIR=
 
 while getopts f:d: opt
 do 
