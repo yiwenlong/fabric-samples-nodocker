@@ -17,13 +17,31 @@
 BOOT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-dst_file="_supervisor_conf_dir_/_supervisor_conf_file_name_._suffix_"
+DEFAULT_CONF_SUFFIX="ini"
+# If you don't set SUPERVISOR_CONFD_DIR, set a default value.
+if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
+  arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+  if [ "$arch" == "darwin" ]; then
+    # macos
+    export SUPERVISOR_CONFD_DIR="/usr/local/etc/supervisor.d"
+  elif [ "$arch" == "linux" ]; then
+    # centos Linux
+    if hostnamectl | grep "Ubuntu" ; then
+      export SUPERVISOR_CONFD_DIR="/etc/supervisor/conf.d"
+      DEFAULT_CONF_SUFFIX="conf"
+    elif < /etc/system-release grep CentOS ; then
+      export SUPERVISOR_CONFD_DIR="/etc/supervisord.d"
+    fi
+  fi
+fi
+
+dst_file="$SUPERVISOR_CONFD_DIR/_supervisor_conf_file_name_.$DEFAULT_CONF_SUFFIX"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
 fi
 
-if [ ! -d "_supervisor_conf_dir_/" ]; then
-  mkdir -p "_supervisor_conf_dir_/"
+if [ ! -d "$SUPERVISOR_CONFD_DIR/" ]; then
+  mkdir -p "$SUPERVISOR_CONFD_DIR/"
 fi
 
 {

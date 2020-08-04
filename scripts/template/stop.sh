@@ -14,7 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+DEFAULT_CONF_SUFFIX="ini"
+# If you don't set SUPERVISOR_CONFD_DIR, set a default value.
+if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
+  arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+  if [ "$arch" == "darwin" ]; then
+    # macos
+    export SUPERVISOR_CONFD_DIR="/usr/local/etc/supervisor.d"
+  elif [ "$arch" == "linux" ]; then
+    # centos Linux
+    if hostnamectl | grep "Ubuntu" ; then
+      export SUPERVISOR_CONFD_DIR="/etc/supervisor/conf.d"
+      DEFAULT_CONF_SUFFIX="conf"
+    elif < /etc/system-release grep CentOS ; then
+      export SUPERVISOR_CONFD_DIR="/etc/supervisord.d"
+    fi
+  fi
+fi
 supervisorctl stop _supervisor_conf_file_name_
 supervisorctl remove _supervisor_conf_file_name_
-rm "_supervisor_conf_dir_/_supervisor_conf_file_name_._suffix_"
+rm "$SUPERVISOR_CONFD_DIR/_supervisor_conf_file_name_.$DEFAULT_CONF_SUFFIX"
 supervisorctl status
