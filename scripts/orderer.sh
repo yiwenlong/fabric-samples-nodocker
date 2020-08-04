@@ -77,7 +77,14 @@ function configNode {
   s/<orderer.operations.port>/${node_operations_port}/" "$TMP_ORDERER" > "$orderer_config_file"
   logInfo "Node config file generated:" "$orderer_config_file"
 
-  cp "$CMD_ORDERER" "$node_home/"
+  command=$(readConfNodeValue "$node_name" "node.command.binary")
+  command=$(absolutefile "$command" "$WORK_HOME")
+  if [ -f "$command" ]; then
+    logInfo "Node binary file:" "$command"
+    cp "$command" "$node_home/"
+  else
+    logError "Warming: no peer command binary found!!!" "$command"
+  fi
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
   "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home" -c "orderer"
   checkSuccess
