@@ -196,7 +196,7 @@ case "$COMMAND" in
     logSuccess "Organization all node started:" $(pwd);;
   startnode)
     if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR"
+      cd "$CONF_DIR" || exit
     fi
     if [ -f boot.sh ]; then
       ./boot.sh
@@ -206,7 +206,7 @@ case "$COMMAND" in
     fi;;
   stoporg)
     if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR"
+      cd "$CONF_DIR" || exit
     fi
     for node_name in $(ls . | grep orderer); do
       "$node_name/stop.sh"
@@ -215,7 +215,7 @@ case "$COMMAND" in
     logSuccess "Organization all node stop:" "$(pwd)";;
   stopnode)
     if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR"
+      cd "$CONF_DIR" || exit
     fi
     if [ -f stop.sh ]; then
       stop.sh
