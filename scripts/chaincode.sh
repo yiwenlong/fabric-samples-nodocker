@@ -18,6 +18,8 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
+DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/supervisor/config-script.sh"
+
 COMMAND_PEER=$FABRIC_BIN/peer
 
 # shellcheck source=utils/log-utils.sh
@@ -178,7 +180,7 @@ function configChaincodeServer() {
   logInfo "Chaincode home:" "$CC_HOME"
   logInfo "Chaincode command:" "$cc_binary $cc_package_id $cc_address"
 
-  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$CC_HOME" -c "${cc_binary##*/} $cc_package_id $cc_address"
+  "$DAEMON_SUPPORT_SCRIPT" -n "$supervisor_process_name" -h "$CC_HOME" -c "${cc_binary##*/} $cc_package_id $cc_address"
   checkSuccess
 }
 

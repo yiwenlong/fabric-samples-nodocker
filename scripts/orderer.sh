@@ -17,6 +17,8 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
+DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/supervisor/config-script.sh"
+
 TMP_CONF_TX_ORDERER="$DIR/template/configtx-orderer.yaml"
 TMP_CONF_TX_COMMON="$DIR/template/configtx-common.yaml"
 TMP_ORDERER="$DIR/template/orderer.yaml"
@@ -86,7 +88,7 @@ function configNode {
     logError "Warming: no peer command binary found!!!" "$command"
   fi
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-  "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home" -c "orderer"
+  "$DAEMON_SUPPORT_SCRIPT" -n "$supervisor_process_name" -h "$node_home" -c "orderer"
   checkSuccess
 
   logSuccess "Node config success:" "$node_name"

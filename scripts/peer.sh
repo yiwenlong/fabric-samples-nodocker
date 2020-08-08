@@ -17,6 +17,8 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
+DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/supervisor/config-script.sh"
+
 ORG_CONFIGTX_TEMPLATE_FILE="$DIR/template/configtx-peer.yaml"
 DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH="$DIR/chaincode-builder"
 
@@ -68,7 +70,7 @@ function configNode {
   fi
 
   supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-  if ! "$DIR/config-script.sh" -n "$supervisor_process_name" -h "$node_home" -c "peer node start"; then
+  if ! "$DAEMON_SUPPORT_SCRIPT" -n "$supervisor_process_name" -h "$node_home" -c "peer node start"; then
     exit $?
   fi
   logSuccess "Node config success:" "$node_name"
