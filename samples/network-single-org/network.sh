@@ -47,40 +47,24 @@ function config() {
 
 function start() {
   logInfo "Start organization nodes:" Org1
-  if ! "$SCRIPT_PATH"/peer.sh startorg -d Org1; then
-    exit $?
-  fi
+  for node_num in 0 1; do
+    "$DIR/Org1/peer$node_num/boot.sh"
+  done
   logInfo "Start orderer:" Orderer
-  if ! "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer0; then
-    exit $?
-  fi
-  if ! "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer1; then
-    exit $?
-  fi
-  if ! "$SCRIPT_PATH"/orderer.sh startnode -d Orderer/orderer2; then
-    exit $?
-  fi
-  sleep 3
-  supervisorctl status
+  for node_num in 0 1 2; do
+    "$DIR/Orderer/orderer$node_num/boot.sh"
+  done
 }
 
 function stop() {
-  logInfo "Start organization nodes:" Org1
-  if ! "$SCRIPT_PATH"/peer.sh stoporg -d Org1; then
-    exit $?
-  fi
-  logInfo "Start orderer:" Orderer
-  if ! "$SCRIPT_PATH"/orderer.sh stopnode -d Orderer/orderer0; then
-    exit $?
-  fi
-  if ! "$SCRIPT_PATH"/orderer.sh stopnode -d Orderer/orderer1; then
-    exit $?
-  fi
-  if ! "$SCRIPT_PATH"/orderer.sh stopnode -d Orderer/orderer2; then
-    exit $?
-  fi
-  sleep 3
-  supervisorctl status
+  logInfo "Stop organization nodes:" Org1
+  for node_num in 0 1; do
+    "$DIR/Org1/peer$node_num/stop.sh"
+  done
+  logInfo "Stop orderer:" Orderer
+  for node_num in 0 1 2; do
+    "$DIR/Orderer/orderer$node_num/stop.sh"
+  done
 }
 
 function createChannel() {
@@ -126,15 +110,10 @@ function clean() {
 }
 
 function down() {
-  logInfo "Down organization:" Org1
-  "$SCRIPT_PATH"/peer.sh stoporg -d Org1
   logInfo "Clean organization:" Org1
   if [ -d "$DIR/Org1" ]; then
     rm -fr "$DIR/Org1"
   fi
-
-  logInfo "Down orderer:" Orderer
-  "$SCRIPT_PATH"/orderer.sh stoporg -d Orderer
   logInfo "Clean orderer:" Orderer
   if [ -d "$DIR/Orderer" ]; then
     rm -fr "$DIR/Orderer"
@@ -171,6 +150,7 @@ case $COMMAND in
   config | stop | clean)
     "$COMMAND" ;;
   down)
+    stop
     down ;;
   *) usage;;
 esac

@@ -26,9 +26,9 @@ CHANNEL_HOME=$(cd "$DIR"/../channel-mychannel/mychannel && pwd)
 . "$SCRIPT_PATH/utils/log-utils.sh"
 
 function checkSuccess() {
-    if [[ $? != 0 ]]; then
-        exit $?
-    fi
+  if [[ $? != 0 ]]; then
+    exit $?
+  fi
 }
 
 logInfo "Package chaincode:" tps
