@@ -17,7 +17,7 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
-DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/supervisor/config-script.sh"
+DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
 
 TMP_CONF_TX_ORDERER="$DIR/template/configtx-orderer.yaml"
 TMP_CONF_TX_COMMON="$DIR/template/configtx-common.yaml"

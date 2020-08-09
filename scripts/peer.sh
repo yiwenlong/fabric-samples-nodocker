@@ -17,7 +17,7 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
-DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/supervisor/config-script.sh"
+DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
 
 ORG_CONFIGTX_TEMPLATE_FILE="$DIR/template/configtx-peer.yaml"
 DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH="$DIR/chaincode-builder"
@@ -166,49 +166,4 @@ case $COMMAND in
     checkdirexist "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH"
     config
     ;;
-  startorg)
-    if [ "$CONF_DIR" ]; then
-        cd "$CONF_DIR" || exit
-    fi
-    for node_name in $(ls . | grep peer); do
-      if ! "$node_name/boot.sh"; then
-        exit $?
-      fi
-    done
-    sleep 3
-    logSuccess "Organization all node started:" "$(pwd)"
-    ;;
-  startnode)
-    if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR" || exit
-    fi
-    if [ -f boot.sh ]; then
-      if ! ./boot.sh; then
-        exit $?
-      fi
-    else
-      logError "Script file not found:" boot.sh
-    fi
-    ;;
-  stoporg)
-    if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR" || exit
-    fi
-    for node_name in $(ls . | grep peer); do
-      if ! "$node_name/stop.sh"; then
-        exit $?
-      fi
-    done
-    logSuccess "Organization all node stop:" "$(pwd)"
-    ;;
-  stopnode)
-    if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR" || exit
-    fi
-    if [ -f stop.sh ]; then
-      if ! ./stop.sh; then
-        exit $?
-      fi
-    fi
-    ;;
-esac 
+esac

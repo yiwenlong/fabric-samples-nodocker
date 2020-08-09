@@ -31,7 +31,7 @@ if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
     fi
   fi
 fi
-supervisorctl stop _supervisor_conf_file_name_
-supervisorctl remove _supervisor_conf_file_name_
-rm "$SUPERVISOR_CONFD_DIR/_supervisor_conf_file_name_.$DEFAULT_CONF_SUFFIX"
+supervisorctl stop _process_name_
+supervisorctl remove _process_name_
+rm "$SUPERVISOR_CONFD_DIR/_process_name_.$DEFAULT_CONF_SUFFIX"
 supervisorctl status

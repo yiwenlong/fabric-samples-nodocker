@@ -17,8 +17,8 @@
 
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-TMP_BOOT="$SCRIPT_DIR/launchd/boot.sh"
-TMP_STOP="$SCRIPT_DIR/launchd/stop.sh"
+TMP_BOOT="$SCRIPT_DIR/supervisor/boot.sh"
+TMP_STOP="$SCRIPT_DIR/supervisor/stop.sh"
 
 while getopts n:h:c: opt
 do

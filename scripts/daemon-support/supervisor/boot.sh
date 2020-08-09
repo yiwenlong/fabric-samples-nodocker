@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 BOOT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
-export FABRIC_CFG_PATH=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
 DEFAULT_CONF_SUFFIX="ini"
 # If you don't set SUPERVISOR_CONFD_DIR, set a default value.
@@ -35,7 +34,7 @@ if [ -z "$SUPERVISOR_CONFD_DIR" ]; then
   fi
 fi
 
-dst_file="$SUPERVISOR_CONFD_DIR/_supervisor_conf_file_name_.$DEFAULT_CONF_SUFFIX"
+dst_file="$SUPERVISOR_CONFD_DIR/_process_name_.$DEFAULT_CONF_SUFFIX"
 if [ -f "$dst_file" ]; then
   rm "$dst_file"
 fi
@@ -45,15 +44,15 @@ if [ ! -d "$SUPERVISOR_CONFD_DIR/" ]; then
 fi
 
 {
-  echo "[program:_supervisor_conf_file_name_]"
-  echo "command=$BOOT_DIR/_command_"
+  echo "[program:_process_name_]"
+  echo "command=$BOOT_DIR/_process_command_"
   echo "directory=$BOOT_DIR"
   echo "redirect_stderr=true"
-  echo "stdout_logfile=$BOOT_DIR/_supervisor_conf_file_name_.log"
+  echo "stdout_logfile=$BOOT_DIR/_process_name_.log"
 } >> "$dst_file"
 echo "Supervisor config file generate:" "$dst_file"
 
 supervisorctl update
-echo Staring: "_supervisor_conf_file_name_"
-sleep 3
+echo Staring: "_process_name_"
+sleep 1
 supervisorctl status | grep "_supervisor_conf_file_name_"
