@@ -17,15 +17,15 @@
 
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-TMP_BOOT="$SCRIPT_DIR/supervisor/boot.sh"
-TMP_STOP="$SCRIPT_DIR/supervisor/stop.sh"
+daemon_type="supervisor"
 
-while getopts n:h:c: opt
+while getopts n:h:c:d: opt
 do
   case $opt in
     n) process_name=$OPTARG ;;
     h) working_home=$OPTARG ;;
     c) command=$OPTARG ;;
+    d) daemon_type=$OPTARG;;
     *) usage; exit 1;;
   esac
 done
@@ -34,6 +34,9 @@ if [ ! -d "$working_home" ]; then
   echo "Home directory not found: $working_home"
   exit $?
 fi
+
+TMP_BOOT="$SCRIPT_DIR/$daemon_type/boot.sh"
+TMP_STOP="$SCRIPT_DIR/$daemon_type/stop.sh"
 
 boot_script_file=$working_home/boot.sh
 sed -e "s/_process_name_/${process_name}/

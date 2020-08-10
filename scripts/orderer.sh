@@ -87,8 +87,9 @@ function configNode {
   else
     logError "Warming: no peer command binary found!!!" "$command"
   fi
-  supervisor_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-  "$DAEMON_SUPPORT_SCRIPT" -n "$supervisor_process_name" -h "$node_home" -c "orderer"
+  daemon=$(readConfNodeValue "$node_name" "node.daemon.type")
+  node_process_name="FABRIC-NODOCKER-$org_name-$node_name"
+  "$DAEMON_SUPPORT_SCRIPT" -d "$daemon" -n "$node_process_name" -h "$node_home" -c "orderer"
   checkSuccess
 
   logSuccess "Node config success:" "$node_name"
