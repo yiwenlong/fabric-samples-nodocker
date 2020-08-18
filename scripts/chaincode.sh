@@ -41,12 +41,6 @@ function channelValue() {
   readConfValue "$CHANNEL_CONF_FILE" "$1"; echo
 }
 
-function checkSuccess() {
-    if [[ $? != 0 ]]; then
-        exit $?
-    fi
-}
-
 function usage() {
   echo "usage"
 }
@@ -179,9 +173,12 @@ function configChaincodeServer() {
   logInfo "Supervisor process name:" "$supervisor_process_name"
   logInfo "Chaincode home:" "$CC_HOME"
   logInfo "Chaincode command:" "$cc_binary $cc_package_id $cc_address"
+  daemon=$(confValue chaincode.daemon.type)
 
-  "$DAEMON_SUPPORT_SCRIPT" -n "$supervisor_process_name" -h "$CC_HOME" -c "${cc_binary##*/} $cc_package_id $cc_address"
-  checkSuccess
+  if ! "$DAEMON_SUPPORT_SCRIPT" -d "$daemon" -n "$supervisor_process_name" -h "$CC_HOME" -c "${cc_binary##*/} $cc_package_id $cc_address";
+  then
+    exit $?
+  fi
 }
 
 function commit() {
