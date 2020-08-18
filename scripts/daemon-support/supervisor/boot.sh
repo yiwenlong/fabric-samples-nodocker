@@ -55,4 +55,4 @@ echo "Supervisor config file generate:" "$dst_file"
 supervisorctl update
 echo Staring: "_process_name_"
 sleep 1
-supervisorctl status | grep "_supervisor_conf_file_name_"
+supervisorctl status | grep "_process_name_"
