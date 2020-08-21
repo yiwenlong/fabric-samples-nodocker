@@ -201,12 +201,12 @@ function join {
     checkfileexist "$org_tls_file"
 
     export CORE_PEER_TLS_ENABLED=true
-    export CORE_PEER_MSPCONFIGPATH=$admin_msp_dir
-    export CORE_PEER_LOCALMSPID=$org_mspid
-    export CORE_PEER_ADDRESS=$peer_address
-    export CORE_PEER_TLS_ROOTCERT_FILE=$org_tls_file
+    export CORE_PEER_MSPCONFIGPATH="$admin_msp_dir"
+    export CORE_PEER_LOCALMSPID="$org_mspid"
+    export CORE_PEER_ADDRESS="$peer_address"
+    export CORE_PEER_TLS_ROOTCERT_FILE="$org_tls_file"
 
-    block_file=$CONF_DIR/$ch_name.block
+    block_file="$CONF_DIR/$ch_name.block"
 
     orderer_address=$(readValue "orderer.address")
     orderer_tls_file=$CONF_DIR/$(readValue "orderer.tls.ca")
@@ -215,23 +215,21 @@ function join {
     checkfileexist "$orderer_tls_file"
 
     if [ ! -f "$block_file" ]; then
-        $COMMAND_PEER channel fetch newest "$block_file" \
+        $COMMAND_PEER channel fetch oldest "$block_file" \
             -o "$orderer_address" \
             -c "$ch_name" \
             --tls --cafile "$orderer_tls_file"
     fi
 
-    $COMMAND_PEER channel join \
+    if ! $COMMAND_PEER channel join \
         -b "$block_file" \
-        -o "$orderer_address" --tls --cafile "$orderer_tls_file"
-
-    if [ $? -eq 0 ]; then
-        logSuccess "Join channel success:" "$peer_address -> $ch_name"
-        $COMMAND_PEER channel list
-    else
-        logError "Join channel failed:" "$peer_address -> $ch_name"
-        exit 1
+        -o "$orderer_address" --tls --cafile "$orderer_tls_file"; then
+      logError "Join channel failed:" "$peer_address -> $ch_name"
+      exit 1
     fi
+
+    logSuccess "Join channel success:" "$peer_address -> $ch_name"
+    $COMMAND_PEER channel list
 }
 
 function updateAnchorPeer {
@@ -277,9 +275,6 @@ if [ ! "$COMMAND" ]; then
     exit 1
 fi 
 shift
-
-CONF_FILE=
-CONF_DIR=
 
 while getopts f:d: opt
 do 
