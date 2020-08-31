@@ -18,8 +18,6 @@ DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
 DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
-
-ORG_CONFIGTX_TEMPLATE_FILE="$DIR/template/configtx-peer.yaml"
 DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH="$DIR/chaincode-builder"
 
 # shellcheck source=utils/log-utils.sh
@@ -106,25 +104,6 @@ function config {
     exit $?
   fi
 
-  org_msp_dir="$org_home/crypto-config/peerOrganizations/$org_domain/msp"
-  configtx_file="$org_home/configtx-org.yaml"
-  sed -e "s/<org.name>/${org_name}/
-  s/<org.mspid>/${org_mspid}/
-  s/<org.mspid>/${org_mspid}/
-  s/<org.mspid>/${org_mspid}/
-  s:<org.msp.dir>:${org_msp_dir}:" "$ORG_CONFIGTX_TEMPLATE_FILE" > "$configtx_file"
-  # append anchor peers.
-  for peer_name in $org_anchor_peers; do
-    anchor_peer_host=$(readConfPeerValue "$peer_name" "node.access.host")
-    anchor_peer_port=$(readConfPeerValue "$peer_name" "node.access.port")
-    if [ -n "$anchor_peer_host" ] && [ -n "$anchor_peer_port" ] ; then
-      echo "            - Host: $anchor_peer_host" >> "$configtx_file"
-      echo "              Port: $anchor_peer_port" >> "$configtx_file"
-    fi
-  done
-
-  logSuccess "Organization configtx config file generated:" "$configtx_file"
-
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     configNode "$org_name" "peer$i" "$org_domain" "$org_mspid"
   done
@@ -150,6 +129,4 @@ do
   esac
 done
 
-checkfileexist "$ORG_CONFIGTX_TEMPLATE_FILE"
-checkdirexist "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH"
 config

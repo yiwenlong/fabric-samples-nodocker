@@ -40,7 +40,7 @@ function config() {
     exit $?
   fi
   logInfo "Config orderer organization:" Orderer
-  if ! "$SCRIPT_PATH"/orderer.sh configorg -f Orderer.ini; then
+  if ! "$SCRIPT_PATH"/config-orderer.sh -f Orderer.ini; then
     exit $?
   fi
 }

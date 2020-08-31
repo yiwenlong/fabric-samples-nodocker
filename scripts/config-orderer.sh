@@ -19,8 +19,6 @@ WORK_HOME=$(pwd)
 
 DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
 
-TMP_CONF_TX_ORDERER="$DIR/template/configtx-orderer.yaml"
-TMP_CONF_TX_COMMON="$DIR/template/configtx-common.yaml"
 TMP_ORDERER="$DIR/template/orderer.yaml"
 
 CMD_CRYPTOGEN="$FABRIC_BIN/cryptogen"
@@ -110,7 +108,8 @@ function config {
   if [ -d "$org_home" ]; then
     rm -fr "$org_home"
   fi
-  mkdir -p "$org_home" && cd "$org_home"
+
+  mkdir -p "$org_home" && cd "$org_home" || exit
   logInfo "Organization work dir:" "$org_home"
   checkSuccess
 
@@ -120,20 +119,13 @@ function config {
   "$DIR/config-msp.sh" -t orderer -d "$org_home" -f "$CONF_FILE"
   checkSuccess
 
-  org_msp_dir="$org_home/crypto-config/ordererOrganizations/$org_domain/msp"
-  org_configtx_file="$org_home/configtx-org.yaml"
-  sed -e "s/<org.name>/${org_name}/
-  s/<org.mspid>/${org_mspid}/
-  s:<org.msp.dir>:${org_msp_dir}:" "$TMP_CONF_TX_ORDERER" > "$org_configtx_file"
-  logSuccess "Organization configtx file generated:" "$org_configtx_file"
-  checkSuccess
-
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     configNode "orderer$i" "$org_name" "$org_domain" "$org_mspid"
   done
 
+  org_conf_list=$(readConfValue "$CONF_FILE" "genesis" "genesis.org.conf.files")
   cd "$WORK_HOME" || exit
-  "$DIR/config-orderer-genesis.sh" -f "$CONF_FILE"
+  "$DIR/config-orderer-genesis.sh" -o "$CONF_FILE" -p "$org_conf_list"
   checkSuccess
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
@@ -146,24 +138,13 @@ function config {
 
 function usage {
     echo "USAGE:"
-    echo "  orderer.sh <command> [ -f configfile | -o orgName ]"
-    echo "      command: [ configorg | startorg | stoporg | startnode | stropnode | usage ]"
+    echo "  config-orderer.sh -f config.ini"
 }
 
 if [ ! "$FABRIC_BIN" ]; then
     logError "Missing environment variable: " "FABRIC_BIN"
     exit 1
 fi 
-
-COMMAND=$1
-if [ ! "$COMMAND" ]; then
-    usage
-    exit 1
-fi 
-shift
-
-CONF_FILE=
-CONF_DIR=
 
 while getopts f:d: opt
 do 
@@ -176,53 +157,9 @@ do
   esac
 done
 
-case "$COMMAND" in
-  configorg)
-    checkfileexist "$CONF_FILE"
-    checkfileexist "$TMP_CONF_TX_ORDERER"
-    checkfileexist "$TMP_CONF_TX_COMMON"
-    checkfileexist "$TMP_ORDERER"
-    checkfileexist "$CMD_CRYPTOGEN"
-    checkfileexist "$CMD_CONFIGTXGEN"
-    checkfileexist "$CMD_ORDERER"
-    config
-    ;;
-  startorg)
-    if [ "$CONF_DIR" ]; then
-        cd "$CONF_DIR"
-    fi
-    for node_name in $(ls . | grep orderer); do
-        "$node_name/boot.sh"
-        checkSuccess
-    done
-    sleep 3
-    logSuccess "Organization all node started:" $(pwd);;
-  startnode)
-    if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR" || exit
-    fi
-    if [ -f boot.sh ]; then
-      ./boot.sh
-      checkSuccess
-    else
-      logError "Script file not found:" boot.sh
-    fi;;
-  stoporg)
-    if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR" || exit
-    fi
-    for node_name in $(ls . | grep orderer); do
-      "$node_name/stop.sh"
-      checkSuccess
-    done
-    logSuccess "Organization all node stop:" "$(pwd)";;
-  stopnode)
-    if [ "$CONF_DIR" ]; then
-      cd "$CONF_DIR" || exit
-    fi
-    if [ -f stop.sh ]; then
-      stop.sh
-      checkSuccess
-    fi;;
-  *) usage; exit 1;;
-esac
+checkfileexist "$CONF_FILE"
+checkfileexist "$TMP_ORDERER"
+checkfileexist "$CMD_CRYPTOGEN"
+checkfileexist "$CMD_CONFIGTXGEN"
+checkfileexist "$CMD_ORDERER"
+config

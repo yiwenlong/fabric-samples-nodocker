@@ -1,8 +1,0 @@
-PeerOrgs:
-  - Name: <org.name>
-    Domain: <org.domain>
-    EnableNodeOUs: true
-    Template:
-      Count: <org.peer.count>
-    Users:
-      Count: <org.peer.user.count>
