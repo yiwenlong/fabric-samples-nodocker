@@ -19,7 +19,6 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
 CMD_CRYPTOGEN="$FABRIC_BIN/cryptogen"
-TMP_PEER="$SCRIPT_DIR/template/crypto-config-peer.yaml"
 
 # shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
@@ -61,10 +60,16 @@ if [ "$TYPE" == "orderer" ]; then
     echo "      - Hostname: orderer${i}" >> "$msp_conf_file"
   done
 elif [ "$TYPE" == "peer" ]; then
-  sed -e "s/<org.name>/${org_name}/
-  s/<org.domain>/${org_domain}/
-  s/<org.peer.count>/${org_node_count}/
-  s/<org.peer.user.count>/${org_user_count}/" "$TMP_PEER" > "$msp_conf_file"
+  {
+    echo "PeerOrgs:"
+    echo "  - Name: ${org_name}"
+    echo "    Domain: ${org_domain}"
+    echo "    EnableNodeOUs: true"
+    echo "    Template:"
+    echo "      Count: ${org_node_count}"
+    echo "    Users:"
+    echo "      Count: ${org_user_count}"
+  } > "$msp_conf_file"
 else
   usage
   exit 1
