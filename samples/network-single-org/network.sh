@@ -36,7 +36,7 @@ echo "==========================================================================
 
 function config() {
   logInfo "Config organization:" Org1
-  if ! "$SCRIPT_PATH"/peer.sh configorg -f Org1.ini; then
+  if ! "$SCRIPT_PATH"/config-peer.sh -f Org1.ini; then
     exit $?
   fi
   logInfo "Config orderer organization:" Orderer

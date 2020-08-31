@@ -21,12 +21,10 @@ WORK_HOME=$(pwd)
 CMD_CRYPTOGEN="$FABRIC_BIN/cryptogen"
 TMP_PEER="$SCRIPT_DIR/template/crypto-config-peer.yaml"
 
-# shellcheck source=utils/log-utils.sh
-. "$SCRIPT_DIR/utils/log-utils.sh"
-# shellcheck source=utils/conf-utils.sh
-. "$SCRIPT_DIR/utils/conf-utils.sh"
 # shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
+# shellcheck disable=SC1090
+. "$SCRIPT_DIR/utils/conf-utils.sh"
 
 function usage() {
     echo "Usage"
@@ -53,10 +51,12 @@ org_user_count=$(readConfValue "$CONF_FILE" org org.user.count)
 msp_conf_file="$DEST_DIR/crypto-config.yaml"
 
 if [ "$TYPE" == "orderer" ]; then
-  echo "OrdererOrgs:" > "$msp_conf_file"
-  echo "  - Name: ${org_name}" >> "$msp_conf_file"
-  echo "    Domain: ${org_domain}" >> "$msp_conf_file"
-  echo "    Specs: " >> "$msp_conf_file"
+  {
+    echo "OrdererOrgs:"
+    echo "  - Name: ${org_name}"
+    echo "    Domain: ${org_domain}"
+    echo "    Specs: "
+  } > "$msp_conf_file"
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     echo "      - Hostname: orderer${i}" >> "$msp_conf_file"
   done
@@ -69,11 +69,11 @@ else
   usage
   exit 1
 fi
-logInfo "Organization MSP config file generated:" "$msp_conf_file"
+echo "Organization MSP config file generated:" "$msp_conf_file"
 
 if msg=$($CMD_CRYPTOGEN generate --config="$msp_conf_file"); then
-  logSuccess "Organization MSP certificate files generated:" "$msp_conf_file"
+  echo "Organization MSP certificate files generated:" "$msp_conf_file"
 else
-  logError "Organization MSP certificate file generate failed！！！" "$msg"
+  echo "Organization MSP certificate file generate failed！！！" "$msg"
   exit $?
 fi

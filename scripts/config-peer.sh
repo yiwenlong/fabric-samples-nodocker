@@ -132,8 +132,7 @@ function config {
 
 function usage {
   echo "USAGE:"
-  echo "  peer.sh <command> [ -f configfile | -o orgName ]"
-  echo "      command: [ configorg | startorg | stoporg | startnode | stropnode | usage]"
+  echo "  config-peer.sh -f config.ini"
 }
 
 if [ ! "$FABRIC_BIN" ]; then
@@ -141,30 +140,16 @@ if [ ! "$FABRIC_BIN" ]; then
   exit 1
 fi
 
-COMMAND=$1
-if [ ! "$COMMAND" ]; then
-  usage
-  exit 1
-fi
-shift
-
 while getopts f:d: opt
 do 
   case $opt in
     f) CONF_FILE=$(absolutefile "$OPTARG" "$WORK_HOME")
       checkfileexist "$CONF_FILE"
       ;;
-    d) CONF_DIR=$(absolutefile "$OPTARG" "$WORK_HOME")
-      checkdirexist "$CONF_DIR"
-      ;;
     *) usage; exit 1;;
   esac
-done 
+done
 
-case $COMMAND in 
-  configorg)
-    checkfileexist "$ORG_CONFIGTX_TEMPLATE_FILE"
-    checkdirexist "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH"
-    config
-    ;;
-esac
+checkfileexist "$ORG_CONFIGTX_TEMPLATE_FILE"
+checkdirexist "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH"
+config
