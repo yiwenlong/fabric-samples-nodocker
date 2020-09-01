@@ -124,7 +124,7 @@ function config {
   done
 
   cd "$WORK_HOME" || exit
-  "$DIR/config-orderer-genesis.sh" -o "$CONF_FILE"
+  "$DIR/config-orderer-genesis.sh" -f "$CONF_FILE"
   checkSuccess
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do

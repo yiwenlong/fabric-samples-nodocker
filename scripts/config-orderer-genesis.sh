@@ -27,10 +27,10 @@ HOME=$(pwd)
 
 CMD_CONFIGTXGEN="$FABRIC_BIN/configtxgen"
 
-while getopts p:o: opt
+while getopts f: opt
 do
   case $opt in
-    o) conf_file=$OPTARG ;;
+    f) conf_file=$OPTARG ;;
     *) usage; exit 1;;
   esac
 done
