@@ -42,11 +42,9 @@ function config {
 
   # 1. Read params about the channel from config file.
   ch_name=$(readValue channel.name)
-  ch_profile=$(readValue channel.profile)
   ch_orgs=$(readValue channel.orgs)
   ch_orderer=$(readValue channel.orderer)
   logInfo "Start config channel:" "$ch_name"
-  logInfo "Channel profile name:" "$ch_profile"
   logInfo "Channel organizations:" "$ch_orgs"
 
   # 2. Generate a directory for the channel to store files.
@@ -87,18 +85,18 @@ function config {
           cp -r "$org_admin_msp_dir" "$ch_node_conf_home/adminmsp"
 
           node_address=$(readNodeValue "$org_name.$node_name" 'node.address')
-
-          echo "channel.name=$ch_name" > "$ch_node_conf_file"
-          echo "channel.create.tx.file.name=$ch_name.tx" >> "$ch_node_conf_file"
-          echo "orderer.address=$orderer_address" >> "$ch_node_conf_file"
-          echo "orderer.tls.ca=orderer-tls-ca.pem" >> "$ch_node_conf_file"
-          echo "org.anchorfile=${org_name}-$ch_name-anchor.tx" >> "$ch_node_conf_file"
-          echo "org.name=$org_name" >> "$ch_node_conf_file"
-          echo "org.mspid=$org_msp_id" >> "$ch_node_conf_file"
-          echo "org.adminmsp=adminmsp" >> "$ch_node_conf_file"
-          echo "org.peer.address=$node_address" >> "$ch_node_conf_file"
-          echo "org.tls.ca=peer-tls-ca.pem" >> "$ch_node_conf_file"
-
+cat << EOF >> "$ch_node_conf_file"
+channel.name=$ch_name
+channel.create.tx.file.name=$ch_name.tx
+orderer.address=$orderer_address
+orderer.tls.ca=orderer-tls-ca.pem
+org.anchorfile=${org_name}-$ch_name-anchor.tx
+org.name=$org_name
+org.mspid=$org_msp_id
+org.adminmsp=adminmsp
+org.peer.address=$node_address
+org.tls.ca=peer-tls-ca.pem
+EOF
           logSuccess "Channel config home for org: $org_name node: $node_name has been generated:" "$ch_node_conf_home"
       done
   done
