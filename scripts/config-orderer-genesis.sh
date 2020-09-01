@@ -31,12 +31,12 @@ while getopts p:o: opt
 do
   case $opt in
     o) conf_file=$OPTARG ;;
-    p) org_conf_files="$org_conf_files $OPTARG";;
     *) usage; exit 1;;
   esac
 done
 
 checkfileexist "$conf_file"
+org_conf_files=$(readConfValue "$conf_file" "genesis" "genesis.org.conf.files")
 for org_conf_file in $org_conf_files; do
   checkfileexist "$org_conf_file"
 done
@@ -97,6 +97,7 @@ cat << EOF >> "$genesis_configtx_file"
         Rule: "OR('$org_msp_id.peer')"
 EOF
 done
+
 cat << EOF >> "$genesis_configtx_file"
 Capabilities:
   Channel: &ChannelCapabilities

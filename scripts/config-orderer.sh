@@ -123,9 +123,8 @@ function config {
     configNode "orderer$i" "$org_name" "$org_domain" "$org_mspid"
   done
 
-  org_conf_list=$(readConfValue "$CONF_FILE" "genesis" "genesis.org.conf.files")
   cd "$WORK_HOME" || exit
-  "$DIR/config-orderer-genesis.sh" -o "$CONF_FILE" -p "$org_conf_list"
+  "$DIR/config-orderer-genesis.sh" -o "$CONF_FILE"
   checkSuccess
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
