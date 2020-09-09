@@ -27,35 +27,41 @@ HOME=$(pwd)
 
 CMD_CONFIGTXGEN="$FABRIC_BIN/configtxgen"
 
-while getopts f: opt
+while getopts f:d: opt
 do
   case $opt in
     f) conf_file=$OPTARG ;;
+    d) dst_path=$OPTARG ;;
     *) usage; exit 1;;
   esac
 done
 
 checkfileexist "$conf_file"
-org_conf_files=$(readConfValue "$conf_file" "genesis" "genesis.org.conf.files")
-for org_conf_file in $org_conf_files; do
+checkdirexist "$dst_path"
+
+# Read orderer org config files.
+orderer_org_conf_files=$(readConfValue "$conf_file" "genesis" "orderer.org.conf.files")
+for org_conf_file in $orderer_org_conf_files; do
   checkfileexist "$org_conf_file"
 done
 
-orderer_org_name=$(readConfValue "$conf_file" org org.name)
-orderer_org_msp_id=$(readConfValue "$conf_file" org org.mspid)
-orderer_org_msp_dir=$(readConfValue "$conf_file" org org.crypto.dir)
-orderer_org_domain=$(readConfValue "$conf_file" org org.domain)
-orderer_crypto_dir=$HOME/$orderer_org_msp_dir/ordererOrganizations/$orderer_org_domain
+# Read peer org config files.
+peer_org_conf_files=$(readConfValue "$conf_file" "genesis" "peer.org.conf.files")
+for org_conf_file in $peer_org_conf_files; do
+  checkfileexist "$org_conf_file"
+done
 
-orderer_org_home="$HOME/$orderer_org_name"
-if [ ! -d "$orderer_org_home" ]; then
-  mkdir -p "$orderer_org_name"
-fi
+genesis_configtx_file="$dst_path/configtx.yaml"
 
-genesis_configtx_file="$orderer_org_home/configtx.yaml"
+echo "Organizations:" > "$genesis_configtx_file"
 
-cat << EOF > "$genesis_configtx_file"
-Organizations:
+for org_conf_file in $orderer_org_conf_files; do
+  orderer_org_name=$(readConfValue "$org_conf_file" org org.name)
+  orderer_org_msp_id=$(readConfValue "$org_conf_file" org org.mspid)
+  orderer_org_msp_dir=$(readConfValue "$org_conf_file" org org.crypto.dir)
+  orderer_org_domain=$(readConfValue "$org_conf_file" org org.domain)
+  orderer_crypto_dir=$HOME/$orderer_org_msp_dir/ordererOrganizations/$orderer_org_domain
+cat << EOF >> "$genesis_configtx_file"
   - &$orderer_org_name
     Name: $orderer_org_name
     ID: $orderer_org_msp_id
@@ -71,8 +77,9 @@ Organizations:
         Type: Signature
         Rule: "OR('$orderer_org_msp_id.admin')"
 EOF
+done
 
-for org_conf_file in $org_conf_files; do
+for org_conf_file in $peer_org_conf_files; do
   org_name=$(readConfValue "$org_conf_file" org org.name)
   org_msp_id=$(readConfValue "$org_conf_file" org org.mspid)
   org_msp_dir=$(readConfValue "$org_conf_file" org org.crypto.dir)
@@ -172,47 +179,71 @@ Profiles:
         Consenters:
 EOF
 
-org_node_count=$(readConfValue "$conf_file" org org.node.count)
-for (( i = 0; i < "$org_node_count" ; ++i)); do
-  node_name=orderer${i}
-  node_address=$(readConfValue "$conf_file" "$node_name" node.access.address)
-  node_port=$(readConfValue "$conf_file" "$node_name" node.access.port)
+for org_conf_file in $orderer_org_conf_files; do
+  orderer_org_msp_dir=$(readConfValue "$org_conf_file" org org.crypto.dir)
+  orderer_org_domain=$(readConfValue "$org_conf_file" org org.domain)
+  orderer_crypto_dir=$HOME/$orderer_org_msp_dir/ordererOrganizations/$orderer_org_domain
+
+  org_node_count=$(readConfValue "$org_conf_file" org org.node.count)
+
+  for (( i = 0; i < "$org_node_count" ; ++i)); do
+    node_name=orderer${i}
+    node_address=$(readConfValue "$org_conf_file" "$node_name" node.access.address)
+    node_port=$(readConfValue "$org_conf_file" "$node_name" node.access.port)
 cat << EOF >> "$genesis_configtx_file"
           - Host: $node_address
             Port: $node_port
             ClientTLSCert: $orderer_crypto_dir/orderers/$node_name.$orderer_org_domain/tls/server.crt
             ServerTLSCert: $orderer_crypto_dir/orderers/$node_name.$orderer_org_domain/tls/server.crt
 EOF
-done
+  done
 
 cat << EOF >> "$genesis_configtx_file"
       Addresses:
 EOF
 
-org_node_count=$(readConfValue "$conf_file" org org.node.count)
-for (( i = 0; i < "$org_node_count" ; ++i)); do
-  node_address=$(readConfValue "$conf_file" "orderer${i}" node.access.address)
-  node_port=$(readConfValue "$conf_file" "orderer${i}" node.access.port)
+  for (( i = 0; i < "$org_node_count" ; ++i)); do
+    node_address=$(readConfValue "$org_conf_file" "orderer${i}" node.access.address)
+    node_port=$(readConfValue "$org_conf_file" "orderer${i}" node.access.port)
 cat << EOF >> "$genesis_configtx_file"
         - $node_address:$node_port
 EOF
+  done
 done
 
 cat << EOF >> "$genesis_configtx_file"
       Organizations:
+EOF
+
+for org_conf_file in $orderer_org_conf_files; do
+  org_name=$(readConfValue "$org_conf_file" org org.name)
+cat << EOF >> "$genesis_configtx_file"
         - *$orderer_org_name
+EOF
+done
+
+cat << EOF >> "$genesis_configtx_file"
       Capabilities:
         <<: *OrdererCapabilities
     Application:
       <<: *ApplicationDefaults
       Organizations:
+EOF
+
+for org_conf_file in $orderer_org_conf_files; do
+  org_name=$(readConfValue "$org_conf_file" org org.name)
+cat << EOF >> "$genesis_configtx_file"
       - <<: *$orderer_org_name
+EOF
+done
+
+cat << EOF >> "$genesis_configtx_file"
     Consortiums:
       SampleConsortium:
         Organizations:
 EOF
 
-for org_conf_file in $org_conf_files; do
+for org_conf_file in $peer_org_conf_files; do
   org_name=$(readConfValue "$org_conf_file" org org.name)
 cat << EOF >> "$genesis_configtx_file"
           - *$org_name
@@ -221,12 +252,12 @@ done
 
 logInfo "Configtx file generated:" "$genesis_configtx_file"
 
-sys_channel_name=$(readConfValue "$conf_file" org org.sys.channel.name)
+sys_channel_name=$(readConfValue "$conf_file" "genesis" system.channel.name)
 logInfo "System channel name:" "$sys_channel_name"
-sys_channel_genesis_file="$orderer_org_home/genesis.block"
+sys_channel_genesis_file="$dst_path/genesis.block"
 $CMD_CONFIGTXGEN \
   -profile SampleMultiNodeEtcdRaft \
   -channelID "$sys_channel_name" \
   -outputBlock "$sys_channel_genesis_file" \
-  -configPath "$orderer_org_home"
+  -configPath "$dst_path"
 logInfo "System channel genesis block file generated:" "$sys_channel_genesis_file"
