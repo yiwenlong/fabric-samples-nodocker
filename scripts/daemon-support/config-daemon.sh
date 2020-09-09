@@ -42,9 +42,9 @@ boot_script_file=$working_home/boot.sh
 sed -e "s/_process_name_/${process_name}/
 s/_process_command_/${command}/" "$TMP_BOOT" > "$boot_script_file"
 chmod +x "$boot_script_file"
-echo -e "\033[Daemon boot script generated:\033[0m $boot_script_file"
+echo -e "Daemon boot script generated: $boot_script_file"
 
 stop_script_file=$working_home/stop.sh
 sed -e "s/_process_name_/${process_name}/" "$TMP_STOP" > "$stop_script_file"
 chmod +x "$stop_script_file"
-echo -e "\033[Daemon stop script generated:\033[0m $stop_script_file"
+echo -e "Daemon stop script generated: $stop_script_file"
