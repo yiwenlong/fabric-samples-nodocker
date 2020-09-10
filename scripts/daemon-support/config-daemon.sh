@@ -17,7 +17,7 @@
 
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-daemon_type="supervisor"
+DEFAULT_DAEMON_TYPE="supervisor"
 
 while getopts n:h:c:d: opt
 do
@@ -29,6 +29,10 @@ do
     *) usage; exit 1;;
   esac
 done
+
+if [ ! "$daemon_type" ]; then
+   daemon_type="$DEFAULT_DAEMON_TYPE"
+fi
 
 if [ ! -d "$working_home" ]; then
   echo "Home directory not found: $working_home"
