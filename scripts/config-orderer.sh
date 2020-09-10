@@ -21,10 +21,6 @@ DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
 
 TMP_ORDERER="$DIR/template/orderer.yaml"
 
-CMD_CRYPTOGEN="$FABRIC_BIN/cryptogen"
-CMD_CONFIGTXGEN="$FABRIC_BIN/configtxgen"
-CMD_ORDERER="$FABRIC_BIN/orderer"
-
 # shellcheck source=utils/log-utils.sh
 . "$DIR/utils/log-utils.sh"
 # shellcheck source=utils/conf-utils.sh
@@ -164,8 +160,4 @@ do
 done
 
 checkfileexist "$CONF_FILE"
-checkfileexist "$TMP_ORDERER"
-checkfileexist "$CMD_CRYPTOGEN"
-checkfileexist "$CMD_CONFIGTXGEN"
-checkfileexist "$CMD_ORDERER"
 config
