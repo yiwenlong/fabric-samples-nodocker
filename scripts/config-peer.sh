@@ -60,6 +60,13 @@ function configNode {
   fi
   command=$(readConfPeerValue "$node_name" "node.command.binary")
   command=$(absolutefile "$command" "$WORK_HOME")
+
+  # if node.command.binary is not set. Use binaries/arch/fabric/peer by default.
+  if [ ! -f "$command" ]; then
+    arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+    command="$(cd "$DIR/.." && pwd)/binaries/$arch/fabric/peer"
+  fi
+
   if [ -f "$command" ]; then
     logInfo "Node binary file:" "$command"
     cp "$command" "$node_home/"

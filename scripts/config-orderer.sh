@@ -79,6 +79,13 @@ function configNode {
 
   command=$(readConfNodeValue "$node_name" "node.command.binary")
   command=$(absolutefile "$command" "$WORK_HOME")
+
+  # if node.command.binary is not set. Use binaries/arch/fabric/orderer by default.
+  if [ ! -f "$command" ]; then
+    arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+    command="$(cd "$DIR/.." && pwd)/binaries/$arch/fabric/orderer"
+  fi
+
   if [ -f "$command" ]; then
     logInfo "Node binary file:" "$command"
     cp "$command" "$node_home/"
@@ -124,7 +131,7 @@ function config {
   done
 
   cd "$WORK_HOME" || exit
-  "$DIR/config-orderer-genesis.sh" -f "$CONF_FILE"
+  "$DIR/config-orderer-genesis.sh" -f "sys-channel.ini" -d "$org_home"
   checkSuccess
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
