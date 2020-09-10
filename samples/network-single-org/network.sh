@@ -17,7 +17,9 @@
 
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-export FABRIC_BIN=$(cd "$DIR"/../../binaries/darwin/fabric && pwd)
+arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+
+export FABRIC_BIN=$(cd "$DIR"/../../binaries/"$arch"/fabric && pwd)
 export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 
 # shellcheck source=utils/log-utils.sh
@@ -27,12 +29,6 @@ export SCRIPT_PATH=$(cd "$DIR"/../../scripts && pwd)
 
 checkdirexist "$FABRIC_BIN"
 checkdirexist "$SCRIPT_PATH"
-
-echo "========================= FABRIC BINARY VERSION ==========================="
-"$FABRIC_BIN/peer" version
-"$FABRIC_BIN/orderer" version
-"$FABRIC_BIN/cryptogen" version
-echo "==========================================================================="
 
 function config() {
   logInfo "Config organization:" Org1
