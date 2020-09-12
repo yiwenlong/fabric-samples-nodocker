@@ -40,14 +40,6 @@ git clone https://github.com/yiwenlong/fabric-samples-nodocker.git
 ```sh
 cd $fabric-samples-nodocker
 ./config.sh
-
-# Config your supervisor config dir. 
-# MacOS
-export SUPERVISOR_CONFD_DIR=/usr/local/etc/supervisor.d
-# CentOS
-export SUPERVISOR_CONFD_DIR=/etc/supervisord.d
-# Ubuntu
-export SUPERVISOR_CONFD_DIR=/etc/supervisor/conf.d  
 ```
 
 #### Using the Single org test network
