@@ -34,6 +34,6 @@ logInfo "Join channel:" "org1.peer0 -> mychannel"
 logInfo "Join channel:" "org1.peer1 -> mychannel"
 "$SCRIPT_PATH"/channel.sh join -d $(cd "$DIR"/mychannel/Org1-peer1-mychannel-conf && pwd)
 
-logInfo "Update channel:" "Achor peer for mychannel -> peer0"
+logInfo "Update channel:" "Anchor peer for mychannel -> peer0"
 "$SCRIPT_PATH"/channel.sh updateAnchorPeer -d $(cd "$DIR"/mychannel/Org1-peer0-mychannel-conf && pwd)
 logSuccess "Channel created:" mychannel
