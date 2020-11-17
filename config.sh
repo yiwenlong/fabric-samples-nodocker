@@ -81,7 +81,29 @@ function download_tps_binary() {
   rm -fr "$DIR/tps"*
 }
 
-for platform in "linux" "darwin" "windows"; do
-  download_fabric_binaries "$platform" "$FABRIC_VERSION"
-  download_tps_binary "$platform" "$TPS_VERSION"
+function help() {
+    echo -e "
+    USAGE: ./config.sh [-v|-p]
+    -v    fabric release version, default is 2.2.1
+    -p    system platform, [darwin, linux, windows]
+    "
+}
+
+while getopts v:p: opt
+do
+  case $opt in
+  v) FABRIC_VERSION="$OPTARG";;
+  p) PLATFORM="$OPTARG";;
+  *) help; exit 1;;
+  esac
 done
+echo "$PLATFORM"
+if [ -n "$PLATFORM" ]; then
+  download_fabric_binaries "$PLATFORM" "$FABRIC_VERSION"
+  download_tps_binary "$PLATFORM" "$TPS_VERSION"
+else
+  for platform in "linux" "darwin" "windows"; do
+    download_fabric_binaries "$platform" "$FABRIC_VERSION"
+    download_tps_binary "$platform" "$TPS_VERSION"
+  done
+fi
