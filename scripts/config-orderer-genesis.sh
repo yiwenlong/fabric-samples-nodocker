@@ -108,11 +108,17 @@ done
 cat << EOF >> "$genesis_configtx_file"
 Capabilities:
   Channel: &ChannelCapabilities
-    V2_0: true
+    V1_4_3: true
+    V1_3: false
+    V1_1: false
   Orderer: &OrdererCapabilities
-    V2_0: true
+    V1_4_2: true
+    V1_1: false
   Application: &ApplicationCapabilities
-    V2_0: true
+    V1_4_2: true
+    V1_3: false
+    V1_2: false
+    V1_1: false
 Application: &ApplicationDefaults
   Organizations:
   Policies:
@@ -125,12 +131,6 @@ Application: &ApplicationDefaults
     Admins:
       Type: ImplicitMeta
       Rule: "MAJORITY Admins"
-    LifecycleEndorsement:
-      Type: ImplicitMeta
-      Rule: "MAJORITY Endorsement"
-    Endorsement:
-      Type: ImplicitMeta
-      Rule: "MAJORITY Endorsement"
   Capabilities:
     <<: *ApplicationCapabilities
 Channel: &ChannelDefaults
@@ -154,6 +154,31 @@ Orderer: &OrdererDefaults
     AbsoluteMaxBytes: 99 MB
     PreferredMaxBytes: 512 KB
   Organizations:
+  EtcdRaft:
+    Consenters:
+EOF
+
+for org_conf_file in $orderer_org_conf_files; do
+  orderer_org_msp_dir=$(readConfValue "$org_conf_file" org org.crypto.dir)
+  orderer_org_domain=$(readConfValue "$org_conf_file" org org.domain)
+  orderer_crypto_dir=$HOME/$orderer_org_msp_dir/ordererOrganizations/$orderer_org_domain
+
+  org_node_count=$(readConfValue "$org_conf_file" org org.node.count)
+
+  for (( i = 0; i < "$org_node_count" ; ++i)); do
+    node_name=orderer${i}
+    node_address=$(readConfValue "$org_conf_file" "$node_name" node.access.address)
+    node_port=$(readConfValue "$org_conf_file" "$node_name" node.access.port)
+cat << EOF >> "$genesis_configtx_file"
+          - Host: $node_address
+            Port: $node_port
+            ClientTLSCert: $orderer_crypto_dir/orderers/$node_name.$orderer_org_domain/tls/server.crt
+            ServerTLSCert: $orderer_crypto_dir/orderers/$node_name.$orderer_org_domain/tls/server.crt
+EOF
+  done
+done
+
+cat << EOF >> "$genesis_configtx_file"
   Policies:
     Readers:
       Type: ImplicitMeta
