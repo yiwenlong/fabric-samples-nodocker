@@ -138,7 +138,7 @@ case $COMMAND in
     config
     start
     createChannel
-    installChaincode
+#    installChaincode
     ;;
   start)
     config

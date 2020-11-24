@@ -71,9 +71,6 @@ cat << EOF >> "$ch_configtx_file"
       Admins:
         Type: Signature
         Rule: "OR('$org_msp_id.admin')"
-      Endorsement:
-        Type: Signature
-        Rule: "OR('$org_msp_id.peer')"
     AnchorPeers:
       - Host: $org_anchor_host
         Port: $org_anchor_port
@@ -83,9 +80,14 @@ done
 cat << EOF >> "$ch_configtx_file"
 Capabilities:
   Channel: &ChannelCapabilities
-    V2_0: true
+    V1_4_3: true
+    V1_3: false
+    V1_1: false
   Application: &ApplicationCapabilities
-    V2_0: true
+    V1_4_2: true
+    V1_3: false
+    V1_2: false
+    V1_1: false
 Application: &ApplicationDefaults
   Organizations:
   Policies:
@@ -98,12 +100,6 @@ Application: &ApplicationDefaults
     Admins:
       Type: ImplicitMeta
       Rule: "MAJORITY Admins"
-    LifecycleEndorsement:
-      Type: ImplicitMeta
-      Rule: "MAJORITY Endorsement"
-    Endorsement:
-      Type: ImplicitMeta
-      Rule: "MAJORITY Endorsement"
   Capabilities:
       <<: *ApplicationCapabilities
 Channel: &ChannelDefaults
