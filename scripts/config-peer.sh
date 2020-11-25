@@ -18,7 +18,6 @@ DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
 DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
-DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH="$DIR/chaincode-builder"
 
 # shellcheck source=utils/log-utils.sh
 . "$DIR/utils/log-utils.sh"
@@ -52,7 +51,6 @@ function configNode {
   mkdir -p "$node_home" && cd "$node_home" || exit
   logInfo "Node work home:" "$node_home"
 
-  cp -r "$DEFAULT_CHAINCODE_EXTERNAL_BUILDER_PATH" "$node_home/my_external_builder"
   cp -r "$org_home/crypto-config/peerOrganizations/$org_domain/peers/$node_domain/"* "$node_home"
 
   if ! "$DIR/config-yaml-core.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"; then

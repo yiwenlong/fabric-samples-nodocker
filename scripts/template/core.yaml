@@ -518,17 +518,6 @@ chaincode:
         # This is an image based on node:$(NODE_VER)-alpine
         runtime: $(BASE_DOCKER_NS)/fabric-nodeenv:$(ARCH)-$(BASE_VERSION)
 
-    # List of directories to treat as external builders and launchers for
-    # chaincode. The external builder detection processing will iterate over the
-    # builders in the order specified below.
-    externalBuilders: 
-        - path: <peer.chaincode.builder.path>
-          name: <peer.chaincode.builder.name>
-          environmentWhitelist:
-             - ENVVAR_NAME_TO_PROPAGATE_FROM_PEER
-             - GOPROXY
-             - GOPATH
-
     # The maximum duration to wait for the chaincode build and install process
     # to complete.
     installTimeout: 300s
