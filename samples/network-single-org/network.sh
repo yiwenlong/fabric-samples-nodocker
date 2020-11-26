@@ -71,7 +71,7 @@ function createChannel() {
 }
 
 function installChaincode() {
-  cd "$DIR/chaincode-tps" || exit
+  cd "$DIR/chaincode" || exit
   if ! "./install.sh"; then
     exit $?
   fi
@@ -138,7 +138,7 @@ case $COMMAND in
     config
     start
     createChannel
-#    installChaincode
+    installChaincode
     ;;
   start)
     config
