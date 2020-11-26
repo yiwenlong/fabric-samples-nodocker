@@ -67,4 +67,6 @@ $PEER_CMD chaincode instantiate \
   --tls true \
   --cafile "$orderer_tlsca"
 
+sleep 5
+
 $PEER_CMD chaincode list --instantiated -C "$ch_name"

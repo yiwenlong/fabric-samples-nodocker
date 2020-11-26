@@ -75,6 +75,9 @@ function installChaincode() {
   if ! "./install.sh"; then
     exit $?
   fi
+  if ! "./test.sh"; then
+    exit $?
+  fi
 }
 
 function clean() {
