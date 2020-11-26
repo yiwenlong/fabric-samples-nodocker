@@ -1,60 +1,41 @@
-## Fabric samples nodocker - tools to deploy fabric network without docker
+# 脱离 Docker 部署 Fabric 网络
+## 使用说明
 
-中文介绍[文档](https://www.jianshu.com/p/1f9b051d1e1d)
+* 当前是根据 Fabric 1.4.9 版本开发，理论上可以直接支持 Fabric 1.4.x 下的任意版本。
+* 由于 Fabric 1.4.x chaincode 是运行在 Docker 容器中的，所以本脚本只做到了支持节点进程本地化，未对 chaincode 进行修改。
 
-**Note:** You can run this script tools on Linux/MaxOS. 
+### 环境准备
 
-## Start
+* Docker 环境，用于运行 chaincode。
 
-> Notice: If you run this script on ubuntu, please add sudo before the command.
+* supervisor 用于管理节点进程，也可以不使用。MacOS 下可以支持 launchd 进行进程管理。
 
-### Prerequisites
+* 下载 chaincode 代码到 `$GOPATH/src/github.com/yiwenlong`
 
-##### Install & bring up supervisor service
+  ```shell
+  cd $GOPATH/src/github.com/yiwenlong
+  git clone https://github.com/yiwenlong/chaincode-examples.git
+  ```
 
-```shell
-# MacOS
-brew install supervisor
-brew services start supervisor
-# CentOS
-yum install supervisor
-supervisord
-# Ubuntu
-apt install supervisor
-service supervisor start
+### 启动网络
 
-# Check your supervisor
-supervicosrctl status
-```
-
-More information about [supervisor](http://supervisord.org/).
-
-##### Checkout this respository
+#### 自动下载节点程序
 
 ```shell
-git clone https://github.com/yiwenlong/fabric-samples-nodocker.git
-```
-
-##### Config environment
-
-```sh
 cd $fabric-samples-nodocker
 ./config.sh
 ```
 
-#### Using the Single org test network
-
-##### Bring up the test network
+#### 一键启动测试网络
 
 ```shell
 cd $fabric-samples-nodocker/samples/network-single-org
 ./network up
 ```
 
-##### Bring up the test network
+#### 关闭网络
 
 ```shell
-cd $fabric-samples-nodocker/samples/network-single-org
 ./network down
 ```
 
