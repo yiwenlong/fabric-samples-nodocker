@@ -17,54 +17,43 @@
 
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 PEER_CMD="../../../binaries/darwin/fabric/peer"
-org1_crypto_base_dir=$(cd "$SCRIPT_DIR/../Org1/crypto-config/peerOrganizations/org1.example.fnodocker.icu" && pwd)
+
 orderer_crypto_base_dir=$(cd "$SCRIPT_DIR/../Orderer/crypto-config/ordererOrganizations/example.fnodocker.icu" && pwd)
 orderer_tlsca="$orderer_crypto_base_dir/tlsca/tlsca.example.fnodocker.icu-cert.pem"
 orderer_address="orderer0.example.fnodocker.icu:7050"
 
-cc_path="github.com/yiwenlong/chaincode-examples/abac/src/abac"
-cc_name=abac
-cc_version=1.0
-cc_language=golang
-ch_name=mychannel
-cc_args='{"Args":["init","a","100","b","200"]}'
-cc_policy="AND ('Org1MSP.peer')"
+org1_crypto_base_dir=$(cd "$SCRIPT_DIR/../Org1/crypto-config/peerOrganizations/org1.example.fnodocker.icu" && pwd)
+org1_tlsca="$org1_crypto_base_dir/tlsca/tlsca.org1.example.fnodocker.icu-cert.pem"
+peer_address=peer0.org1.example.fnodocker.icu:7051
 
 export CORE_PEER_MSPCONFIGPATH="$org1_crypto_base_dir/users/Admin@org1.example.fnodocker.icu/msp"
 export CORE_PEER_LOCALMSPID=Org1MSP
-export CORE_PEER_TLS_ROOTCERT_FILE="$org1_crypto_base_dir/tlsca/tlsca.org1.example.fnodocker.icu-cert.pem"
+export CORE_PEER_TLS_ROOTCERT_FILE="$org1_tlsca"
 export CORE_PEER_TLS_ENABLE=true
 export FABRIC_CFG_PATH="../Org1/peer0"
 
-echo "Start install chaincode on peer0.org1.example.fnodocker.icu"
+cc_name=abac
+ch_name=mychannel
+
 export CORE_PEER_ADDRESS=peer0.org1.example.fnodocker.icu:7051
-$PEER_CMD chaincode install \
-  -n "$cc_name" \
-  -v "$cc_version" \
-  -l "$cc_language" \
-  -p "$cc_path"
+echo "Query a:"
+$PEER_CMD chaincode query -C "$ch_name" -n "$cc_name" -c '{"Args":["query","a"]}'
+echo "Query b:"
+$PEER_CMD chaincode query -C "$ch_name" -n "$cc_name" -c '{"Args":["query","b"]}'
 
-$PEER_CMD chaincode list --installed
-
-echo "Start install chaincode on peer0.org1.example.fnodocker.icu"
-export CORE_PEER_ADDRESS=peer1.org1.example.fnodocker.icu:8051
-$PEER_CMD chaincode install \
-  -n "$cc_name" \
-  -v "$cc_version" \
-  -l "$cc_language" \
-  -p "$cc_path"
-
-$PEER_CMD chaincode list --installed
-
-$PEER_CMD chaincode instantiate \
-  -o "$orderer_address"\
+echo "invoke a -> b 10"
+$PEER_CMD chaincode invoke \
+  -o "$orderer_address" \
+  --tls true \
+  --cafile "$orderer_tlsca" \
   -C "$ch_name" \
   -n "$cc_name" \
-  -l "$cc_language" \
-  -v "$cc_version" \
-  -c "$cc_args" \
-  -P "$cc_policy" \
-  --tls true \
-  --cafile "$orderer_tlsca"
+  --peerAddresses "$peer_address" \
+  --tlsRootCertFiles "$org1_tlsca" \
+  -c '{"Args":["invoke","a","b","10"]}'
 
-$PEER_CMD chaincode list --instantiated -C "$ch_name"
+sleep 3
+echo "Query a:"
+$PEER_CMD chaincode query -C "$ch_name" -n "$cc_name" -c '{"Args":["query","a"]}'
+echo "Query b:"
+$PEER_CMD chaincode query -C "$ch_name" -n "$cc_name" -c '{"Args":["query","b"]}'
