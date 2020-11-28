@@ -27,7 +27,7 @@ cc_name=abac
 cc_version=1.0
 cc_language=golang
 ch_name=mychannel
-cc_args='{"Args":["init","a","100","b","200"]}'
+cc_args='{"Args":["init","a","100000000000","b","200"]}'
 cc_policy="AND ('Org1MSP.peer')"
 
 export CORE_PEER_MSPCONFIGPATH="$org1_crypto_base_dir/users/Admin@org1.example.fnodocker.icu/msp"

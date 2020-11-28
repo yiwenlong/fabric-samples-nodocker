@@ -72,10 +72,11 @@ function createChannel() {
 
 function installChaincode() {
   cd "$DIR/chaincode" || exit
-  if ! "./install.sh"; then
+  if ! "./abac-install.sh"; then
     exit $?
   fi
-  if ! "./test.sh"; then
+  sleep 5
+  if ! "./abac-test.sh"; then
     exit $?
   fi
 }
