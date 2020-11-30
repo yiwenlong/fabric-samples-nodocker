@@ -17,23 +17,62 @@
   git clone https://github.com/yiwenlong/chaincode-examples.git
   ```
 
-### 启动网络
+### 一键启动网络
 
-#### 自动下载节点程序
+> 一键自动启动网络需要 supervisor 或者 launchd(MacOS) 的支持。如果不想使用守护进程管理，可以通过手动启动网络，同样方便快捷。
+
+#### 1、自动下载节点程序
 
 ```shell
 cd $fabric-samples-nodocker
 ./config.sh
 ```
 
-#### 一键启动测试网络
+#### 2、一键启动测试网络
 
 ```shell
 cd $fabric-samples-nodocker/samples/network-single-org
 ./network up
 ```
 
-#### 关闭网络
+#### 3、关闭网络
+
+```shell
+./network down
+```
+
+### 手动启动网络
+
+> 手动启动网络可以不需要守护进程支持。
+
+#### 1、配置网络
+
+```shell
+cd $fabric-samples-nodocker/samples/network-single-org
+./network config
+```
+
+#### 2、启动网络
+
+```shell
+# 启动所有配置的节点
+./network start
+
+# 如果需要只启动单独的节点，可以执行节点目录下的 boot.sh 脚本。
+# 例如启动 Org1 的 peer0 节点
+cd $fabric-samples-nodocker/samples/network-single-org/Org1/peer0
+./boot.sh
+
+# 如果不需要使用守护进程，可以进入节点目录，直接通过节点程序启动
+# 例如启动 Org1 的 peer0 节点
+cd $fabric-samples-nodocker/samples/network-single-org/Org1/peer0
+./peer node start
+# 例如启动 Orderer 的 orderer0 节点
+cd $fabric-samples-nodocker/samples/network-single-org/Orderer/orderer0
+./orderer
+```
+
+#### 3、关闭并清理网络
 
 ```shell
 ./network down
