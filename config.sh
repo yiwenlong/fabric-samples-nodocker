@@ -100,10 +100,8 @@ done
 echo "$PLATFORM"
 if [ -n "$PLATFORM" ]; then
   download_fabric_binaries "$PLATFORM" "$FABRIC_VERSION"
-  download_tps_binary "$PLATFORM" "$TPS_VERSION"
 else
   for platform in "linux" "darwin" "windows"; do
     download_fabric_binaries "$platform" "$FABRIC_VERSION"
-    download_tps_binary "$platform" "$TPS_VERSION"
   done
 fi
