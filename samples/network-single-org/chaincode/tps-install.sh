@@ -16,7 +16,7 @@
 #
 
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
-PEER_CMD="../../../binaries/darwin/fabric/peer"
+PEER_CMD="$FABRIC_BIN/peer"
 org1_crypto_base_dir=$(cd "$SCRIPT_DIR/../Org1/crypto-config/peerOrganizations/org1.example.fnodocker.icu" && pwd)
 orderer_crypto_base_dir=$(cd "$SCRIPT_DIR/../Orderer/crypto-config/ordererOrganizations/example.fnodocker.icu" && pwd)
 orderer_tlsca="$orderer_crypto_base_dir/tlsca/tlsca.example.fnodocker.icu-cert.pem"
