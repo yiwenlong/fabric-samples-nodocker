@@ -50,6 +50,8 @@ function start() {
   for node_num in 0 1 2; do
     "$DIR/Orderer/orderer$node_num/boot.sh"
   done
+  echo "Waiting for node process boot."
+  sleep 15
 }
 
 function stop() {
