@@ -19,6 +19,8 @@ LOG_FILE="$BOOT_DIR/_process_name_.log"
 COMMAND="$BOOT_DIR/_process_command_"
 PID_FILE="$BOOT_DIR/pid"
 
+export FABRIC_CFG_PATH="$BOOT_DIR"
+
 $COMMAND  > "$LOG_FILE" 2>&1 &
 echo $! > "$PID_FILE"
 
