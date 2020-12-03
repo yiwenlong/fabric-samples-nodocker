@@ -21,7 +21,9 @@ PID_FILE="$BOOT_DIR/pid"
 
 export FABRIC_CFG_PATH="$BOOT_DIR"
 
+cd "$BOOT_DIR" || exit
 $COMMAND  > "$LOG_FILE" 2>&1 &
 echo $! > "$PID_FILE"
 
 ps -p "$(cat "$PID_FILE")" | grep "$COMMAND"
+cd - > null || exit
