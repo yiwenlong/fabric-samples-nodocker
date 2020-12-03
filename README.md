@@ -8,8 +8,6 @@
 
 * Docker 环境，用于运行 chaincode。
 
-* supervisor 用于管理节点进程，也可以不使用。MacOS 下可以支持 launchd 进行进程管理。
-
 * 下载 chaincode 代码到 `$GOPATH/src/github.com/yiwenlong`
 
   ```shell
@@ -18,8 +16,6 @@
   ```
 
 ### 一键启动网络
-
-> 一键自动启动网络需要 supervisor 或者 launchd(MacOS) 的支持。如果不想使用守护进程管理，可以通过手动启动网络，同样方便快捷。
 
 #### 1、自动下载节点程序
 
@@ -42,8 +38,6 @@ cd $fabric-samples-nodocker/samples/network-single-org
 ```
 
 ### 手动启动网络
-
-> 手动启动网络可以不需要守护进程支持。
 
 #### 1、配置网络
 
