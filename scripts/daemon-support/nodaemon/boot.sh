@@ -26,4 +26,4 @@ $COMMAND  > "$LOG_FILE" 2>&1 &
 echo $! > "$PID_FILE"
 
 ps -p "$(cat "$PID_FILE")" | grep "$COMMAND"
-cd - > null || exit
+cd - > /dev/null || exit
