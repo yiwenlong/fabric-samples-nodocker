@@ -97,7 +97,7 @@ do
   *) help; exit 1;;
   esac
 done
-echo "$PLATFORM"
+
 if [ -n "$PLATFORM" ]; then
   download_fabric_binaries "$PLATFORM" "$FABRIC_VERSION"
 else
