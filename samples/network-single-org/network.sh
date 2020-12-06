@@ -146,10 +146,7 @@ case $COMMAND in
     createChannel
     installChaincode
     ;;
-  start)
-    config
-    start ;;
-  config | stop | clean)
+  start | config | stop | clean)
     "$COMMAND" ;;
   down)
     stop
