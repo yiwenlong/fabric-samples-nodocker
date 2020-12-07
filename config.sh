@@ -62,7 +62,7 @@ function help() {
     "
 }
 
-while getopts v:a opt
+while getopts v:p:a opt
 do
   case $opt in
   v) FABRIC_VERSION="$OPTARG";;
