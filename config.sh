@@ -19,6 +19,7 @@ DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 BINARIES_DIR="$DIR/binaries/"
 
 FABRIC_VERSION="1.4.9"
+PLATFORM=$(uname -s|tr '[:upper:]' '[:lower:]')
 
 function download() {
     local TAR_FILE=$1
@@ -60,11 +61,11 @@ function help() {
     "
 }
 
-while getopts v:p: opt
+while getopts v:a opt
 do
   case $opt in
   v) FABRIC_VERSION="$OPTARG";;
-  p) PLATFORM="$OPTARG";;
+  a) PLATFORM="";;
   *) help; exit 1;;
   esac
 done
