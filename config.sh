@@ -58,6 +58,7 @@ function help() {
     USAGE: ./config.sh [-v|-p]
     -v    fabric release version, default is $FABRIC_VERSION
     -p    system platform [darwin, linux, windows], default is $PLATFORM
+    -a    download all platform.
     "
 }
 
@@ -65,6 +66,7 @@ while getopts v:a opt
 do
   case $opt in
   v) FABRIC_VERSION="$OPTARG";;
+  p) PLATFORM="$OPTARG";;
   a) PLATFORM="";;
   *) help; exit 1;;
   esac
