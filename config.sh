@@ -21,6 +21,9 @@ BINARIES_DIR="$DIR/binaries/"
 FABRIC_VERSION="1.4.9"
 PLATFORM=$(uname -s|tr '[:upper:]' '[:lower:]')
 
+CCENV_TAG="$FABRIC_VERSION"
+BASEOS_TAG="0.4.21"
+
 function download() {
     local TAR_FILE=$1
     local URL=$2
@@ -53,6 +56,11 @@ function download_fabric_binaries() {
   rm -f "$TAR_FILE"
 }
 
+function pullDockerImages() {
+  docker pull "hyperledger/fabric-ccenv:$CCENV_TAG"
+  docker pull "hyperledger/fabric-baseos:$BASEOS_TAG"
+}
+
 function help() {
     echo -e "
     USAGE: ./config.sh [-v|-p]
@@ -79,3 +87,5 @@ else
     download_fabric_binaries "$platform" "$FABRIC_VERSION"
   done
 fi
+
+pullDockerImages
