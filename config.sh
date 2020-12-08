@@ -61,6 +61,15 @@ function pullDockerImages() {
   docker pull "hyperledger/fabric-baseos:$BASEOS_TAG"
 }
 
+function downloadChaincode() {
+  if [ -z "$GOPATH" ]; then
+    echo "GOPATH is empty."
+    exit 1
+  fi
+  mkdir -p "$GOPATH/src/github.com/yiwenlong" && cd "$GOPATH/src/github.com/yiwenlong"
+  git clone https://github.com/yiwenlong/chaincode-examples --depth=1
+}
+
 function help() {
     echo -e "
     USAGE: ./config.sh [-v|-p]
@@ -89,3 +98,5 @@ else
 fi
 
 pullDockerImages
+
+downloadChaincode
