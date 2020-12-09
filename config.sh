@@ -68,6 +68,7 @@ function downloadChaincode() {
   fi
   mkdir -p "$GOPATH/src/github.com/yiwenlong" && cd "$GOPATH/src/github.com/yiwenlong"
   git clone https://github.com/yiwenlong/chaincode-examples --depth=1
+  cd - > /dev/null
 }
 
 function help() {
