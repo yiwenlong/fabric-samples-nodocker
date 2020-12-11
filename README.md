@@ -6,32 +6,32 @@
 
 ### 环境准备
 
-* Docker 环境，用于运行 chaincode。
+* Docker 环境，用于运行 `chaincode`。
 
-* 下载 chaincode 代码到 `$GOPATH/src/github.com/yiwenlong`
+* Go 语言环境，配置 `GOPATH` 环境变量。
 
-  ```shell
-  cd $GOPATH/src/github.com/yiwenlong
-  git clone https://github.com/yiwenlong/chaincode-examples.git
-  ```
 
-### 一键启动网络
-
-#### 1、自动下载节点程序
+### 执行配置脚本
 
 ```shell
 cd $fabric-samples-nodocker
+# 下载 fabric 相关的二进制程序文件
+# 下载 chaincode 源码
+# 下载必要的 docker 镜像
+# 由于执行配置脚本时，会自动拉取 hyperledger/fabric-ccenv 和 hyperledger/fabric-baseos 镜像，建议国内用户配置国内的 docker 镜像源。
 ./config.sh
 ```
 
-#### 2、一键启动测试网络
+### 一键启动网络
+
+#### 1、一键启动测试网络
 
 ```shell
 cd $fabric-samples-nodocker/samples/network-single-org
 ./network up
 ```
 
-#### 3、关闭网络
+#### 2、关闭并清理网络
 
 ```shell
 ./network down
