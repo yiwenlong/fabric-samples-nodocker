@@ -27,6 +27,7 @@ cd $fabric-samples-nodocker
 #### 1、一键启动测试网络
 
 ```shell
+# 如果是在 ubuntu 系统下，请在以下每个命令前添加 sudo
 cd $fabric-samples-nodocker/samples/network-single-org
 ./network up
 ```
