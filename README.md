@@ -14,11 +14,13 @@
 ### 执行配置脚本
 
 ```shell
+# 如果是在 ubuntu 系统下，请在以下每个命令前添加 sudo
 cd $fabric-samples-nodocker
 # 下载 fabric 相关的二进制程序文件
 # 下载 chaincode 源码
 # 下载必要的 docker 镜像
-# 由于执行配置脚本时，会自动拉取 hyperledger/fabric-ccenv 和 hyperledger/fabric-baseos 镜像，建议国内用户配置国内的 docker 镜像源。
+# 由于执行配置脚本时，会自动拉取 hyperledger/fabric-ccenv 和 hyperledger/fabric-baseos 镜像，
+# 建议国内用户配置国内的 docker 镜像源。
 ./config.sh
 ```
 
@@ -27,7 +29,6 @@ cd $fabric-samples-nodocker
 #### 1、一键启动测试网络
 
 ```shell
-# 如果是在 ubuntu 系统下，请在以下每个命令前添加 sudo
 cd $fabric-samples-nodocker/samples/network-single-org
 ./network up
 ```
