@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
+arch=$(uname -s|tr '[:upper:]' '[:lower:]')
+export FABRIC_BIN=$(cd "$DIR"/../../../binaries/"$arch"/fabric && pwd)
 
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 PEER_CMD="$FABRIC_BIN/peer"
