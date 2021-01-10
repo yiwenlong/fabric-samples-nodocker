@@ -23,8 +23,10 @@ export FABRIC_CFG_PATH=$(cd "$DIR"/../Org1/peer0 && pwd)
 
 . "$SCRIPT_PATH"/utils/log-utils.sh
 
-logInfo "Config channel:" mychannel
-"$SCRIPT_PATH"/channel.sh config -f mychannel.ini
+if [ ! -d "$DIR/mychannel" ]; then
+  logInfo "Config channel:" mychannel
+  "$SCRIPT_PATH"/channel.sh config -f mychannel.ini
+fi
 
 logInfo "Create channel:" mychannel
 "$SCRIPT_PATH"/channel.sh create -d $(cd "$DIR"/mychannel/Org1-peer0-mychannel-conf && pwd)
