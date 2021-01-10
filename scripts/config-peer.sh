@@ -25,6 +25,8 @@ DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
 . "$DIR/utils/conf-utils.sh"
 # shellcheck source=utils/file-utils.sh
 . "$DIR/utils/file-utils.sh"
+# shellcheck source=utils/file-utils.sh
+. "$DIR/config-const.sh"
 
 function readConfOrgValue() {
   readConfValue "$CONF_FILE" org "$1"; echo
@@ -81,11 +83,11 @@ function configNode {
 }
 
 function config {
-  org_name=$(readConfOrgValue 'org.name')
-  org_mspid=$(readConfOrgValue 'org.mspid')
-  org_domain=$(readConfOrgValue 'org.domain')
-  org_node_count=$(readConfOrgValue 'org.node.count')
-  org_user_count=$(readConfOrgValue 'org.user.count')
+  org_name=$(readConfOrgValue "$ORG_NAME")
+  org_mspid=$(readConfOrgValue "$ORG_MSPID")
+  org_domain=$(readConfOrgValue "$ORG_DOMAIN")
+  org_node_count=$(readConfOrgValue "$ORG_COUNT_PEERS")
+  org_user_count=$(readConfOrgValue "$ORG_COUNT_USERS")
   org_anchor_peers=$(readConfOrgValue 'org.anchor.peers')
 
   logInfo "Start config organization: " "$org_name"
