@@ -28,6 +28,8 @@ TMP_ORDERER="$DIR/template/orderer.yaml"
 # shellcheck source=utils/file-utils.sh
 . "$DIR/utils/file-utils.sh"
 
+. "$DIR/config-const.sh"
+
 function readConfOrgValue() {
   readConfValue "$CONF_FILE" org "$1"; echo
 }
@@ -97,10 +99,10 @@ function configNode {
 }
 
 function config {
-  org_name=$(readConfOrgValue org.name)
-  org_mspid=$(readConfOrgValue org.mspid)
-  org_domain=$(readConfOrgValue org.domain)
-  org_node_count=$(readConfOrgValue org.node.count)
+  org_name=$(readConfOrgValue "$ORG_NAME")
+  org_mspid=$(readConfOrgValue "$ORG_MSPID")
+  org_domain=$(readConfOrgValue "$ORG_DMAIN")
+  org_node_count=$(readConfOrgValue "$ORG_COUNT_ORDERERS")
   logInfo "Start config orderer organization:" "$org_name"
   logInfo "Organization name:" "$org_name"
   logInfo "Organization mspid:" "$org_mspid"
