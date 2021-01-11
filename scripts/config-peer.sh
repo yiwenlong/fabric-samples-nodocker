@@ -74,7 +74,7 @@ function configNode {
     logError "Warming: no peer command binary found!!!" "$command"
   fi
 
-  daemon=$(readConfPeerValue "$node_name" "node.daemon.type")
+  daemon=$(readConfPeerValue "$node_name" "$NODE_DAEMON")
   node_process_name="FABRIC-NODOCKER-$org_name-$node_name"
   if ! "$DAEMON_SUPPORT_SCRIPT" -d "$daemon" -n "$node_process_name" -h "$node_home" -c "peer node start"; then
     exit $?

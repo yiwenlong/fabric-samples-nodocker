@@ -28,6 +28,8 @@ EXTERNAL_BUILDER_PATH=my_external_builder
 . "$SCRIPT_DIR/utils/conf-utils.sh"
 # shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
+# shellcheck source=config-const.sh"
+. "$SCRIPT_DIR/config-const.sh"
 
 function usage() {
     echo "Usage:"
@@ -52,8 +54,8 @@ if [ ! "$NODE_NAME" ]; then
     exit 1
 fi
 
-org_mspid="$(readConfValue "$CONF_FILE" org org.mspid)"
-org_domain="$(readConfValue "$CONF_FILE" org org.domain)"
+org_mspid=$(readConfValue "$CONF_FILE" "org" "$ORG_MSPID")
+org_domain=$(readConfValue "$CONF_FILE" "org" "$ORG_DOMAIN")
 
 node_domain="$NODE_NAME.$org_domain"
 state_db_type="goleveldb"
@@ -65,10 +67,10 @@ if [ -n "$couchdb_conf" ]; then
   node_couchdb_pwd=$(readConfValue "$CONF_FILE" "$couchdb_conf" "couchdb.passwd")
 fi
 
-node_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.listen)
-node_operations_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.operations.listen)
-node_gossip_bootstrap=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.gossip.bootstrap)
-node_chaincode_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" node.chaincode.listen)
+node_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" "$NODE_LISTEN")
+node_operations_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" "$NODE_LISTEN_OPERATION")
+node_gossip_bootstrap=$(readConfValue "$CONF_FILE" "$NODE_NAME" "$NODE_GOSSIP_BOOTSTRAP")
+node_chaincode_listen=$(readConfValue "$CONF_FILE" "$NODE_NAME" "$NODE_LISTEN_CHAINCODE")
 
 logInfo "Node domain:" "$node_domain"
 logInfo "Node listen address:" "$node_listen"
