@@ -24,6 +24,8 @@ HOME=$(pwd)
 . "$SCRIPT_DIR/utils/file-utils.sh"
 # shellcheck source=utils/conf-utils.sh
 . "$SCRIPT_DIR/utils/conf-utils.sh"
+# shellcheck source=config-const.sh"
+. "$SCRIPT_DIR/config-const.sh"
 
 CMD_CONFIGTXGEN="$FABRIC_BIN/configtxgen"
 
@@ -56,10 +58,10 @@ genesis_configtx_file="$dst_path/configtx.yaml"
 echo "Organizations:" > "$genesis_configtx_file"
 
 for org_conf_file in $orderer_org_conf_files; do
-  orderer_org_name=$(readConfValue "$org_conf_file" org org.name)
-  orderer_org_msp_id=$(readConfValue "$org_conf_file" org org.mspid)
+  orderer_org_name=$(readConfValue "$org_conf_file" org "$ORG_NAME")
+  orderer_org_msp_id=$(readConfValue "$org_conf_file" org "$ORG_MSPID")
   orderer_org_msp_dir=$(readConfValue "$org_conf_file" org org.crypto.dir)
-  orderer_org_domain=$(readConfValue "$org_conf_file" org org.domain)
+  orderer_org_domain=$(readConfValue "$org_conf_file" org "$ORG_DOMAIN")
   orderer_crypto_dir=$HOME/$orderer_org_msp_dir/ordererOrganizations/$orderer_org_domain
 cat << EOF >> "$genesis_configtx_file"
   - &$orderer_org_name
@@ -80,10 +82,10 @@ EOF
 done
 
 for org_conf_file in $peer_org_conf_files; do
-  org_name=$(readConfValue "$org_conf_file" org org.name)
-  org_msp_id=$(readConfValue "$org_conf_file" org org.mspid)
+  org_name=$(readConfValue "$org_conf_file" org "$ORG_NAME")
+  org_msp_id=$(readConfValue "$org_conf_file" org "$ORG_MSPID")
   org_msp_dir=$(readConfValue "$org_conf_file" org org.crypto.dir)
-  org_domain=$(readConfValue "$org_conf_file" org org.domain)
+  org_domain=$(readConfValue "$org_conf_file" org "$ORG_DOMAIN")
 cat << EOF >> "$genesis_configtx_file"
   - &$org_name
     Name: $org_name
@@ -160,7 +162,7 @@ EOF
 
 for org_conf_file in $orderer_org_conf_files; do
   orderer_org_msp_dir=$(readConfValue "$org_conf_file" org org.crypto.dir)
-  orderer_org_domain=$(readConfValue "$org_conf_file" org org.domain)
+  orderer_org_domain=$(readConfValue "$org_conf_file" org "$ORG_DOMAIN")
   orderer_crypto_dir=$HOME/$orderer_org_msp_dir/ordererOrganizations/$orderer_org_domain
 
   org_node_count=$(readConfValue "$org_conf_file" org org.node.count)
@@ -206,7 +208,7 @@ EOF
 
 for org_conf_file in $orderer_org_conf_files; do
   orderer_org_msp_dir=$(readConfValue "$org_conf_file" org org.crypto.dir)
-  orderer_org_domain=$(readConfValue "$org_conf_file" org org.domain)
+  orderer_org_domain=$(readConfValue "$org_conf_file" org "$ORG_DOMAIN")
   orderer_crypto_dir=$HOME/$orderer_org_msp_dir/ordererOrganizations/$orderer_org_domain
 
   org_node_count=$(readConfValue "$org_conf_file" org org.node.count)
@@ -241,7 +243,7 @@ cat << EOF >> "$genesis_configtx_file"
 EOF
 
 for org_conf_file in $orderer_org_conf_files; do
-  org_name=$(readConfValue "$org_conf_file" org org.name)
+  org_name=$(readConfValue "$org_conf_file" org "$ORG_NAME")
 cat << EOF >> "$genesis_configtx_file"
         - *$orderer_org_name
 EOF
@@ -256,7 +258,7 @@ cat << EOF >> "$genesis_configtx_file"
 EOF
 
 for org_conf_file in $orderer_org_conf_files; do
-  org_name=$(readConfValue "$org_conf_file" org org.name)
+  org_name=$(readConfValue "$org_conf_file" org "$ORG_NAME")
 cat << EOF >> "$genesis_configtx_file"
       - <<: *$orderer_org_name
 EOF
@@ -269,7 +271,7 @@ cat << EOF >> "$genesis_configtx_file"
 EOF
 
 for org_conf_file in $peer_org_conf_files; do
-  org_name=$(readConfValue "$org_conf_file" org org.name)
+  org_name=$(readConfValue "$org_conf_file" org "$ORG_NAME")
 cat << EOF >> "$genesis_configtx_file"
           - *$org_name
 EOF

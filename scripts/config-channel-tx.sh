@@ -25,6 +25,8 @@ CMD_CONFIGTXGEN="$FABRIC_BIN/configtxgen"
 . "$SCRIPT_DIR/utils/log-utils.sh"
 # shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
+# shellcheck source=config-const.sh"
+. "$SCRIPT_DIR/config-const.sh"
 
 while getopts f: opt
 do
@@ -46,7 +48,7 @@ cat << EOF > "$ch_configtx_file"
 Organizations:
 EOF
 for org_name in $ch_orgs; do
-  org_msp_id=$(readConfValue "$conf_file" "$org_name" org.mspid)
+  org_msp_id=$(readConfValue "$conf_file" "$org_name" "$ORG_MSPID")
   org_msp_dir=$(readConfValue "$conf_file" "$org_name" org.msp.dir)
   org_anchor_host=$(readConfValue "$conf_file" "$org_name" org.anchor.host)
   org_anchor_port=$(readConfValue "$conf_file" "$org_name" org.anchor.port)

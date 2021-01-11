@@ -24,6 +24,8 @@ CMD_CRYPTOGEN="$FABRIC_BIN/cryptogen"
 . "$SCRIPT_DIR/utils/file-utils.sh"
 # shellcheck disable=SC1090
 . "$SCRIPT_DIR/utils/conf-utils.sh"
+# shellcheck source=config-const.sh"
+. "$SCRIPT_DIR/config-const.sh"
 
 function usage() {
     echo "Usage"
@@ -42,10 +44,10 @@ do
   esac
 done
 
-org_name=$(readConfValue "$CONF_FILE" org org.name)
-org_domain=$(readConfValue "$CONF_FILE" org org.domain)
-org_node_count=$(readConfValue "$CONF_FILE" org org.node.count)
-org_user_count=$(readConfValue "$CONF_FILE" org org.user.count)
+org_name=$(readConfValue "$CONF_FILE" org "$ORG_NAME")
+org_domain=$(readConfValue "$CONF_FILE" org "$ORG_DOMAIN")
+org_node_count=$(readConfValue "$CONF_FILE" org "$ORG_COUNT_PEERS")
+org_user_count=$(readConfValue "$CONF_FILE" org "$ORG_COUNT_USERS")
 
 msp_conf_file="$DEST_DIR/crypto-config.yaml"
 

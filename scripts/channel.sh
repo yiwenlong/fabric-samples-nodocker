@@ -25,6 +25,8 @@ COMMAND_PEER="$FABRIC_BIN/peer"
 . "$SCRIPT_DIR/utils/conf-utils.sh"
 # shellcheck source=utils/file-utils.sh
 . "$SCRIPT_DIR/utils/file-utils.sh"
+# shellcheck source=config-const.sh"
+. "$SCRIPT_DIR/config-const.sh"
 
 function readValue {
   readConfValue "$CONF_FILE" "$1"; echo
@@ -69,7 +71,7 @@ function config {
   for org_name in $ch_orgs; do
       org_node_list=$(readNodeValue "$org_name" 'org.node.list')
       org_admin_msp_dir=$WORK_HOME/$(readNodeValue "$org_name" 'org.admin.msp.dir')
-      org_msp_id=$(readNodeValue "$org_name" 'org.mspid')
+      org_msp_id=$(readNodeValue "$org_name" "$ORG_MSPID")
       org_tls_ca_file=$WORK_HOME/$(readNodeValue "$org_name" 'org.tls.ca')
       checkdirexist "$org_admin_msp_dir"
       checkfileexist "$org_tls_ca_file"
@@ -113,7 +115,7 @@ function create {
 
     peer_address=$(readValue "org.peer.address")
     orderer_address=$(readValue "orderer.address")
-    org_mspid=$(readValue "org.mspid")
+    org_mspid=$(readValue ""$ORG_MSPID"")
     ch_name=$(readValue "channel.name")
 
     checkfileexist "$tx_file"
@@ -137,7 +139,7 @@ function create {
 
 function join {
     admin_msp_dir=$CONF_SCRIPT_DIR/$(readValue "org.adminmsp")
-    org_mspid=$(readValue "org.mspid")
+    org_mspid=$(readValue ""$ORG_MSPID"")
     peer_address=$(readValue "org.peer.address")
     org_tls_file=$CONF_SCRIPT_DIR/$(readValue "org.tls.ca")
     ch_name=$(readValue "channel.name")
@@ -184,7 +186,7 @@ function join {
 function updateAnchorPeer {
 
     admin_msp_dir=$CONF_SCRIPT_DIR/$(readValue "org.adminmsp")
-    org_mspid=$(readValue "org.mspid")
+    org_mspid=$(readValue "$ORG_MSPID")
     peer_address=$(readValue "org.peer.address")
     org_tls_file=$CONF_SCRIPT_DIR/$(readValue "org.tls.ca")
 
