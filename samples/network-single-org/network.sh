@@ -121,12 +121,12 @@ function down() {
     rm -fr "$DIR/Orderer"
   fi
 
-  logInfo "Clean channel:" Orderer
+  logInfo "Clean channel:" mychannel
   if [ -f "./channel-mychannel/clean.sh" ]; then
     "./channel-mychannel/clean.sh"
   fi
 
-  logInfo "Clean chaincode:" Orderer
+  logInfo "Clean chaincode:" tps
   if [ -f "./chaincode-tps/clean.sh" ]; then
     ./chaincode-tps/clean.sh
   fi
