@@ -101,7 +101,7 @@ function configNode {
 function config {
   org_name=$(readConfOrgValue "$ORG_NAME")
   org_mspid=$(readConfOrgValue "$ORG_MSPID")
-  org_domain=$(readConfOrgValue "$ORG_DMAIN")
+  org_domain=$(readConfOrgValue "$ORG_DOMAIN")
   org_node_count=$(readConfOrgValue "$ORG_COUNT_ORDERERS")
   logInfo "Start config orderer organization:" "$org_name"
   logInfo "Organization name:" "$org_name"
