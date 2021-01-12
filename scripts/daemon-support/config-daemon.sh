@@ -42,7 +42,7 @@ fi
 TMP_BOOT="$SCRIPT_DIR/$daemon_type/boot.sh"
 TMP_STOP="$SCRIPT_DIR/$daemon_type/stop.sh"
 
-boot_script_file=$working_home/boot.sh
+boot_script_file="$working_home/boot.sh"
 sed -e "s/_process_name_/${process_name}/
 s/_process_command_/${command}/" "$TMP_BOOT" > "$boot_script_file"
 chmod +x "$boot_script_file"

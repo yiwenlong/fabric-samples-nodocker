@@ -19,9 +19,6 @@ WORK_HOME=$(pwd)
 
 TMP_CORE="$SCRIPT_DIR/template/core.yaml"
 
-EXTERNAL_BUILDER_NAME=my_external_builder
-EXTERNAL_BUILDER_PATH=my_external_builder
-
 # shellcheck source=utils/log-utils.sh
 . "$SCRIPT_DIR/utils/log-utils.sh"
 # shellcheck source=utils/conf-utils.sh
@@ -88,7 +85,5 @@ s/<peer.operations.address>/${node_operations_listen}/
 s/<peer.state.database>/${state_db_type}/
 s/<peer.couchdb.address>/${node_couchdb_address}/
 s/<peer.couchdb.username>/${node_couchdb_user}/
-s/<peer.couchdb.password>/${node_couchdb_pwd}/
-s/<peer.chaincode.builder.path>/${EXTERNAL_BUILDER_NAME}/
-s/<peer.chaincode.builder.name>/${EXTERNAL_BUILDER_PATH}/" "$TMP_CORE" > "$core_file"
+s/<peer.couchdb.password>/${node_couchdb_pwd}/" "$TMP_CORE" > "$core_file"
 logSuccess "Node config file generated" "$core_file"
