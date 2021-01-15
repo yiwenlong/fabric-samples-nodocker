@@ -17,6 +17,11 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 WORK_HOME=$(pwd)
 
+ARCH=$(uname -s|tr '[:upper:]' '[:lower:]')
+DEFAULT_PEER_BINARY="$(cd "$DIR/.." && pwd)/binaries/$ARCH/fabric/peer"
+
+PEER_BOOT_COMMAND="peer node start"
+
 DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
 
 # shellcheck source=utils/log-utils.sh
@@ -63,8 +68,7 @@ function configNode {
 
   # if node.command.binary is not set. Use binaries/arch/fabric/peer by default.
   if [ ! -f "$command" ]; then
-    arch=$(uname -s|tr '[:upper:]' '[:lower:]')
-    command="$(cd "$DIR/.." && pwd)/binaries/$arch/fabric/peer"
+    command="$DEFAULT_PEER_BINARY"
   fi
 
   if [ -f "$command" ]; then
@@ -76,7 +80,7 @@ function configNode {
 
   daemon=$(readConfPeerValue "$node_name" "$NODE_DAEMON")
   node_process_name="FABRIC-NODOCKER-$org_name-$node_name"
-  if ! "$DAEMON_SUPPORT_SCRIPT" -d "$daemon" -n "$node_process_name" -h "$node_home" -c "peer node start"; then
+  if ! "$DAEMON_SUPPORT_SCRIPT" -d "$daemon" -n "$node_process_name" -h "$node_home" -c "$PEER_BOOT_COMMAND"; then
     exit $?
   fi
   logSuccess "Node config success:" "$node_name"
