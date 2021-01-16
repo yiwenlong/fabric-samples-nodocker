@@ -6,8 +6,8 @@ chaincode-home-*/
 build/
 binaries/
 chaincodes/
-/samples/network-nginx-proxy/Orderer/*/etcdraft/
-/samples/network-nginx-proxy/Orderer/*/file-ledger/
-/samples/network-nginx-proxy/Orderer/*/FABRIC-NODOCKER-Orderer-*.log
-/samples/network-nginx-proxy/Org1/*/data/
-/samples/network-nginx-proxy/Org1/*/FABRIC-NODOCKER-Org1-*.log
+/samples/network-nginx-proxy/*/*/etcdraft/
+/samples/network-nginx-proxy/*/*/file-ledger/
+/samples/network-nginx-proxy/*/*/FABRIC-NODOCKER-Orderer-*.log
+/samples/network-nginx-proxy/*/*/data/
+/samples/network-nginx-proxy/*/*/FABRIC-NODOCKER-Org1-*.log
