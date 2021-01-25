@@ -169,8 +169,8 @@ for org_conf_file in $orderer_org_conf_files; do
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     node_name=orderer${i}
-    node_address=$(readConfValue "$org_conf_file" "$node_name" node.access.address)
-    node_port=$(readConfValue "$org_conf_file" "$node_name" node.access.port)
+    node_address=$(readConfValue "$org_conf_file" "$node_name" "$NODE_ACCESS_HOST")
+    node_port=$(readConfValue "$org_conf_file" "$node_name" "$NODE_ACCESS_PORT")
 cat << EOF >> "$genesis_configtx_file"
           - Host: $node_address
             Port: $node_port
@@ -215,8 +215,8 @@ for org_conf_file in $orderer_org_conf_files; do
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     node_name=orderer${i}
-    node_address=$(readConfValue "$org_conf_file" "$node_name" node.access.address)
-    node_port=$(readConfValue "$org_conf_file" "$node_name" node.access.port)
+    node_address=$(readConfValue "$org_conf_file" "$node_name" "$NODE_ACCESS_HOST")
+    node_port=$(readConfValue "$org_conf_file" "$node_name" "$NODE_ACCESS_PORT")
 cat << EOF >> "$genesis_configtx_file"
           - Host: $node_address
             Port: $node_port
@@ -230,8 +230,8 @@ cat << EOF >> "$genesis_configtx_file"
 EOF
 
   for (( i = 0; i < "$org_node_count" ; ++i)); do
-    node_address=$(readConfValue "$org_conf_file" "orderer${i}" node.access.address)
-    node_port=$(readConfValue "$org_conf_file" "orderer${i}" node.access.port)
+    node_address=$(readConfValue "$org_conf_file" "orderer${i}" "$NODE_ACCESS_HOST")
+    node_port=$(readConfValue "$org_conf_file" "orderer${i}" "$NODE_ACCESS_PORT")
 cat << EOF >> "$genesis_configtx_file"
         - $node_address:$node_port
 EOF
