@@ -139,7 +139,7 @@ function create {
 
 function join {
     admin_msp_dir=$CONF_SCRIPT_DIR/$(readValue "org.adminmsp")
-    org_mspid=$(readValue ""$ORG_MSPID"")
+    org_mspid=$(readValue "$ORG_MSPID")
     peer_address=$(readValue "org.peer.address")
     org_tls_file=$CONF_SCRIPT_DIR/$(readValue "org.tls.ca")
     ch_name=$(readValue "channel.name")
