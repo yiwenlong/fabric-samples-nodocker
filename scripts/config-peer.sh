@@ -41,36 +41,47 @@ function readConfPeerValue() {
   readConfValue "$CONF_FILE" "$1" "$2"; echo
 }
 
+# Config node with following steps:
+# 1. Create a directory for this node.
+# 2. Setup msp & tls certificates.
+# 3. Generate node config file: core.yaml for peer node, orderer.yaml for orderer node.
+# 4. Copy node command binary file.
+# 5. Generate the node boot & stop script.
 function configNode {
-  org_name=$1
-  node_name=$2
-  org_domain=$3
-  org_mspid=$4
-  logInfo "Start config node:" "$org_name.$node_name"
-  node_domain=$node_name.$org_domain
+  local org_name=$1
+  local node_name=$2
+  local org_domain=$3
+  local org_mspid=$4
+  local node_domain=$node_name.$org_domain
+  local org_home="$WORK_HOME/$org_name"
+  local node_home="$org_home/$node_name"
 
-  org_home="$WORK_HOME/$org_name"
-  node_home="$org_home/$node_name"
   if [ -d "$node_home" ]; then
     logError "Working directory already exists!!" "$node_home"
     exit 1
   fi
+
+  logInfo "Start config node:" "$org_name.$node_name"
+
+  # 1. Create a directory for this node.
   mkdir -p "$node_home" && cd "$node_home" || exit
   logInfo "Node work home:" "$node_home"
 
+  # 2. Setup msp & tls certificates.
   cp -r "$org_home/crypto-config/peerOrganizations/$org_domain/peers/$node_domain/"* "$node_home"
 
+  # 3. Generate node config file: core.yaml for peer node, orderer.yaml for orderer node.
   if ! "$DIR/config-yaml-core.sh" -f "$CONF_FILE" -d "$node_home" -n "$node_name"; then
     exit $?
   fi
+
+  # 4. Copy node command binary file.
   command=$(readConfPeerValue "$node_name" "node.command.binary")
   command=$(absolutefile "$command" "$WORK_HOME")
-
   # if node.command.binary is not set. Use binaries/arch/fabric/peer by default.
   if [ ! -f "$command" ]; then
     command="$DEFAULT_PEER_BINARY"
   fi
-
   if [ -f "$command" ]; then
     logInfo "Node binary file:" "$command"
     cp "$command" "$node_home/"
@@ -78,6 +89,7 @@ function configNode {
     logError "Warming: no peer command binary found!!!" "$command"
   fi
 
+  # 5. Generate the node boot & stop script.
   daemon=$(readConfPeerValue "$node_name" "$NODE_DAEMON")
   node_process_name="FABRIC-NODOCKER-$org_name-$node_name"
   if ! "$DAEMON_SUPPORT_SCRIPT" -d "$daemon" -n "$node_process_name" -h "$node_home" -c "$PEER_BOOT_COMMAND"; then
@@ -86,13 +98,20 @@ function configNode {
   logSuccess "Node config success:" "$node_name"
 }
 
+# Config organization with following steps:
+# 1. Read config file.
+# 2. Create a directory for this organization.
+# 3. Copy this config file into the organization directory.
+# 4. Config all nodes of this organization.
 function config {
-  org_name=$(readConfOrgValue "$ORG_NAME")
-  org_mspid=$(readConfOrgValue "$ORG_MSPID")
-  org_domain=$(readConfOrgValue "$ORG_DOMAIN")
-  org_node_count=$(readConfOrgValue "$ORG_COUNT_PEERS")
-  org_user_count=$(readConfOrgValue "$ORG_COUNT_USERS")
-  org_anchor_peers=$(readConfOrgValue 'org.anchor.peers')
+  # 1. Read config file.
+  local org_name=$(readConfOrgValue "$ORG_NAME")
+  local org_mspid=$(readConfOrgValue "$ORG_MSPID")
+  local org_domain=$(readConfOrgValue "$ORG_DOMAIN")
+  local org_node_count=$(readConfOrgValue "$ORG_COUNT_PEERS")
+  local org_user_count=$(readConfOrgValue "$ORG_COUNT_USERS")
+  local org_anchor_peers=$(readConfOrgValue 'org.anchor.peers')
+  local org_home="$WORK_HOME/$org_name"
 
   logInfo "Start config organization: " "$org_name"
   logInfo "Organization mspid:" "$org_mspid"
@@ -101,7 +120,7 @@ function config {
   logInfo "Organization user count:" "$org_user_count"
   logInfo "Organization anchor peer:" "$org_anchor_peers"
 
-  org_home="$WORK_HOME/$org_name"
+  # 2. Create a directory for this organization.
   if [ -d "$org_home" ]; then
     logError "Working directory already exists!! $node_home"
     exit 1
@@ -109,12 +128,14 @@ function config {
   mkdir -p "$org_home" && cd "$org_home" || exit
   logInfo "Organization work home:" "$org_home"
 
+  # 3. Copy this config file into the organization directory.
   cp "$CONF_FILE" "$org_home/conf.ini"
   # generate org msp config files.
   if ! "$DIR/config-msp.sh" -t peer -d "$org_home" -f "$CONF_FILE"; then
     exit $?
   fi
 
+  # 4. Config all nodes of this organization.
   for (( i = 0; i < "$org_node_count" ; ++i)); do
     configNode "$org_name" "peer$i" "$org_domain" "$org_mspid"
   done
