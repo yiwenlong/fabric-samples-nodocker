@@ -39,7 +39,8 @@ function readConfPeerValue() {
 # 1. Read config file.
 # 2. Create a directory for this organization.
 # 3. Copy this config file into the organization directory.
-# 4. Config all nodes of this organization.
+# 4. Config all peer nodes of this organization.
+# 5. Config all orderer nodes of this organization.
 function config {
   # 1. Read config file.
   local o_name=$(readConfOrgValue "$ORG_NAME")
@@ -64,6 +65,19 @@ function config {
   fi
   mkdir -p "$o_home" && cd "$o_home" || exit
   logInfo "Organization config directory created:" "$o_home"
+
+  # 3. Copy this config file into the organization directory.
+  cp "$CONF_FILE" "$o_home/conf.ini"
+
+  # 4. Config all peer nodes of this organization.
+  for (( i = 0; i < "$op_count" ; ++i)); do
+    logInfo "Start config peer$i"
+  done
+
+   # 5. Config all orderer nodes of this organization.
+  for (( i = 0; i < "$op_count" ; ++i)); do
+    logInfo "Start config orderer$i"
+  done
 }
 
 function usage {
