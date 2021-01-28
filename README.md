@@ -30,13 +30,13 @@ cd $fabric-samples-nodocker
 
 ```shell
 cd $fabric-samples-nodocker/samples/network-single-org
-./network up
+./network.sh up
 ```
 
 #### 2、关闭并清理网络
 
 ```shell
-./network down
+./network.sh down
 ```
 
 ### 手动启动网络
@@ -45,14 +45,14 @@ cd $fabric-samples-nodocker/samples/network-single-org
 
 ```shell
 cd $fabric-samples-nodocker/samples/network-single-org
-./network config
+./network.sh config
 ```
 
 #### 2、启动网络
 
 ```shell
 # 启动所有配置的节点
-./network start
+./network.sh start
 
 # 如果需要只启动单独的节点，可以执行节点目录下的 boot.sh 脚本。
 # 例如启动 Org1 的 peer0 节点
@@ -71,6 +71,6 @@ cd $fabric-samples-nodocker/samples/network-single-org/Orderer/orderer0
 #### 3、关闭并清理网络
 
 ```shell
-./network down
+./network.sh down
 ```
 
