@@ -50,13 +50,13 @@ function config {
   local oo_count=$(readConfOrgValue "$ORG_COUNT_ORDERERS")
 
   logInfo "Start config organization: " "$o_name"
-  logInfo "-----------------------------------------------------"
+  logInfo "--------------------------- $o_name ---------------------------"
   logInfo "MSPID:\t\t\t" "$o_mspid"
   logInfo "Domain:\t\t\t" "$o_domain"
   logInfo "Peer node count:\t" "$op_count"
   logInfo "Orderer node count:\t" "$oo_count"
-  logInfo "-----------------------------------------------------"
-
+  logInfo "--------------------------- $o_name ---------------------------"
+  logInfo "=========================== $o_name ==========================="
    # 2. Create a directory for this organization.
   local o_home="$OUTPUT_DIR/$o_name"
   if [ -d "$o_home" ]; then
@@ -78,6 +78,7 @@ function config {
   for (( i = 0; i < "$op_count" ; ++i)); do
     logInfo "Start config orderer$i"
   done
+  logInfo "===========================$o_name==========================="
 }
 
 function usage {
