@@ -26,6 +26,7 @@ export ORG_COUNT_ORDERERS="org.peers"
 . "$DIR/utils/log-utils.sh"
 . "$DIR/utils/conf-utils.sh"
 . "$DIR/utils/file-utils.sh"
+. "$DIR/config-node-peer.sh"
 
 function readConfOrgValue() {
   readConfValue "$CONF_FILE" org "$1"; echo
@@ -71,7 +72,7 @@ function config {
 
   # 4. Config all peer nodes of this organization.
   for (( i = 0; i < "$op_count" ; ++i)); do
-    logInfo "Start config peer$i"
+    configPeer "$o_name" "$o_domain" "$o_mspid" "peer$i"
   done
 
    # 5. Config all orderer nodes of this organization.
