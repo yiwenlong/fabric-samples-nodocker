@@ -30,7 +30,7 @@ DEFAULT_NODE_PROCESS_PRE="FABRIC-NODOCKER"
 # Create node directory with given organization dir and node name
 # $1 organization directory path.
 # $2 node name
-function createNodeDirectory() {
+function createNodeDirectory {
   local n_home="$1/$2"
   if [ -d "$n_home" ]; then
     logError "Node directory already exists!!" "$n_home"
@@ -41,7 +41,7 @@ function createNodeDirectory() {
     exit 1
   fi
   mkdir -p "$n_home" && cd "$n_home" || exit
-  logInfo "Node directory created:" "$n_home"
+  logSuccess "Node directory created:\t" "$n_home"
 }
 
 # Config node daemon scripts: boot.sh & stop.sh
@@ -49,7 +49,7 @@ function createNodeDirectory() {
 # $2 node name
 # $3 node directory
 # $4 node boot command
-function configNodeDaemon() {
+function configNodeDaemon {
   local o_name=$1
   local n_name=$2
   local n_dir=$3
@@ -60,4 +60,32 @@ function configNodeDaemon() {
     exit $?
   fi
   logSuccess "Node daemon script generated." "$o_name"
+}
+
+function configPeerNode {
+  local o_name=$1
+  local o_domain=$2
+  local o_mspid=$3
+  local o_home=$4
+  local n_name=$5
+  logInfo "--------------------------- $n_name ---------------------------"
+  logInfo "Start config node: " "$o_name.$n_name"
+  logInfo "MspID:\t\t\t" "$o_mspid"
+  logInfo "Domain: \t\t" "$n_name.$o_domain"
+  createNodeDirectory "$o_home" "$n_name"
+  logInfo "--------------------------- $n_name ---------------------------"
+}
+
+function configOrdererNode {
+  local o_name=$1
+  local o_domain=$2
+  local o_mspid=$3
+  local o_home=$4
+  local n_name=$5
+  logInfo "--------------------------- $n_name ---------------------------"
+  logInfo "Start config node: " "$o_name.$n_name"
+  logInfo "MspID:\t\t\t" "$o_mspid"
+  logInfo "Domain: \t\t" "$n_name.$o_domain"
+  createNodeDirectory "$o_home" "$n_name"
+  logInfo "--------------------------- $n_name ---------------------------"
 }
