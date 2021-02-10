@@ -23,6 +23,9 @@ export NODE_DAEMON="node.daemon"
 DAEMON_SUPPORT_SCRIPT="$DIR/daemon-support/config-daemon.sh"
 DEFAULT_NODE_PROCESS_PRE="FABRIC-NODOCKER"
 
+DEFAULT_COMMAND_PEER="peer node start"
+DEFAULT_COMMAND_ORDERER="orderer"
+
 . "$DIR/utils/log-utils.sh"
 . "$DIR/utils/conf-utils.sh"
 . "$DIR/utils/file-utils.sh"
@@ -31,7 +34,7 @@ DEFAULT_NODE_PROCESS_PRE="FABRIC-NODOCKER"
 # $1 organization directory path.
 # $2 node name
 function createNodeDirectory {
-  local n_home="$1/$2"
+  local n_home="$1"
   if [ -d "$n_home" ]; then
     logError "Node directory already exists!!" "$n_home"
     exit 1
@@ -52,11 +55,11 @@ function createNodeDirectory {
 function configNodeDaemon {
   local o_name=$1
   local n_name=$2
-  local n_dir=$3
+  local n_home=$3
   local n_command=$4
   d_type=$(readConfPeerValue "$n_name" "$NODE_DAEMON")
   np_name="$DEFAULT_NODE_PROCESS_PRE-$o_name-$n_name"
-  if ! "$DAEMON_SUPPORT_SCRIPT" -d "$d_type" -n "$np_name" -h "$n_dir" -c "$n_command"; then
+  if ! "$DAEMON_SUPPORT_SCRIPT" -d "$d_type" -n "$np_name" -h "$n_home" -c "$n_command"; then
     exit $?
   fi
   logSuccess "Node daemon script generated." "$o_name"
@@ -68,11 +71,13 @@ function configPeerNode {
   local o_mspid=$3
   local o_home=$4
   local n_name=$5
+  local n_home="$o_home/$n_name"
   logInfo "--------------------------- $n_name ---------------------------"
   logInfo "Start config node: " "$o_name.$n_name"
   logInfo "MspID:\t\t\t" "$o_mspid"
   logInfo "Domain: \t\t" "$n_name.$o_domain"
-  createNodeDirectory "$o_home" "$n_name"
+  createNodeDirectory "$n_home"
+  configNodeDaemon "$o_name" "$n_name" "$n_home" "$DEFAULT_COMMAND_PEER"
   logInfo "--------------------------- $n_name ---------------------------"
 }
 
@@ -82,10 +87,12 @@ function configOrdererNode {
   local o_mspid=$3
   local o_home=$4
   local n_name=$5
+  local n_home="$o_home/$n_name"
   logInfo "--------------------------- $n_name ---------------------------"
   logInfo "Start config node: " "$o_name.$n_name"
   logInfo "MspID:\t\t\t" "$o_mspid"
   logInfo "Domain: \t\t" "$n_name.$o_domain"
-  createNodeDirectory "$o_home" "$n_name"
+  createNodeDirectory "$n_home"
+  configNodeDaemon "$o_name" "$n_name" "$n_home" "$DEFAULT_COMMAND_ORDERER"
   logInfo "--------------------------- $n_name ---------------------------"
 }
