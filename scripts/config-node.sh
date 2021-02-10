@@ -62,7 +62,7 @@ function configNodeDaemon {
   if ! "$DAEMON_SUPPORT_SCRIPT" -d "$d_type" -n "$np_name" -h "$n_home" -c "$n_command"; then
     exit $?
   fi
-  logSuccess "Node daemon script generated." "$o_name"
+  logSuccess "Node daemon script generated." "$o_name.$n_name"
 }
 
 function configPeerNode {
