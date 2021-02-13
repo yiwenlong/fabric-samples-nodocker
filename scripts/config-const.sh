@@ -30,3 +30,7 @@ export NODE_ACCESS_HOST="node.access.host"
 export NODE_ACCESS_PORT="node.access.port"
 export NODE_GOSSIP_BOOTSTRAP="node.gossip.bootstrap"
 export NODE_DAEMON="node.daemon.type"
+
+export CRYPTOGEN_COUNT_PEERS="$ORG_COUNT_PEERS"
+export CRYPTOGEN_COUNT_ORDERERS="$ORG_COUNT_ORDERERS"
+export CRYPTOGEN_COUNT_USERS="$ORG_COUNT_USERS"
