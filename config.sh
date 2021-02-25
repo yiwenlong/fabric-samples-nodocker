@@ -18,7 +18,7 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 BINARIES_DIR="$DIR/binaries/"
 
-FABRIC_VERSION="1.4.9"
+FABRIC_VERSION="2.2.0"
 TPS_VERSION="1.0.0"
 
 function download() {
