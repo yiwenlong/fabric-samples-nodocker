@@ -18,6 +18,8 @@
 DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 BINARIES_DIR="$DIR/binaries/"
 
+PLATFORM=$(uname -s|tr '[:upper:]' '[:lower:]')
+
 FABRIC_VERSION="2.2.0"
 TPS_VERSION="1.0.0"
 

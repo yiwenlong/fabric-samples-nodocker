@@ -10,3 +10,4 @@ binaries/
 /samples/network-nginx-proxy/Orderer/*/FABRIC-NODOCKER-Orderer-*.log
 /samples/network-nginx-proxy/Org1/*/data/
 /samples/network-nginx-proxy/Org1/*/FABRIC-NODOCKER-Org1-*.log
+hyperledger-fabric-*
