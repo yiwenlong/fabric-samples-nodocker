@@ -17,7 +17,7 @@
 
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)
 
-DEFAULT_DAEMON_TYPE="supervisor"
+DEFAULT_DAEMON_TYPE="nodaemon"
 
 while getopts n:h:c:d: opt
 do
