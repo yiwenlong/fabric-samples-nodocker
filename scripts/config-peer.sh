@@ -77,6 +77,7 @@ function configNode {
   if ! "$DAEMON_SUPPORT_SCRIPT" -d "$daemon" -n "$node_process_name" -h "$node_home" -c "peer node start"; then
     exit $?
   fi
+  cp -r "$DIR/chaincode-builder" "$node_home/my_external_builder"
   logSuccess "Node config success:" "$node_name"
 }
 
