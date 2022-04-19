@@ -25,13 +25,13 @@ cd $fabric-samples-nodocker
 
 ```shell
 cd $fabric-samples-nodocker/samples/network-single-org
-./network up
+./network.sh up
 ```
 
-#### Bring up the test network
+#### Clean up the test network
 
 ```shell
 cd $fabric-samples-nodocker/samples/network-single-org
-./network down
+./network.sh down
 ```
 
